@@ -1,0 +1,37 @@
+{
+    "description": {
+        "commonName": "Chimpanzee",
+        "scientificName": "Pan troglodytes",
+        "description": "<p><i>Troglodytes<\/i> <small>E. Geoffroy, 1812 (preoccupied)<\/small><br\/><i>Mimetes<\/i> <small>Leach, 1820 (preoccupied)<\/small><br\/><i>Theranthropus<\/i> <small>Brookes, 1828<\/small><br\/><i>Chimpansee<\/i> <small>Voight, 1831<\/small><br\/><i>Anthropopithecus<\/i> <small>Blainville, 1838<\/small><br\/><i>Hylanthropus<\/i> <small>Gloger, 1841<\/small><br\/><i>Pseudanthropus<\/i> <small>Reichenbach, 1862<\/small><br\/><i>Engeco<\/i> <small>Haeckel, 1866<\/small><br\/><i>Fsihego<\/i> <small>DePauw, 1905<\/small><\/p><p><b>Chimpanzees<\/b>, sometimes colloquially <b>chimp<\/b>, are two extant hominid species of apes in the genus <i><b>Pan<\/b><\/i>. The Congo River divides the native habitats of the two species:<\/p><p>Chimpanzees are members of the family Hominidae, along with gorillas, humans, and orangutans. Chimpanzees split from the human branch of the family about four to six million years ago. Chimpanzees are the closest living relatives to humans, being members of the tribe Hominini (along with extinct species of subtribe Hominina). Chimpanzees are the only known members of the subtribe <b>Panina<\/b>. The two <i>Pan<\/i> species split only about one million years ago.<\/p>",
+        "acknowledgements": "Marc Herbin, curator of the Vertebrate Brain Collection of the Jardin de Plantes, Paris&nbsp;-&nbsp;France.<br>Mathieu Santin, Institut du Cerveau et de la Moelle, CENIR, UMR-S975, Inserm U975, CNRS UMR7225, Paris&nbsp;-&nbsp;France<br>",
+        "lastUpdated": "last updated: 13 April 2014"
+    },
+    "picture": {
+        "file": "picture.jpg",
+        "name": "Chimpanzee (Pan troglodytes)",
+        "width": 200,
+        "height": 200
+    },
+    "mri": [
+        {
+            "sequence": "T2W",
+            "name": "Sagittal",
+            "file": "X.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Coronal",
+            "file": "Y.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Axial",
+            "file": "Z.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Panthera pardus 1950",
+            "file": "MRI.nii.gz"
+        }
+    ]
+}

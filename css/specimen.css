@@ -1,0 +1,55 @@
+#description a {
+	color: blue;
+	outline: none;
+	text-decoration: underline;
+}
+a:hover {
+	text-decoration: none;
+}
+a.download {
+	text-decoration:	none;
+}
+img.picture {
+	padding:7px;
+	line-height:1em;
+	border-radius:0px;
+	box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.5);
+}
+input {
+	vertical-align: middle;
+}
+div#acknowledgements {
+	font-size: small;
+	line-height: 200%;
+}
+
+/* Pulsating dot loader */
+#loader {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.dot {
+    background: green;
+    border-radius: 10px;
+    height: 10px;
+    width: 10px;
+    position: absolute;
+    opacity: 0;
+
+    -webkit-animation: pulse1 1s ease-in-out;
+    -moz-animation: pulse1 1s ease-in-out;
+    animation: pulse1 1s ease-in-out;
+    -webkit-animation-iteration-count: infinite;
+    -moz-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+}
+@-moz-keyframes pulse1 {
+   0% {opacity:0.0}
+  50% {opacity:1.0}
+}
+@-webkit-keyframes "pulse1" {
+   0% {opacity:0.0}
+  50% {opacity:1.0}
+ 100% {opacity:0.0}
+} 

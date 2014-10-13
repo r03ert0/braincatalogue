@@ -1,0 +1,37 @@
+{
+    "description": {
+        "commonName": "Slow Loris",
+        "scientificName": "Nycticebus",
+        "description": "<p>Slow lorises have a round head, narrow snout, large eyes, and a variety of distinctive coloration patterns that are species-dependent. Their arms and legs are nearly equal in length, and their trunk is long, allowing them to twist and extend to nearby branches. The hands and feet of slow lorises have several adaptations that give them a pincer-like grip and enable them to grasp branches for long periods of time. Slow lorises have a toxic bite, a trait rare among mammals and unique to lorisid primates. The toxin is produced by licking a gland on their arm, and the secretion mixes with its saliva to activate it. Their toxic bite is a deterrent to predators, and the toxin is also applied to the fur during grooming as a form of protection for their infants. They move slowly and deliberately, making little or no noise, and when threatened, they stop moving and remain immobile. Their only documented predators\u00e2\u0080\u0094apart from humans\u00e2\u0080\u0094include snakes, hawk-eagles and orangutans, although cats, civets and sun bears are suspected. Little is known about their social structure, but they are known to communicate by scent marking. Males are highly territorial. Slow lorises reproduce slowly, and the infants are initially parked on branches or carried by either parent. They are omnivores, eating small animals, fruit, tree gum, and other vegetation.<\/p>",
+        "acknowledgements": "Marc Herbin, curator of the Vertebrate Brain Collection of the Jardin de Plantes, Paris&nbsp;-&nbsp;France.<br>Alexandra Petiet, responsable scientifique IRM 11.7T, Institut du Cerveau et de la Moelle, CENIR, UMR-S975, Inserm U975, CNRS UMR7225, Paris&nbsp;-&nbsp;France.<br>Mathieu Santin, Institut du Cerveau et de la Moelle, CENIR, UMR-S975, Inserm U975, CNRS UMR7225, Paris&nbsp;-&nbsp;France<br>",
+        "lastUpdated": "last updated: 13 April 2014"
+    },
+    "picture": {
+        "file": "picture.jpg",
+        "name": "Slow Loris (Nycticebus)",
+        "width": 200,
+        "height": 200
+    },
+    "mri": [
+        {
+            "sequence": "T2W",
+            "name": "Sagittal",
+            "file": "X.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Coronal",
+            "file": "Y.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Axial",
+            "file": "Z.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Nycticebus 1951",
+            "file": "MRI.nii.gz"
+        }
+    ]
+}

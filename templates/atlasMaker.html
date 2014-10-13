@@ -1,0 +1,70 @@
+<html>
+<head>
+	<link rel="stylesheet" href="/lib/jquery-ui.css">
+	<link rel="stylesheet" href="/css/common.css" type="text/css" media="screen, projection" />
+	<link rel="stylesheet" href="/css/atlasMaker.css" type="text/css" media="screen, projection" />
+	<link rel="stylesheet" href="/lib/jquery-ui.css">
+	<style>
+	html,body {
+		margin:0;
+		padding:0;
+		font-family:sans-serif;
+		background-color:black;
+	   font-size:12px !important;
+	}
+	img { 
+		image-rendering: optimizeSpeed;             /*                     */
+		image-rendering: -moz-crisp-edges;          /* Firefox             */
+		image-rendering: -o-crisp-edges;            /* Opera               */
+		image-rendering: -webkit-optimize-contrast; /* Chrome (and Safari) */
+		image-rendering: optimize-contrast;         /* CSS3 Proposed       */
+		-ms-interpolation-mode: nearest-neighbor;   /* IE8+                */
+	}
+	#toolbar {
+		width: 220px;
+		padding: 2px;
+		display: inline-block;
+	}
+	.ui-button-text {
+	   font-size:12px !important;
+	} 
+	td {
+		text-align: center;
+		vertical-align: top;
+	}
+	#login a {
+		color: white;
+	}
+	</style>
+	<script src="/lib/jquery-1.11.0.min.js"></script>
+	<script src="/lib/jquery-ui.js"></script>
+	<script src="/lib/jquery.ui.touch-punch.min.js"></script>
+	<script src="/lib/pako/pako.min.js"></script>
+</head>
+
+<body ontouchmove="BlockMove(event);"> <!-- block move on tablets -->
+<script>function BlockMove(e){e.preventDefault()}</script>
+
+<!-- Login -->
+<div id="login" style="float:right;text-transform:uppercase"></div>
+<script>
+	var	s = document.createElement('script');
+	s.async=false;
+	s.src="/lib/mylogin/login.js";
+	document.body.appendChild(s);
+</script>
+
+<!-- AtlasMaker -->
+<script>
+	var AtlasMaker=[{
+			name:"<!--SPECIMEN-->",
+			url:"http://braincatalogue.dev/data/<!--SPECIMEN-->/info.txt"
+		}];
+	var	s = document.createElement('script');
+	s.async=false;
+	s.src="/js/atlasMaker.js";
+	document.body.appendChild(s);
+</script>
+
+</body>
+</html>

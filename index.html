@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href='http://fonts.googleapis.com/css?family=Voltaire' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="css/common.css" type="text/css" media="screen, projection" />
+<link rel="stylesheet" href="css/info.css" type="text/css" media="screen, projection" />
+<script src="/lib/jquery-1.11.0.min.js"></script>
+<script type="text/javascript">
+	window.onload = function()
+	{
+		var content;
+		$.get('/php/getSpecimens.php',function(data)
+		{
+			$("#specimens").append(data);
+		});
+	}
+</script>
+</head>
+
+<body style="color: rgb(0,0,0); background-color:rgb(255,255,0);" alink="#ff9900" link="#666666" vlink="#999999">
+
+<!-- Login -->
+<script>
+	var	s = document.createElement('script');
+	s.async=false;
+	s.src="/lib/mylogin/login.js";
+	document.body.appendChild(s);
+</script>
+
+<div id="wrapper">
+
+	<!-- Header -->
+	<header id="header">
+		<div id="myinner">
+			<h1 style="display:inline-block"><a class="nodecoration" href="/" target="_top">Brain Catalogue</a></h1>
+			<div style="float:right;text-transform:uppercase">
+				<div id="login" class="nodecoration" style="display:inline-block"></div>
+				<a class="nodecoration" href="blog" style="padding:5px">Blog</a>
+				<a class="nodecoration" href="about.html" style="padding:5px">About</a>
+				<a class="nodecoration" href="http://siphonophore.org/blog/?cat=3&feed=rss2" style="padding:5px"><img src="feed-icon.svg" width="14px" height="14px"/></a>
+			</div>
+		</div>
+	</header><!-- #header-->
+		
+		<!-- 2. Middle -->
+	<section id="middle">
+		<div id="container">
+			<div id="specimens">
+			</div>
+		</div> <!-- container -->
+	</section> <!-- middle -->
+	
+</div> <!-- wrapper -->
+
+<footer id="footer">
+	<div style="padding:10px 10px">
+		<table>
+		<tr>
+		<td>
+		<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">
+		<img align="left" alt="Creative Commons License" style="border:1px solid white" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" />
+		</a>
+		</td>
+		<td style="font-size:0.8rem;color:#fff;font-family:sans-serif">
+		<span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">braincatalogue</span> by
+		<a xmlns:cc="http://creativecommons.org/ns#" href="siphonophore.org/braincatalogue" property="cc:attributionName" rel="cc:attributionURL">Roberto Toro</a>
+		is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.
+		</td>
+		</tr>
+		</table>
+	</div>
+</footer> <!-- footer -->
+
+</body>
+</html>

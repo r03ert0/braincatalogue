@@ -1,0 +1,37 @@
+{
+    "description": {
+        "commonName": "Red Squirrel",
+        "scientificName": "Sciurus vulgaris",
+        "description": "<p>The <b>red squirrel<\/b> or <b>Eurasian red squirrel<\/b> (<i>Sciurus vulgaris<\/i>) is a species of tree squirrel in the genus <i>Sciurus<\/i> common throughout Eurasia. The red squirrel is an arboreal, omnivorous rodent.<\/p><p>In Great Britain, Italy and Ireland, numbers have decreased drastically in recent years, a decline associated with the introduction of the eastern grey squirrel (<i>Sciurus carolinensis<\/i>) from North America, although habitat loss is also a factor.<\/p><p>The red squirrel has a typical head-and-body length of 19 to 23\u00a0cm (7.5 to 9 in), a tail length of 15 to 20\u00a0cm (5.9 to 7.9 in) and a mass of 250 to 340 g (8.8 to 12 oz). It is not sexually dimorphic, as males and females are the same size. The red squirrel is somewhat smaller than the eastern grey squirrel which has a head-and-body length of 25 to 30\u00a0cm (9.5 to 12 in) and weighs between 400 and 800\u00a0g (14 oz to 1.8\u00a0lb). It is thought that the long tail helps the squirrel to balance and steer when jumping from tree to tree and running along branches and may keep the animal warm during sleep.<\/p>",
+        "acknowledgements": "Marc Herbin, curator of the Vertebrate Brain Collection of the Jardin de Plantes, Paris&nbsp;-&nbsp;France.<br>Mathieu Santin, Institut du Cerveau et de la Moelle, CENIR, UMR-S975, Inserm U975, CNRS UMR7225, Paris&nbsp;-&nbsp;France<br>",
+        "lastUpdated": "last updated: 13 April 2014"
+    },
+    "picture": {
+        "file": "picture.jpg",
+        "name": "Red Squirrel (Sciurus vulgaris)",
+        "width": 200,
+        "height": 200
+    },
+    "mri": [
+        {
+            "sequence": "T2W",
+            "name": "Sagittal",
+            "file": "X.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Coronal",
+            "file": "Y.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Axial",
+            "file": "Z.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Sciurus 1924",
+            "file": "MRI.nii.gz"
+        }
+    ]
+}

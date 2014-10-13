@@ -1,0 +1,20 @@
+{
+    "name": "Human",
+    "description": {
+        "commonName": "Human",
+        "scientificName": "Homo sapiens",
+        "description": "<p>Modern <b>humans<\/b> (<i>Homo sapiens<\/i> or <i>Homo sapiens sapiens<\/i>) are the only extant members of the hominid clade, a branch of great apes characterized by erect posture and bipedal locomotion; manual dexterity and increased tool use; and a general trend toward larger, more complex brains and societies. Early hominids, such as the australopithecines who had more apelike brains and skulls, are less often thought of or referred to as \"human\" than hominids of the genus Homo some of whom used fire, occupied much of Eurasia, and gave rise to anatomically modern Homo sapiens in Africa about 200,000 years ago where they began to exhibit evidence of behavioral modernity around 50,000 years ago and migrated out in successive waves to occupy  all but the smallest, driest, and coldest lands; and permanently manned bases in Antarctica, on offshore platforms, and orbiting the Earth. The spread of humans and their large and increasing population has had a destructive impact on large areas of the environment and millions of native species worldwide. Advantages that explain this evolutionary success include a relatively larger brain with a particularly well-developed neocortex, prefrontal cortex and temporal lobes, which enable high levels of abstract reasoning, language, problem solving, sociality, and culture through social learning. Humans use tools to a much higher degree than any other animal, are the only extant species known to build fires and cook their food, as well as the only extant species to clothe themselves and create and use numerous other technologies and arts.<\/p>",
+        "acknowledgements": "John Totman, Brain &amp; Body Centre, University of Nottingham, Nottingham, UK<br>",
+        "lastUpdated": "last updated: 13 April 2014"
+    },
+    "picture": {
+        "file": "picture.jpg",
+        "name": "Human (Homo sapiens)",
+        "width": 200,
+        "height": 200
+    },
+    "mri": {
+            "brain": "MRI-n4.nii.gz",
+            "atlas": "Atlas.nii.gz"
+    }
+}

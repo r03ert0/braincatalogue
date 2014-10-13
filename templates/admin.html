@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href='http://fonts.googleapis.com/css?family=Voltaire' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
+<style media="screen" type="text/css">
+	h1 { font-family: 'Voltaire', sans-serif}
+	h2 { font-family: 'Voltaire', sans-serif; font-size:small}
+	p { font-family: 'Droid Serif', serif; font-size:small}
+	a.download { background-color:#0a1; color:white; font-family:sans-serif; text-decoration:none}
+
+.square a {
+	float: left;
+	display: block;
+	background: rgba(255, 255, 255, 0.1);
+	padding:7px;
+	line-height:1em;
+	border-radius:0px;
+	box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.5);
+	margin: 10px;
+	/*border: 1px solid rgba(0, 0, 0, 0.3);*/
+	-webkit-transition: all 0.2s ease-out;
+	-moz-transition: all 0.2s ease-out;
+	-ms-transition: all 0.2s ease-out;
+	-o-transition: all 0.2s ease-out;
+	transition: all 0.2s ease-out;
+}
+a {
+	color:dimgrey;
+	font-family: 'Voltaire', sans-serif;
+	font-size: medium;
+	text-decoration:none;
+}
+.square a:hover {
+	background-color:#bbb;
+}
+.crop {
+	width:200px;
+	height:200px;
+	overflow: hidden;
+}
+</style>
+
+<script type="application/javascript" src="http://jsonip.appspot.com/?callback=getip"></script>
+</head>
+
+<body style="color: rgb(0,0,0); background-color:rgb(255,255,255);" alink="#ff9900" link="#666666" vlink="#999999">
+
+<table style="text-align: left; margin-left: left; margin-right: auto;"  border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td style="width: 50px;"></td>
+<td>
+	<!-- Beginning of Main table -->
+	<table style="width: 800px; text-align:justify; margin-left: auto; margin-right: auto; color:#555; line-height:150%;" border="0" cellpadding="0" cellspacing="10">
+	
+	<!-- 1. Header -->
+	<tr>
+	<td>
+		<h1><a class="nodecoration" href="/" target="_top">Brain Catalogue</a></h1>
+		<hr size="1px">
+		<p style="text-align:right"><a href="about.html" style="padding:15px">About</a><a href="contact.html">Contact</a></p>
+	</td>
+	</tr>
+	<tr>
+	<td>
+        <h1>Administration Interface</h1>
+        <button onclick="updateDescriptions()">Update descriptions</button>
+	</td>
+	</tr>
+	</table>
+</td>
+</tr>
+</table>
+
+<div id="test"></div>
+    
+<script>
+function updateDescriptions()
+{
+	$.ajax({
+		url: '/braincatalogue.php',
+		data: {
+			action:'updateWiki',
+			specimen:'Human',
+		},
+		success: function(data){$("#test").html(data);}
+	});
+}
+</script>
+
+</body>
+</html>

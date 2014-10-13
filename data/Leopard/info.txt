@@ -1,0 +1,37 @@
+{
+    "description": {
+        "commonName": "Leopard",
+        "scientificName": "Panthera pardus",
+        "description": "<p><i>Felis pardus<\/i> <small>Linnaeus, 1758<\/small><\/p><p>The <b>leopard<\/b> (<i>Panthera pardus<\/i>) is a member of the Felidae family with a wide range in some parts of Africa and tropical Asia, from Siberia, South and West Asia to across most of sub-Saharan Africa. It is listed as <i>Near Threatened<\/i> on the IUCN Red List because it is declining in large parts of its range due to habitat loss and fragmentation, and hunting for trade and pest control. It is regionally extinct in Hong Kong, Singapore, Kuwait, Syrian Arab Republic, Libya and Tunisia.<\/p><p>The leopard  is the smallest of the four \"big cats\" in the genus <i>Panthera<\/i>. Compared to other members of the Felidae, the leopard has relatively short legs and a long body with a large skull. It is similar in appearance to the jaguar, but is smaller and more slightly built. Its fur is marked with rosettes similar to those of the jaguar, but the leopard's rosettes are smaller and more densely packed, and do not usually have central spots as the jaguars do. Both leopards and jaguars that are melanistic are known as black panthers.<\/p>",
+        "acknowledgements": "Marc Herbin, curator of the Vertebrate Brain Collection of the Jardin de Plantes, Paris&nbsp;-&nbsp;France.<br>Mathieu Santin, Institut du Cerveau et de la Moelle, CENIR, UMR-S975, Inserm U975, CNRS UMR7225, Paris&nbsp;-&nbsp;France<br>",
+        "lastUpdated": "last updated: 13 April 2014"
+    },
+    "picture": {
+        "file": "picture.jpg",
+        "name": "Leopard (Panthera pardus)",
+        "width": 200,
+        "height": 200
+    },
+    "mri": [
+        {
+            "sequence": "T2W",
+            "name": "Sagittal",
+            "file": "X.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Coronal",
+            "file": "Y.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Axial",
+            "file": "Z.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Panthera pardus 1950",
+            "file": "MRI.nii.gz"
+        }
+    ]
+}

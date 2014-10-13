@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<channel>
+<title>siphonophore.org RSS Feed</title>
+<link>http://siphonophore.org/</link>
+<description>siphonophore</description>
+<atom:link href="http://siphonophore.org/feed.xml" rel="self" type="application/rss+xml" />
+
+<item>
+  <title>Sloth bear MRI data available</title>
+  <link>http://siphonophore.org/braincatalogue/Sloth_bear</link>
+  <guid isPermaLink="false">1</guid>
+  <pubDate>Thu, 14 Feb 2013 19:17:08 GMT</pubDate>
+  <dc:creator>rbrto</dc:creator>
+  <description>
+  	  <![CDATA[
+	  <h1>Sloth bear raw data available.</h1>
+	  <p>The sloth bear (Melursus ursinus), also known as the Stickney Bear or labiated bear, is a nocturnal insectivorous species of bear found wild within the Indian subcontinent.</p>	  
+	  <p>Our specimen comes from the Vertebrate Brain Collection at the Jardin des Plantes in Paris. It was fixated in 1931, and scanned in January 2013 in a 3 Tesla MRI scanner at the Institut du Cerveau et de la Moelle.</p>
+	  ]]>
+  </description>
+  <category><![CDATA[BrainCatalogue]]></category>
+</item>
+
+</channel>
+</rss>

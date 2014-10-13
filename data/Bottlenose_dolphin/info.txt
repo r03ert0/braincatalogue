@@ -1,0 +1,37 @@
+{
+    "description": {
+        "commonName": "Bottlenose Dolphin",
+        "scientificName": "Tursiops truncatus",
+        "description": "<p><b>Bottlenose dolphins<\/b>, the genus <i><b>Tursiops<\/b><\/i>, are the most common and well-known members of the family Delphinidae, the family of oceanic dolphin. Recent molecular studies show the genus contains two species, the common bottlenose dolphin (<i>Tursiops truncatus<\/i>) and the Indo-Pacific bottlenose dolphin (<i>Tursiops aduncus<\/i>), instead of one. Research in 2011 revealed a third species, the Burrunan dolphin (<i>Tursiops australis<\/i>). Bottlenose dolphins inhabit warm and temperate seas worldwide.<\/p><p>Bottlenose dolphins live in groups typically of 10\u00e2\u0080\u009330 members, called pods, but group size varies from single individuals up to more than 1,000. Their diets consist mainly of forage fish. Dolphins often work as a team to harvest fish schools, but they also hunt individually. Dolphins search for prey primarily using echolocation, which is similar to sonar. They emit clicking sounds and listen for the return echos to determine the location and shape of nearby items, including potential prey. Bottlenose dolphins also use sound for communication, including squeaks and whistles emitted from the blowhole and sounds emitted through body language, such as leaping from the water and slapping their tails on the water surface.<\/p>",
+        "acknowledgements": "Marc Herbin, curator of the Vertebrate Brain Collection of the Jardin de Plantes, Paris&nbsp;-&nbsp;France.<br>Mathieu Santin, Institut du Cerveau et de la Moelle, CENIR, UMR-S975, Inserm U975, CNRS UMR7225, Paris&nbsp;-&nbsp;France<br>",
+        "lastUpdated": "last updated: 13 April 2014"
+    },
+    "picture": {
+        "file": "picture.jpg",
+        "name": "Bottlenose Dolphin (Tursiops truncatus)",
+        "width": 200,
+        "height": 200
+    },
+    "mri": [
+        {
+            "sequence": "T2W",
+            "name": "Sagittal",
+            "file": "X.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Coronal",
+            "file": "Y.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Axial",
+            "file": "Z.mov"
+        },
+        {
+            "sequence": "T2W",
+            "name": "Mus musculus",
+            "file": "MRI.nii.gz"
+        }
+    ]
+}
