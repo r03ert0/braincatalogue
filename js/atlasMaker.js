@@ -18,6 +18,7 @@ var brain_pixdim=new Array(3);
 var	brain_datatype;
 var	brain=0;
 var	brain_min,brain_max;
+var	annotationLength;
 
 var User={	       view:'sag',
 				   tool:'paint',
@@ -28,6 +29,7 @@ var User={	       view:'sag',
 			mouseIsDown:false,
 					 x0:-1,
 					 y0:-1,
+       annotationLength:0,
 				    mri:new Object()
 		};
 var	Collab=[];
@@ -163,8 +165,6 @@ function loadNifti()
 	oReq.responseType = "arraybuffer";
 	oReq.onload = function(oEvent)
 	{
-		var prog=new Object();
-		prog.drawProgress=function(pct){progress.html("Uncompressing "+User.name+" ("+parseInt(100*pct)+"%)")};
 		var	inflate=new pako.Inflate();
 		inflate.push(new Uint8Array(this.response),true);
 		var data=inflate.result.buffer;
@@ -311,6 +311,9 @@ function nearestNeighbour(ctx)
 	ctx.imageSmoothingEnabled = false;
 	ctx.webkitImageSmoothingEnabled = false;
 	ctx.mozImageSmoothingEnabled = false;
+
+	ctx.mozImageSmoothingEnabled = false;
+	ctx.webkitImageSmoothingEnabled = false;
 }
 function drawImages()
 {
@@ -459,6 +462,9 @@ function touchend(e) {
 function down(x,y) {
 	if(debug) console.log("> down()");
 	
+	if(MyLoginWidget.loggedin==0)
+		return;
+
 	var canvas = document.getElementById('atlasMaker-canvas');
 	var z=User.slice;
 
@@ -479,10 +485,19 @@ function down(x,y) {
 		if(User.tool=='erase')
 			paintxy(-1,'me',x,y,User);
 	}
+	
+	// init annotation length counter
+	annotationLength=0;
 }
 function move(x,y) {
 	if(debug==2) console.log("> move()");
 	
+	if(MyLoginWidget.loggedin==0)
+		return;
+
+	// increment annotation length counter
+	annotationLength+=Math.sqrt(Math.pow(User.x0-x,2)+Math.pow(User.y0-y,2));
+
 	var canvas = document.getElementById('atlasMaker-canvas');
 	var z=User.slice;
 
@@ -493,13 +508,22 @@ function move(x,y) {
 	else
 	if(User.tool=='erase')
 		paintxy(-1,'le',x,y,User);
+
 }
 function up(e) {
 	if(debug) console.log("> up()");
 	
+	if(MyLoginWidget.loggedin==0)
+		return;
+
 	User.mouseIsDown = false;
 	User.x0=-1;
 	sendUserDataMessage();
+	
+	// add annotated length to User.annotation length and post to DB
+	User.annotationLength+=annotationLength;
+	annotationLength=0;
+	console.log("annotation length",User.annotationLength);
 }
 function keyDown(e)
 {
@@ -556,6 +580,7 @@ function paintxy(u,c,x,y,user)
 			fill(coord.x,coord.y,coord.z,0,user.view);
 			break;
 	}
+
 	user.x0=coord.x;
 	user.y0=coord.y;
 }
@@ -896,12 +921,12 @@ function initAtlasMaker()
 	canvas = document.getElementById('canvas');
 	context = canvas.getContext('2d');
 
-	// for desktop computers
+	// configure canvas for desktop computers
 	canvas.onmousedown = mousedown;
 	canvas.onmousemove = mousemove;
 	canvas.onmouseup = mouseup;
 	
-	// for tablets
+	// configure canvas for tablets
 	canvas.addEventListener("touchstart",touchstart,false);
 	canvas.addEventListener("touchmove",touchmove,false);
 	canvas.addEventListener("touchend",touchend,false);
@@ -950,7 +975,8 @@ function initAtlasMaker()
 	// Load dataset's json file
 	User.dirname=url.replace(/^http:\/\/[^\/]*/,'').replace(/[^\/]*$/,'');
 	var oReq = new XMLHttpRequest();
-	oReq.open("GET", url, true);
+	console.log("initAtlasMaker url",url);
+	oReq.open("POST", url, true);
 	oReq.responseType = "string";
 	oReq.onload = function(oEvent)
 	{

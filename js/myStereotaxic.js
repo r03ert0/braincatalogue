@@ -122,101 +122,79 @@ function loadBrain(progress)
 	oReq.responseType = "arraybuffer";
 	oReq.onload = function(oEvent)
 	{
-		var prog=new Object();
-		prog.drawProgress=function(pct){progress.html("Uncompressing MRI ("+parseInt(100*pct)+"%)")};
-		var gunzip = new Gunzip(prog);
-        gunzip.gunzip(this.response,function(data){
-        	//vol.finishedDecompress(vol, data);
-			var	dv=new DataView(data);//this.response);
-			var	sizeof_hdr=dv.getInt32(0,true);
-			var	dimensions=dv.getInt16(40,true);
-			brain_dim[0]=dv.getInt16(42,true);
-			brain_dim[1]=dv.getInt16(44,true);
-			brain_dim[2]=dv.getInt16(46,true);
-			brain_datatype=dv.getInt16(72,true);
-			brain_pixdim[0]=dv.getFloat32(80,true);
-			brain_pixdim[1]=dv.getFloat32(84,true);
-			brain_pixdim[2]=dv.getFloat32(88,true);
-			var	vox_offset=dv.getFloat32(108,true);
-		
-			switch(brain_datatype)
-			{
-				case 8:
-					brain=new Uint8Array(data,vox_offset);
-					break;
-				case 16:
-					brain=new Int16Array(data,vox_offset);
-					break;
-				case 32:
-					brain=new Float32Array(data,vox_offset);
-					break;
-			}
-		
-			var s,ss,std,tmpmin,tmpmax;
-			s=ss=0;
-			brain_min=brain_max=brain[0];
-			for(i=0;i<brain.length;i++)
-			{
-				if(brain[i]<brain_min)
-					brain_min=brain[i];
-				if(brain[i]>brain_max)
-					brain_max=brain[i];
-				s+=brain[i];
-				ss+=brain[i]*brain[i];
-			}
-			s=s/brain.length;
-			std=Math.sqrt(ss/brain.length-s*s);
-			tmpmin=s-2*std;
-			tmpmax=s+2*std;
-			brain_min=(tmpmin<brain_min)?brain_min:tmpmin;
-			brain_max=(tmpmax>brain_max)?brain_max:tmpmax;
-		
-			console.log("dim",brain_dim[0],brain_dim[1],brain_dim[2]);
-			console.log("datatype",brain_datatype);
-			console.log("pixdim",brain_pixdim[0],brain_pixdim[1],brain_pixdim[2]);
-			console.log("vox_offset",vox_offset);
-			/*
-				 0		int   sizeof_hdr;    //!< MUST be 348           //  // int sizeof_hdr;      //
-				 4		char  data_type[10]; //!< ++UNUSED++            //  // char data_type[10];  //
-				 14		char  db_name[18];   //!< ++UNUSED++            //  // char db_name[18];    //
-				 32		int   extents;       //!< ++UNUSED++            //  // int extents;         //
-				 36		short session_error; //!< ++UNUSED++            //  // short session_error; //
-				 38		char  regular;       //!< ++UNUSED++            //  // char regular;        //
-				 39		char  dim_info;      //!< MRI slice ordering.   //  // char hkey_un0;       //
+		var	inflate=new pako.Inflate();
+		inflate.push(new Uint8Array(this.response),true);
+		var data=inflate.result.buffer;
+		var	dv=new DataView(data);
+		var	sizeof_hdr=dv.getInt32(0,true);
+		var	dimensions=dv.getInt16(40,true);
+		brain_dim[0]=dv.getInt16(42,true);
+		brain_dim[1]=dv.getInt16(44,true);
+		brain_dim[2]=dv.getInt16(46,true);
+		brain_datatype=dv.getInt16(72,true);
+		brain_pixdim[0]=dv.getFloat32(80,true);
+		brain_pixdim[1]=dv.getFloat32(84,true);
+		brain_pixdim[2]=dv.getFloat32(88,true);
+		var	vox_offset=dv.getFloat32(108,true);
 
-													  //--- was image_dimension substruct ---//
-				 40		short dim[8];        //!< Data array dimensions.//  // short dim[8];        //
-				 56		float intent_p1 ;    //!< 1st intent parameter. //  // short unused8;       //
-																	 // short unused9;       //
-				 60		float intent_p2 ;    //!< 2nd intent parameter. //  // short unused10;      //
-																	 // short unused11;      //
-				 64		float intent_p3 ;    //!< 3rd intent parameter. //  // short unused12;      //
-																	 // short unused13;      //
-				 68		short intent_code ;  //!< NIFTI_INTENT_* code.  //  // short unused14;      //
-				 72		short datatype;      //!< Defines data type!    //  // short datatype;      //
-				 74		short bitpix;        //!< Number bits/voxel.    //  // short bitpix;        //
-				 76		short slice_start;   //!< First slice index.    //  // short dim_un0;       //
-				 78		float pixdim[8];     //!< Grid spacings.        //  // float pixdim[8];     //
-				 110	float vox_offset;    //!< Offset into .nii file //  // float vox_offset;    //
-				 float scl_slope ;    //!< Data scaling: slope.  //  // float funused1;      //
-				 float scl_inter ;    //!< Data scaling: offset. //  // float funused2;      //
-				 short slice_end;     //!< Last slice index.     //  // float funused3;      //
-				 char  slice_code ;   //!< Slice timing order.   //
-				 char  xyzt_units ;   //!< Units of pixdim[1..4] //
-				 float cal_max;       //!< Max display intensity //  // float cal_max;       //
-				 float cal_min;       //!< Min display intensity //  // float cal_min;       //
-				 float slice_duration;//!< Time for 1 slice.     //  // float compressed;    //
-				 float toffset;       //!< Time axis shift.      //  // float verified;      //
-				 int   glmax;         //!< ++UNUSED++            //  // int glmax;           //
-				 int   glmin;         //!< ++UNUSED++            //  // int glmin;           //
-			*/
-			configureBrainImage();
-			progress.html("<a class='download' href='/data/"+name+"/MRI-n4.nii.gz'><img src='download.svg' style='vertical-align:middle;margin-bottom:5px'/></a>MRI");
-			drawImages();
-        });
+		switch(brain_datatype)
+		{
+			case 8:
+				brain=new Uint8Array(data,vox_offset);
+				break;
+			case 16:
+				brain=new Int16Array(data,vox_offset);
+				break;
+			case 32:
+				brain=new Float32Array(data,vox_offset);
+				break;
+		}
+	
+		brain_min=0;
+		brain_max=255;
+	
+		console.log("dim",brain_dim[0],brain_dim[1],brain_dim[2]);
+		console.log("datatype",brain_datatype);
+		console.log("pixdim",brain_pixdim[0],brain_pixdim[1],brain_pixdim[2]);
+		console.log("vox_offset",vox_offset);
+		/*
+			 0		int   sizeof_hdr;    //!< MUST be 348           //  // int sizeof_hdr;      //
+			 4		char  data_type[10]; //!< ++UNUSED++            //  // char data_type[10];  //
+			 14		char  db_name[18];   //!< ++UNUSED++            //  // char db_name[18];    //
+			 32		int   extents;       //!< ++UNUSED++            //  // int extents;         //
+			 36		short session_error; //!< ++UNUSED++            //  // short session_error; //
+			 38		char  regular;       //!< ++UNUSED++            //  // char regular;        //
+			 39		char  dim_info;      //!< MRI slice ordering.   //  // char hkey_un0;       //
 
-        //if (gunzip.hasError()) {
-
+												  //--- was image_dimension substruct ---//
+			 40		short dim[8];        //!< Data array dimensions.//  // short dim[8];        //
+			 56		float intent_p1 ;    //!< 1st intent parameter. //  // short unused8;       //
+																 // short unused9;       //
+			 60		float intent_p2 ;    //!< 2nd intent parameter. //  // short unused10;      //
+																 // short unused11;      //
+			 64		float intent_p3 ;    //!< 3rd intent parameter. //  // short unused12;      //
+																 // short unused13;      //
+			 68		short intent_code ;  //!< NIFTI_INTENT_* code.  //  // short unused14;      //
+			 72		short datatype;      //!< Defines data type!    //  // short datatype;      //
+			 74		short bitpix;        //!< Number bits/voxel.    //  // short bitpix;        //
+			 76		short slice_start;   //!< First slice index.    //  // short dim_un0;       //
+			 78		float pixdim[8];     //!< Grid spacings.        //  // float pixdim[8];     //
+			 110	float vox_offset;    //!< Offset into .nii file //  // float vox_offset;    //
+			 float scl_slope ;    //!< Data scaling: slope.  //  // float funused1;      //
+			 float scl_inter ;    //!< Data scaling: offset. //  // float funused2;      //
+			 short slice_end;     //!< Last slice index.     //  // float funused3;      //
+			 char  slice_code ;   //!< Slice timing order.   //
+			 char  xyzt_units ;   //!< Units of pixdim[1..4] //
+			 float cal_max;       //!< Max display intensity //  // float cal_max;       //
+			 float cal_min;       //!< Min display intensity //  // float cal_min;       //
+			 float slice_duration;//!< Time for 1 slice.     //  // float compressed;    //
+			 float toffset;       //!< Time axis shift.      //  // float verified;      //
+			 int   glmax;         //!< ++UNUSED++            //  // int glmax;           //
+			 int   glmin;         //!< ++UNUSED++            //  // int glmin;           //
+		*/
+		configureBrainImage();
+		progress.html("<a class='download' href='/data/"+name+"/MRI-n4.nii.gz'><img src='download.svg' style='vertical-align:middle;margin-bottom:5px'/></a>MRI");
+		drawImages();
 	};
 	oReq.send();
 
