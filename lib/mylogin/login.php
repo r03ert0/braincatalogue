@@ -95,20 +95,18 @@ function user_register()
 function user_remind()
 {
 	global $dbname;
-
-	if(!empty($_GET['email']))
+	
+	$flagFound=0;
+	
+	$email = mysql_real_escape_string($_GET['email+name']);
+	$checklogin = mysql_query("SELECT * FROM ".$dbname.".Users WHERE EmailAddress = '".$email."'");
+	if(mysql_num_rows($checklogin)==0)
 	{
-		$email = mysql_real_escape_string($_GET['email']);
-		$checklogin = mysql_query("SELECT * FROM ".$dbname.".Users WHERE EmailAddress = '".$email."'");
-	}
-	else
-	if(!empty($_GET['username']))
-	{
-		$username = mysql_real_escape_string($_GET['username']);
+		$username = mysql_real_escape_string($_GET['email+name']);
 		$checklogin = mysql_query("SELECT * FROM ".$dbname.".Users WHERE Username = '".$username."'");
 	}
 
-	if(mysql_num_rows($checklogin) == 1)
+	if(mysql_num_rows($checklogin)>0)
 	{
 		$row = mysql_fetch_array($checklogin);
 		$username = $row['Username'];

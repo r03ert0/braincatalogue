@@ -13,8 +13,7 @@ var	debug=0;
 var	Atlases=[];
 var	Users=[];
 var	usrsckts=[];
-//var	localhost="/var/www/html";
-var	localhost="/Library/WebServer/Documents/braincatalogue/";
+var	localdir=__dirname+"/../";
 var	uidcounter=1;
 
 initSocketConnection();
@@ -140,7 +139,8 @@ function receiveUserDataMessage(ws,data)
 	var user=JSON.parse(data.user);
 	var	i,atlasLoadedFlag,firstConnectionFlag;
 	
-	//console.log("DataMessage",user);
+	if(debug)
+		console.log("DataMessage user",user);
 	firstConnectionFlag=(Users[u]==undefined);
 
 	atlasLoadedFlag=false;
@@ -199,7 +199,7 @@ function addAtlas(dirname,atlasname,callback)
 function loadNifti(atlas,callback)
 {
 	// Load nifty label
-	var niigz=fs.readFileSync(localhost+"/"+atlas.dirname+"/"+atlas.name);
+	var niigz=fs.readFileSync(localdir+"/"+atlas.dirname+"/"+atlas.name);
 
 	zlib.gunzip(niigz,function(err,nii) {
 		var	sizeof_hdr=nii.readUInt32LE(0);
@@ -248,8 +248,8 @@ function saveNifti(atlas)
 		atlas.data.copy(nii,voxel_offset);
 		zlib.gzip(nii,function(err,niigz) {
 			var	ms=+new Date;
-			var n1=localhost+atlas.dirname+atlas.name;
-			var	n2=localhost+atlas.dirname+ms+"_"+atlas.name;
+			var n1=localdir+atlas.dirname+atlas.name;
+			var	n2=localdir+atlas.dirname+ms+"_"+atlas.name;
 			fs.rename(n1,n2,function(){
 				fs.writeFile(n1,niigz);
 			});
