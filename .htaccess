@@ -1,0 +1,11 @@
+Header add Cache-Control "max-age=0"
+Options -Indexes
+ErrorDocument 403 /404.php
+ErrorDocument 404 /404.php
+ExpiresByType text/cache-manifest "access plus 0 seconds"
+
+<ifModule mod_deflate.c>
+<FilesMatch "\.(img)$">
+SetOutputFilter DEFLATE
+</FilesMatch>
+</ifModule>
