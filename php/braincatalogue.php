@@ -2,12 +2,18 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
+include $_SERVER['DOCUMENT_ROOT']."/php/base.php";
+mysql_select_db("braincatalogue") or die("MySQL Error 2: " . mysql_error());
+
 if(isset($_GET["action"]))
 {
 	switch($_GET["action"])
 	{
 		case "updateWiki":
 			wikiUpdateAll();
+			break;
+		case "add_log":
+			add_log($_GET);
 			break;
 	}
 }
@@ -217,5 +223,68 @@ function wikiUpdateAll()
 	closedir($handle);
 
 	return($files);
+}
+function add_log($query)
+{
+	switch($query['key'])
+	{
+		case "annotationLength":
+		{
+			$value=json_decode($query['value']);
+			$length=$value->length;
+			
+			$q="SELECT Data FROM braincatalogue.Log WHERE";
+			$q.="    UserName = \"".$query['userName']."\" AND";
+			$q.="        Type = \"".$query['key']."\"";
+
+			$result = mysql_query($q);
+			if($result and mysql_num_rows($result)>=1)	// pre-existing value
+			{
+				$record=mysql_fetch_assoc($result);
+				mysql_free_result($result);
+				$prevValue=json_decode($record["Data"]);
+				
+				// if there is a previous entry for this specimen and atlas, update it
+				$found=false;
+				for($i=0;$i<count($prevValue);$i++)
+				{
+					if($prevValue[$i]->specimen==$value->specimen and $prevValue[$i]->atlas==$value->atlas)
+					{
+						$prevValue[$i]->length=(float)$prevValue[$i]->length+(float)$value->length;
+						$found=true;
+						break;
+					}
+				}
+				
+				// if there is no previous entry for this speciment and atlas, add it
+				if($found==false)
+					$prevValue[$i]=$value;
+
+				// update the database
+				$q="UPDATE braincatalogue.Log SET Data = \"".mysql_real_escape_string(json_encode($prevValue))."\" WHERE";
+				$q.="    UserName = \"".$query['userName']."\" AND";
+				$q.="        Type = \"".$query['key']."\"";
+				$result = mysql_query($q);
+				if($result)
+					echo $prevValue[$i]->length;
+				else
+					echo "ERROR: Unable to update user's annotationLength: ".$q."\n";
+	
+			}
+			else
+			{
+				$value=mysql_real_escape_string("[".$query['value']."]");
+				$q="INSERT INTO braincatalogue.Log (`UserName`, `Type`, `Data`) VALUES (";
+				$q.="\"".$query['userName']."\", ";
+				$q.="\"".$query['key']."\", ";
+				$q.="\"".$value."\")";
+				$result = mysql_query($q);
+				if($result)
+					echo "Successfully added user's annotationLength\n";
+				else
+					echo "ERROR: Unable to add user's annotationLength: ".$q."\n";
+			}
+		}
+	}
 }
 ?>

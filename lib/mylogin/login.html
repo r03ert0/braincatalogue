@@ -1,7 +1,7 @@
-<a id="loginLink" href="#" onclick="MyLoginWidget.displayLoginForm()">Log in</a>
+<a id="loginLink" href="LogIn" onclick="MyLoginWidget.displayLoginForm()">Log in</a>
 <span id="loggedinLink">
-	<a id="home" href="#" onclick="home()"></a>
-	(<a id="logout" href="#" onclick="MyLoginWidget.logout()">Log out</a>)
+	<a id="user" href="/user"></a>
+	(<a id="logout" href="LogOut" onclick="MyLoginWidget.logout()">Log out</a>)
 </span>
 <input id="username" type="text" placeholder="Name"/>
 <input id="e-mail" type="email" placeholder="E-Mail"/>
@@ -10,6 +10,6 @@
 <button id="sendLogin" onclick="MyLoginWidget.sendLogin()">Send</button>
 <button id="register" onclick="MyLoginWidget.sendRegister()">Send</button>
 <button id="cancel" onclick="MyLoginWidget.cancel()">Cancel</button>
-<a id="registerLink" href="#" onclick="MyLoginWidget.displayRegisterForm()">Register</a>
-<a id="remind" href="#" onclick="MyLoginWidget.remind()">Forgotten password</a>
+<a id="registerLink" href="Register" onclick="MyLoginWidget.displayRegisterForm()">Register</a>
+<a id="remind" href="Remind" onclick="MyLoginWidget.remind()">Forgotten password</a>
 <span id="warning" style="color:red"></span>

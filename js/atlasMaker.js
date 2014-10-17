@@ -1,5 +1,3 @@
-init();
-
 //========================================================================================
 // Globals
 //========================================================================================
@@ -465,7 +463,6 @@ function down(x,y) {
 	if(MyLoginWidget.loggedin==0)
 		return;
 
-	var canvas = document.getElementById('atlasMaker-canvas');
 	var z=User.slice;
 
 	if(User.doFill)
@@ -495,10 +492,6 @@ function move(x,y) {
 	if(MyLoginWidget.loggedin==0)
 		return;
 
-	// increment annotation length counter
-	annotationLength+=Math.sqrt(Math.pow(User.x0-x,2)+Math.pow(User.y0-y,2));
-
-	var canvas = document.getElementById('atlasMaker-canvas');
 	var z=User.slice;
 
 	if(!User.mouseIsDown)
@@ -521,9 +514,9 @@ function up(e) {
 	sendUserDataMessage();
 	
 	// add annotated length to User.annotation length and post to DB
-	User.annotationLength+=annotationLength;
+	User.annotationLength=annotationLength;
 	annotationLength=0;
-	console.log("annotation length",User.annotationLength);
+	logAnnotationLength();
 }
 function keyDown(e)
 {
@@ -623,6 +616,8 @@ function line(x,y,val,user)
 
 	var	layer=atlas[0];
 	var	dim=layer.dim;
+	var	xyzi1=new Array(4);
+	var	xyzi2=new Array(4);
 	var	i;
 	var	x1=user.x0;
 	var y1=user.y0;
@@ -637,7 +632,13 @@ function line(x,y,val,user)
     var sy = (y1 < y2) ? 1 : -1;
     var err = dx - dy;
 
-    i=slice2index(x1,y1,z,user.view);
+    xyzi1=slice2xyzi(x1,y1,z,user.view);
+    xyzi2=slice2xyzi(x2,y2,z,user.view);
+    annotationLength+=Math.sqrt(	Math.pow(brain_pixdim[0]*(xyzi1[0]-xyzi2[0]),2)+
+    								Math.pow(brain_pixdim[1]*(xyzi1[1]-xyzi2[1]),2)+
+    								Math.pow(brain_pixdim[2]*(xyzi1[2]-xyzi2[2]),2));
+    
+    i=xyzi1[3];
     layer.data[i]=val;
     
 	while (!((x1 == x2) && (y1 == y2)))
@@ -676,19 +677,20 @@ function slice2index(mx,my,mz,myView)
 	}	
 	return z*dim[1]*dim[0]+y*dim[0]+x;	
 }
-function slice2xyz(mx,my,mz,myView)
+function slice2xyzi(mx,my,mz,myView)
 {
-	if(debug) console.log("> slice2xyz()");
+	if(debug) console.log("> slice2xyzi()");
 	
 	var	layer=atlas[0];
 	var	dim=layer.dim;
-	var	x,y,z;
+	var	x,y,z,i;
 	switch(myView)
 	{	case 'sag':	x=mz; y=mx; z=my;break; // sagital
 		case 'cor':	x=mx; y=mz; z=my;break; // coronal
 		case 'axi':	x=mx; y=my; z=mz;break; // axial
-	}	
-	return new Object({"x":x,"y":y,"z":z});	
+	}
+	i=z*dim[1]*dim[0]+y*dim[0]+x;
+	return [x,y,z,i];	
 }
 function xyz2slice(x,y,z,myView)
 {
@@ -882,6 +884,29 @@ function quit() {
 	socket.close();
 	socket = null;
 }
+//==========
+// Database
+//==========
+function logAnnotationLength()
+{
+	$.ajax({
+		url:"/php/braincatalogue.php",
+		type:"GET",
+		data: {
+			action:"add_log",
+			userName:MyLoginWidget.username,
+			key:"annotationLength",
+			value:'{"specimen":"'+name+'","atlas":"'+atlas[0].name+'","length":'+User.annotationLength+'}'
+	}})
+	.done(function(data) {
+		var length=parseInt(data);
+		$("#info").text("length: "+length+" mm");
+	})
+	.fail(function() {
+		console.log( "error" );
+	});
+}
+
 
 //========================================================================================
 // Configuration
@@ -935,14 +960,19 @@ function initAtlasMaker()
 		resizeWindow();
 	});
 
+	//==========
 	// Init GUI
-	loginChanged();
+	//==========
 
+	// hide or show annotation tools depending on login changes
+	loginChanged();
 	if(MyLoginWidget)
 	{
+		console.log("subscribing to login changes");
 		MyLoginWidget.subscribe(loginChanged);
 	}
 
+	// configure annotation tools
 	$("a#download_atlas").button().click(function(){saveNifti()});
 
 	$("button#save").button().click(function(){console.log("save")});
@@ -989,6 +1019,9 @@ function initAtlasMaker()
 	};
 	oReq.send();
 }
+
+init();
+
 /*
 				 0		int   sizeof_hdr;    //!< MUST be 348           //  // int sizeof_hdr;      //
 				 4		char  data_type[10]; //!< ++UNUSED++            //  // char data_type[10];  //
