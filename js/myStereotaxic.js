@@ -13,7 +13,6 @@ var brain_pixdim=new Array(3);
 var	brain_datatype;
 var	slice=50;
 var	brain=0;
-var	brain_min,brain_max;
 var name;
 
 function init_stereotaxic(theName,progress)
@@ -101,7 +100,8 @@ function drawBrainImage()
 			case 'cor':i= y*brain_dim[1]/*PA*/*brain_dim[0]/*LR*/+yc*brain_dim[0]/*LR*/+x; break;
 			case 'axi':i=ya*brain_dim[1]/*PA*/*brain_dim[0]/*LR*/+ y*brain_dim[0]/*LR*/+x; break;
 		}
-		val=255*(brain[i]-brain_min)/(brain_max-brain_min);
+		val=brain[i];
+//		val=255*(brain[i]-brain_min)/(brain_max-brain_min);
 //		i=((brain_H-y-1)*brain_offcn.width+x)*4;
 		i=(y*brain_offcn.width+x)*4;
 		brain_px.data[ i ]  =val;
@@ -149,9 +149,6 @@ function loadBrain(progress)
 				brain=new Float32Array(data,vox_offset);
 				break;
 		}
-	
-		brain_min=0;
-		brain_max=255;
 	
 		console.log("dim",brain_dim[0],brain_dim[1],brain_dim[2]);
 		console.log("datatype",brain_datatype);
