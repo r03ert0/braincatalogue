@@ -74,7 +74,7 @@ function initSocketConnection() {
 					if(data.uid==uid)
 						continue;
 					// don't broadcast to users using a different atlas
-					if(Users[data.uid] && (Users[uid].iAtlas!=Users[data.uid].iAtlas))
+					if(Users[data.uid] && Users[uid] && (Users[uid].iAtlas!=Users[data.uid].iAtlas))
 						continue;
 					socket.clients[i].send(msg);
 				}

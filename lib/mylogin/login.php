@@ -10,7 +10,7 @@ ini_set('display_errors', 'On');
 $rootdir = "/";
 
 include $_SERVER['DOCUMENT_ROOT'].$rootdir."/php/base.php";
-$connection=mysqli_connect($dbhost, $dbuser, $dbpass,"Users") or die("MySQL Error 1: " . mysql_error());
+$connection=mysqli_connect($dbhost, $dbuser, $dbpass,"Users") or die("MySQL Error 1: " . mysql_error($connection));
 
 if(isset($_GET["action"]))
 {
@@ -43,19 +43,22 @@ function user_check()
 function user_login()
 {
 	global $connection;
+    
+    var_dump(function_exists('mysqli_connect'));
+    
     $username = mysqli_real_escape_string($connection,$_GET['username']);
     $password = md5(mysqli_real_escape_string($connection,$_GET['password']));
-    
     $checklogin = mysqli_query($connection,"SELECT * FROM Users.Users WHERE Username = '".$username."' AND Password = '".$password."'");
-    if(mysqli_num_rows($checklogin) == 1)
-    {
-        $row = mysqli_fetch_array($checklogin);
-        $email = $row['EmailAddress'];
-        $_SESSION['Username'] = $username;
-        $_SESSION['EmailAddress'] = $email;
-        $_SESSION['LoggedIn'] = 1;
-        echo "Yes";
-    }
+    var_dump($checklogin);
+	if(mysqli_num_rows($checklogin) == 1)
+	{
+		$row = mysqli_fetch_array($checklogin);
+		$email = $row['EmailAddress'];
+		$_SESSION['Username'] = $username;
+		$_SESSION['EmailAddress'] = $email;
+		$_SESSION['LoggedIn'] = 1;
+		echo "Yes";
+	}
     else
 	    echo "No";
 }
