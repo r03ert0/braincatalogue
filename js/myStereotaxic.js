@@ -190,7 +190,9 @@ function loadBrain(progress)
 			 int   glmin;         //!< ++UNUSED++            //  // int glmin;           //
 		*/
 		configureBrainImage();
-		progress.html("<a class='download' href='/data/"+name+"/MRI-n4.nii.gz'><img src='download.svg' style='vertical-align:middle;margin-bottom:5px'/></a>MRI");
+		progress.html("<a class='download' href='/data/"+name+"/MRI-n4.nii.gz'><img src='/img/download.svg' style='vertical-align:middle;margin-bottom:5px'/></a>MRI");
+		if(/*atlas*/1)
+			$("h1.MRI").append("&nbsp;<a class='download' href='/atlasMaker/"+name+"'><img src='/img/edit.svg' style='vertical-align:middle;margin-bottom:5px'/></a>Edit atlas")
 		drawImages();
 	};
 	oReq.send();
