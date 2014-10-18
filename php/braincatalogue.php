@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
 include $_SERVER['DOCUMENT_ROOT']."/php/base.php";
-$connection=mysqli_connect($dbhost, $dbuser, $dbpass,"braincatalogue") or die("MySQL Error 1: " . mysql_error());
+mysql_select_db("braincatalogue") or die("MySQL Error 2: " . mysql_error());
 
 if(isset($_GET["action"]))
 {
@@ -226,8 +226,6 @@ function wikiUpdateAll()
 }
 function add_log($query)
 {
-	global $connection;
-	
 	switch($query['key'])
 	{
 		case "annotationLength":
@@ -239,11 +237,11 @@ function add_log($query)
 			$q.="    UserName = \"".$query['userName']."\" AND";
 			$q.="        Type = \"".$query['key']."\"";
 
-			$result = mysqli_query($connection,$q);
-			if($result and mysqli_num_rows($result)>=1)	// pre-existing value
+			$result = mysql_query($q);
+			if($result and mysql_num_rows($result)>=1)	// pre-existing value
 			{
-				$record=mysqli_fetch_assoc($result);
-				mysqli_free_result($result);
+				$record=mysql_fetch_assoc($result);
+				mysql_free_result($result);
 				$prevValue=json_decode($record["Data"]);
 				
 				// if there is a previous entry for this specimen and atlas, update it
@@ -263,10 +261,10 @@ function add_log($query)
 					$prevValue[$i]=$value;
 
 				// update the database
-				$q="UPDATE braincatalogue.Log SET Data = \"".mysqli_real_escape_string(json_encode($prevValue))."\" WHERE";
+				$q="UPDATE braincatalogue.Log SET Data = \"".mysql_real_escape_string(json_encode($prevValue))."\" WHERE";
 				$q.="    UserName = \"".$query['userName']."\" AND";
 				$q.="        Type = \"".$query['key']."\"";
-				$result = mysqli_query($connection,$q);
+				$result = mysql_query($q);
 				if($result)
 					echo $prevValue[$i]->length;
 				else
@@ -275,12 +273,12 @@ function add_log($query)
 			}
 			else
 			{
-				$value=mysqli_real_escape_string("[".$query['value']."]",$connection);
+				$value=mysql_real_escape_string("[".$query['value']."]");
 				$q="INSERT INTO braincatalogue.Log (`UserName`, `Type`, `Data`) VALUES (";
 				$q.="\"".$query['userName']."\", ";
 				$q.="\"".$query['key']."\", ";
 				$q.="\"".$value."\")";
-				$result = mysqli_query($connection,$q);
+				$result = mysql_query($q);
 				if($result)
 					echo "Successfully added user's annotationLength\n";
 				else

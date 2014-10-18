@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 'On');
 function returnimages($dirname="../data")
 {
 	$files = array();
@@ -23,12 +21,12 @@ function returnimages($dirname="../data")
 				echo '</div>';
 				echo '</a></div>';
 				$curdir++;
-/*
-*/
 			}
 		}
 	}
 	closedir($handle);
+
+	return($files);
 }
 
 returnimages();
