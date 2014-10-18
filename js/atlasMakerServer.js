@@ -74,7 +74,7 @@ function initSocketConnection() {
 					if(data.uid==uid)
 						continue;
 					// don't broadcast to users using a different atlas
-					if(Users[data.uid] && Users[uid] && (Users[uid].iAtlas!=Users[data.uid].iAtlas))
+					if(Users[data.uid] && (Users[uid].iAtlas!=Users[data.uid].iAtlas))
 						continue;
 					socket.clients[i].send(msg);
 				}
@@ -199,40 +199,33 @@ function addAtlas(dirname,atlasname,callback)
 function loadNifti(atlas,callback)
 {
 	// Load nifty label
-	var niigz;
-	
-	try {
-		niigz=fs.readFileSync(localdir+"/"+atlas.dirname+"/"+atlas.name);
+	var niigz=fs.readFileSync(localdir+"/"+atlas.dirname+"/"+atlas.name);
 
-		zlib.gunzip(niigz,function(err,nii) {
-			var	sizeof_hdr=nii.readUInt32LE(0);
-			var	dimensions=nii.readUInt16LE(40);
-			atlas.hdr=nii.slice(0,vox_offset);
-			atlas.dim=[];
-			atlas.dim[0]=nii.readUInt16LE(42);
-			atlas.dim[1]=nii.readUInt16LE(44);
-			atlas.dim[2]=nii.readUInt16LE(46);
-			var datatype=nii.readUInt16LE(72);
-			var	vox_offset=nii.readFloatLE(108);
+	zlib.gunzip(niigz,function(err,nii) {
+		var	sizeof_hdr=nii.readUInt32LE(0);
+		var	dimensions=nii.readUInt16LE(40);
+		atlas.hdr=nii.slice(0,vox_offset);
+		atlas.dim=[];
+		atlas.dim[0]=nii.readUInt16LE(42);
+		atlas.dim[1]=nii.readUInt16LE(44);
+		atlas.dim[2]=nii.readUInt16LE(46);
+		var datatype=nii.readUInt16LE(72);
+		var	vox_offset=nii.readFloatLE(108);
 	
-			atlas.data=nii.slice(vox_offset);
+		atlas.data=nii.slice(vox_offset);
 	
-			var i,sum=0;
-			for(i=0;i<atlas.dim[0]*atlas.dim[1]*atlas.dim[2];i++)
-				sum+=atlas.data[i];
-			atlas.sum=sum;
+		var i,sum=0;
+		for(i=0;i<atlas.dim[0]*atlas.dim[1]*atlas.dim[2];i++)
+			sum+=atlas.data[i];
+		atlas.sum=sum;
 
-			console.log("size",atlas.data.length);
-			console.log("dim",atlas.dim);
-			console.log("datatype",datatype);
-			console.log("vox_offset",vox_offset);
+		console.log("size",atlas.data.length);
+		console.log("dim",atlas.dim);
+		console.log("datatype",datatype);
+		console.log("vox_offset",vox_offset);
 		
-			callback(atlas.data);
-		});
-	} catch(e) {
-		console.log("ERROR: Can't load data at "+localdir+"/"+atlas.dirname+"/"+atlas.name);
-		return;
-	}
+		callback(atlas.data);
+	});
 }
 function saveNifti(atlas)
 {
@@ -272,11 +265,6 @@ function saveNifti(atlas)
 function paintxy(u,c,x,y,user) // 'user' informs slice, atlas, vol, view, dim
 {
 	//console.log("paintxy user",user);
-
-	if(Atlases[user.iAtlas].data==undefined) {
-		console.log("ERROR: No atlas to draw into");
-		return;
-	}
 
 	var	coord=xyz2slice(x,y,user);
 	if(user.x0<0) {
