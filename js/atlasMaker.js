@@ -16,7 +16,7 @@ var brain_pixdim = new Array(3);
 var brain_datatype;
 var brain = 0;
 var brain_min, brain_max;
-var annotationLength;
+var annotationLength=0;
 
 var User = {
     view: 'sag',
@@ -28,7 +28,6 @@ var User = {
     mouseIsDown: false,
     x0: -1,
     y0: -1,
-    annotationLength: 0,
     mri: {}
 };
 var Collab = [];
@@ -548,10 +547,8 @@ function up(e) {
     User.x0 = -1;
     sendUserDataMessage();
 
-    // add annotated length to User.annotation length and post to DB
-    User.annotationLength = annotationLength;
-    annotationLength = 0;
     logAnnotationLength();
+    annotationLength = 0;
 }
 
 function keyDown(e) {
@@ -1003,7 +1000,7 @@ function logAnnotationLength() {
             action: "add_log",
             userName: MyLoginWidget.username,
             key: "annotationLength",
-            value: '{"specimen":"' + name + '","atlas":"' + atlas[0].name + '","length":' + User.annotationLength + '}'
+            value: '{"specimen":"' + name + '","atlas":"' + atlas[0].name + '","length":' + annotationLength + '}'
         }
     })
         .done(function (data) {

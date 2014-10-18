@@ -11,6 +11,7 @@ $rootdir = "/";
 
 include $_SERVER['DOCUMENT_ROOT'].$rootdir."/php/base.php";
 $connection=mysqli_connect($dbhost, $dbuser, $dbpass,"Users") or die("MySQL Error 1: " . mysql_error($connection));
+$mysqli->set_charset('utf8');
 
 if(isset($_GET["action"]))
 {
