@@ -10,7 +10,7 @@ ini_set('display_errors', 'On');
 $rootdir = "/";
 
 include $_SERVER['DOCUMENT_ROOT'].$rootdir."/php/base.php";
-mysql_select_db("Users") or die("MySQL Error 2: " . mysql_error());
+$connection=mysqli_connect($dbhost, $dbuser, $dbpass,"Users") or die("MySQL Error 1: " . mysql_error());
 
 if(isset($_GET["action"]))
 {
@@ -42,13 +42,14 @@ function user_check()
 }
 function user_login()
 {
-    $username = mysql_real_escape_string($_GET['username']);
-    $password = md5(mysql_real_escape_string($_GET['password']));
+	global $connection;
+    $username = mysqli_real_escape_string($connection,$_GET['username']);
+    $password = md5(mysqli_real_escape_string($connection,$_GET['password']));
     
-    $checklogin = mysql_query("SELECT * FROM Users.Users WHERE Username = '".$username."' AND Password = '".$password."'");
-    if(mysql_num_rows($checklogin) == 1)
+    $checklogin = mysqli_query($connection,"SELECT * FROM Users.Users WHERE Username = '".$username."' AND Password = '".$password."'");
+    if(mysqli_num_rows($checklogin) == 1)
     {
-        $row = mysql_fetch_array($checklogin);
+        $row = mysqli_fetch_array($checklogin);
         $email = $row['EmailAddress'];
         $_SESSION['Username'] = $username;
         $_SESSION['EmailAddress'] = $email;
@@ -60,22 +61,23 @@ function user_login()
 }
 function user_register()
 {
-	$username = mysql_real_escape_string($_GET['username']);
-	$password = md5(mysql_real_escape_string($_GET['password']));
-	$email = mysql_real_escape_string($_GET['email']);
+	global $connection;
+	$username = mysqli_real_escape_string($connection,$_GET['username']);
+	$password = md5(mysqli_real_escape_string($connection,$_GET['password']));
+	$email = mysqli_real_escape_string($connection,$_GET['email']);
 
-	 $checkusername = mysql_query("SELECT * FROM Users.Users WHERE Username = '".$username."'");
-	 if(mysql_num_rows($checkusername) == 1)
+	 $checkusername = mysqli_query($connection,"SELECT * FROM Users.Users WHERE Username = '".$username."'");
+	 if(mysqli_num_rows($checkusername) == 1)
 		echo "Exists";
 	 else
 	 {
-		$registerquery = mysql_query("INSERT INTO Users.Users (Username, Password, EmailAddress) VALUES('".$username."', '".$password."', '".$email."')");
+		$registerquery = mysqli_query($connection,"INSERT INTO Users.Users (Username, Password, EmailAddress) VALUES('".$username."', '".$password."', '".$email."')");
 		if($registerquery)
 		{
-			$checklogin = mysql_query("SELECT * FROM Users.Users WHERE Username = '".$username."' AND Password = '".$password."'");
-			if(mysql_num_rows($checklogin) == 1)
+			$checklogin = mysqli_query($connection,"SELECT * FROM Users.Users WHERE Username = '".$username."' AND Password = '".$password."'");
+			if(mysqli_num_rows($checklogin) == 1)
 			{
-				$row = mysql_fetch_array($checklogin);
+				$row = mysqli_fetch_array($checklogin);
 				$email = $row['EmailAddress'];
 				$_SESSION['Username'] = $username;
 				$_SESSION['EmailAddress'] = $email;
@@ -89,19 +91,20 @@ function user_register()
 }
 function user_remind()
 {
+	global $connection;
 	$flagFound=0;
 	
-	$email = mysql_real_escape_string($_GET['email+name']);
-	$checklogin = mysql_query("SELECT * FROM Users.Users WHERE EmailAddress = '".$email."'");
-	if(mysql_num_rows($checklogin)==0)
+	$email = mysqli_real_escape_string($connection,$_GET['email+name']);
+	$checklogin = mysqli_query($connection,"SELECT * FROM Users.Users WHERE EmailAddress = '".$email."'");
+	if(mysqli_num_rows($checklogin)==0)
 	{
-		$username = mysql_real_escape_string($_GET['email+name']);
-		$checklogin = mysql_query("SELECT * FROM Users.Users WHERE Username = '".$username."'");
+		$username = mysqli_real_escape_string($connection,$_GET['email+name']);
+		$checklogin = mysqli_query($connection,"SELECT * FROM Users.Users WHERE Username = '".$username."'");
 	}
 
-	if(mysql_num_rows($checklogin)>0)
+	if(mysqli_num_rows($checklogin)>0)
 	{
-		$row = mysql_fetch_array($checklogin);
+		$row = mysqli_fetch_array($checklogin);
 		$username = $row['Username'];
 		$email = $row['EmailAddress'];
 		
@@ -118,10 +121,10 @@ function user_remind()
 		$message = "Dear ".$username.", your new password is: ".$password;
 		mail($email, 'BrainSpell password', $message);
 
-		$username = mysql_real_escape_string($username);
-		$password = md5(mysql_real_escape_string($password));
-		$email = mysql_real_escape_string($email);
-		$registerquery=mysql_query("UPDATE Users.Users SET Password = '".$password."' WHERE Username = '".$username."' AND EmailAddress = '".$email."'");
+		$username = mysqli_real_escape_string($connection,$username);
+		$password = md5(mysqli_real_escape_string($connection,$password));
+		$email = mysqli_real_escape_string($connection,$email);
+		$registerquery=mysqli_query($connection,"UPDATE Users.Users SET Password = '".$password."' WHERE Username = '".$username."' AND EmailAddress = '".$email."'");
 		if($registerquery)
 			echo "Yes";
 		else

@@ -199,7 +199,14 @@ function addAtlas(dirname,atlasname,callback)
 function loadNifti(atlas,callback)
 {
 	// Load nifty label
-	var niigz=fs.readFileSync(localdir+"/"+atlas.dirname+"/"+atlas.name);
+	var niigz;
+	
+	try {
+		fs.readFileSync(localdir+"/"+atlas.dirname+"/"+atlas.name);
+	} catch(e) {
+		console.log("ERROR: Can't load data at "+localdir+"/"+atlas.dirname+"/"+atlas.name);
+		return;
+	}
 
 	zlib.gunzip(niigz,function(err,nii) {
 		var	sizeof_hdr=nii.readUInt32LE(0);
