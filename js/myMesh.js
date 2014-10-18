@@ -15,7 +15,7 @@ function init_mesh(specimen,progress) {
 	// Load mesh (ply format)
 	var path="data/"+specimen;
 	var oReq = new XMLHttpRequest();
-	oReq.open("GET", "data/"+name+"/mesh.ply", true);
+	oReq.open("GET", "/data/"+name+"/mesh.ply", true);
 	oReq.addEventListener("progress", function(e){progress.html("Loading Surface ("+parseInt(100*e.loaded/e.total)+"%)")}, false);
 	//oReq.addEventListener("progress", function(e){$("#loadProgress").html(parseInt(100*e.loaded/e.total)+"%")}, false);
 	oReq.responseType="text";
@@ -28,7 +28,7 @@ function init_mesh(specimen,progress) {
 		var	mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({color:0xffffff}));
 		mesh.name = specimen;
 		scene.add(mesh);
-		progress.html("<a class='download' href='/data/"+name+"/mesh.ply'><img src='download.svg' style='vertical-align:middle;margin-bottom:5px'/></a>Surface");
+		progress.html("<a class='download' href='/data/"+name+"/mesh.ply'><img src='/img/download.svg' style='vertical-align:middle;margin-bottom:5px'/></a>Surface");
 	};
 	oReq.send();
 	progress.html("<span id='loader'><div class='dot'></div></span> Loading Surface...");
