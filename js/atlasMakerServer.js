@@ -273,6 +273,11 @@ function paintxy(u,c,x,y,user) // 'user' informs slice, atlas, vol, view, dim
 {
 	//console.log("paintxy user",user);
 
+	if(Atlases[user.iAtlas].data==undefined) {
+		console.log("ERROR: No atlas to draw into");
+		return;
+	}
+
 	var	coord=xyz2slice(x,y,user);
 	if(user.x0<0) {
 		user.x0=coord.x;
