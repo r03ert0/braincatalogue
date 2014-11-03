@@ -114,7 +114,7 @@ function initSocketConnection() {
 	}
 	catch (ex)
 	{
-		console.log("ERROR: Unable to create a server");
+		console.log("ERROR: Unable to create a server",ex);
 	}
 }
 function receivePaintMessage(ws,data) {
@@ -199,7 +199,12 @@ function addAtlas(dirname,atlasname,callback)
 function loadNifti(atlas,callback)
 {
 	// Load nifty label
-	var niigz=fs.readFileSync(localdir+"/"+atlas.dirname+"/"+atlas.name);
+	try {
+		var niigz=fs.readFileSync(localdir+"/"+atlas.dirname+"/"+atlas.name);
+	} catch(ex) {
+		console.log("ERROR: No atlas at",localdir+"/"+atlas.dirname+"/"+atlas.name,ex);
+		return;
+	}
 
 	zlib.gunzip(niigz,function(err,nii) {
 		var	sizeof_hdr=nii.readUInt32LE(0);
