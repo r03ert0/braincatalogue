@@ -4,13 +4,13 @@
 13 Octobre 2014: add user_check()
 */
 
-error_reporting(E_ALL);
-ini_set('display_errors', 'On');
+//error_reporting(E_ALL);
+//ini_set('display_errors', 'On');
 
 $rootdir = "/";
 
 include $_SERVER['DOCUMENT_ROOT'].$rootdir."/php/base.php";
-mysql_select_db("Users") or die("MySQL Error 2: " . mysql_error());
+mysql_select_db("MyUsers") or die("MySQL Error 2: " . mysql_error());
 
 if(isset($_GET["action"]))
 {
@@ -45,7 +45,7 @@ function user_login()
     $username = mysql_real_escape_string($_GET['username']);
     $password = md5(mysql_real_escape_string($_GET['password']));
     
-    $checklogin = mysql_query("SELECT * FROM Users.Users WHERE Username = '".$username."' AND Password = '".$password."'");
+    $checklogin = mysql_query("SELECT * FROM MyUsers.Users WHERE Username = '".$username."' AND Password = '".$password."'");
     if(mysql_num_rows($checklogin) == 1)
     {
         $row = mysql_fetch_array($checklogin);
@@ -64,15 +64,15 @@ function user_register()
 	$password = md5(mysql_real_escape_string($_GET['password']));
 	$email = mysql_real_escape_string($_GET['email']);
 
-	 $checkusername = mysql_query("SELECT * FROM Users.Users WHERE Username = '".$username."'");
+	 $checkusername = mysql_query("SELECT * FROM MyUsers.Users WHERE Username = '".$username."'");
 	 if(mysql_num_rows($checkusername) == 1)
 		echo "Exists";
 	 else
 	 {
-		$registerquery = mysql_query("INSERT INTO Users.Users (Username, Password, EmailAddress) VALUES('".$username."', '".$password."', '".$email."')");
+		$registerquery = mysql_query("INSERT INTO MyUsers.Users (Username, Password, EmailAddress) VALUES('".$username."', '".$password."', '".$email."')");
 		if($registerquery)
 		{
-			$checklogin = mysql_query("SELECT * FROM Users.Users WHERE Username = '".$username."' AND Password = '".$password."'");
+			$checklogin = mysql_query("SELECT * FROM MyUsers.Users WHERE Username = '".$username."' AND Password = '".$password."'");
 			if(mysql_num_rows($checklogin) == 1)
 			{
 				$row = mysql_fetch_array($checklogin);
@@ -92,11 +92,11 @@ function user_remind()
 	$flagFound=0;
 	
 	$email = mysql_real_escape_string($_GET['email+name']);
-	$checklogin = mysql_query("SELECT * FROM Users.Users WHERE EmailAddress = '".$email."'");
+	$checklogin = mysql_query("SELECT * FROM MyUsers.Users WHERE EmailAddress = '".$email."'");
 	if(mysql_num_rows($checklogin)==0)
 	{
 		$username = mysql_real_escape_string($_GET['email+name']);
-		$checklogin = mysql_query("SELECT * FROM Users.Users WHERE Username = '".$username."'");
+		$checklogin = mysql_query("SELECT * FROM MyUsers.Users WHERE Username = '".$username."'");
 	}
 
 	if(mysql_num_rows($checklogin)>0)
@@ -121,7 +121,7 @@ function user_remind()
 		$username = mysql_real_escape_string($username);
 		$password = md5(mysql_real_escape_string($password));
 		$email = mysql_real_escape_string($email);
-		$registerquery=mysql_query("UPDATE Users.Users SET Password = '".$password."' WHERE Username = '".$username."' AND EmailAddress = '".$email."'");
+		$registerquery=mysql_query("UPDATE MyUsers.Users SET Password = '".$password."' WHERE Username = '".$username."' AND EmailAddress = '".$email."'");
 		if($registerquery)
 			echo "Yes";
 		else
