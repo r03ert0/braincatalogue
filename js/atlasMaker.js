@@ -46,13 +46,18 @@ var	msg,msg0="";
 
 var	prevData=0;
 
-var Crsr={ x0:undefined,
-		   y0:undefined,
-		   cachedX:undefined,
-		   cachedY:undefined,
-		   state:"move",
-		   prevState:undefined,
-		   touchStarted:false };
+var Crsr={ x:undefined,			// cursor x coord
+		   y:undefined,			// cursor y coord
+		   fx:undefined,		// finger x coord
+		   fy:undefined,		// finger y coord
+		   x0:undefined,		// previous finger x coord
+		   y0:undefined,		// previous finger y coord
+		   cachedX:undefined,	// finger x coord at touch start
+		   cachedY:undefined,	// finger y coord at touch start
+		   state:"move",		// cursor state: move, draw, configure
+		   prevState:undefined,	// state before configure
+		   touchStarted:false	// touch started flag
+		  };
 
 
 //========================================================================================
@@ -215,6 +220,7 @@ function loadNifti()
 		console.log("vox_offset",vox_offset);
 		configureBrainImage();
 		configureAtlasImage();
+		initCursor();
 		progress.html("<a class='download_mri' href='"+User.dirname+User.mri.brain+"'><img src='/img/download.svg' style='vertical-align:middle'/></a>"+User.name);
 		drawImages();		
 	};
@@ -418,9 +424,17 @@ function mousedown(e) {
 	if(debug) console.log("> mousedown()");
 	
 	e.preventDefault();
+	/*
 	var r = e.target.getBoundingClientRect();
 	var x=parseInt(((e.clientX-r.left) / e.target.clientWidth )*brain_W);
 	var y=parseInt(((e.clientY-r.top) / e.target.clientHeight )*brain_H);
+	*/
+	var W=parseFloat($('#resizable canvas').css('width'));
+	var H=parseFloat($('#resizable canvas').css('height'));
+	var w=parseFloat($('#resizable canvas').attr('width'));
+	var h=parseFloat($('#resizable canvas').attr('height'));
+	var x=parseInt(e.clientX*(w/W));
+	var y=parseInt(e.clientY*(h/H));
 	
 	down(x,y);
 }
@@ -429,10 +443,14 @@ function mousemove(e) {
 		console.log("> mousemove()");
 	
 	e.preventDefault();
-	var r = e.target.getBoundingClientRect();
-	var x=parseInt(((e.clientX-r.left) / e.target.clientWidth )*brain_W);
-	var y=parseInt(((e.clientY-r.top) / e.target.clientHeight )*brain_H);
+	var W=parseFloat($('#resizable canvas').css('width'));
+	var H=parseFloat($('#resizable canvas').css('height'));
+	var w=parseFloat($('#resizable canvas').attr('width'));
+	var h=parseFloat($('#resizable canvas').attr('height'));
+	var x=parseInt(e.clientX*(w/W));
+	var y=parseInt(e.clientY*(h/H));
 	
+	$("#cursor").css({left:x*(W/w),top:y*(H/h),width:User.penSize*(W/w),height:User.penSize*(H/h)});
 	move(x,y);
 }
 function mouseup(e) {
@@ -441,63 +459,72 @@ function mouseup(e) {
 	up(e);
 }
 function touchstart(e) {
-	if(debug) console.log("> touchstart()");
+	if(debug)
+		console.log("> touchstart()");
 	
 	e.preventDefault();
 	var r = e.target.getBoundingClientRect();
-	var	touchEvent=e.changedTouches[0];
-	var x=parseInt(((touchEvent.pageX-r.left) / e.target.clientWidth )*brain_W);
-	var y=parseInt(((touchEvent.pageY-r.top) / e.target.clientHeight )*brain_H);
+	var	touchEvent=e.originalEvent.changedTouches[0];
+	var W=parseFloat($('#resizable canvas').css('width'));
+	var H=parseFloat($('#resizable canvas').css('height'));
+	var w=parseFloat($('#resizable canvas').attr('width'));
+	var h=parseFloat($('#resizable canvas').attr('height'));
+	var x=parseInt(touchEvent.pageX*(w/W));
+	var y=parseInt(touchEvent.pageY*(h/H));
 	
 	/*-- Precision cursor --*/
+	$("#finger").css({display:"inline"});
 	Crsr.x0=Crsr.cachedX=x;
 	Crsr.y0=Crsr.cachedY=y;
 	Crsr.touchStarted=true;
 	setTimeout(function() {
-		if(Crsr.cachedX == Crsr.x0 && Crsr.cachedY==Crsr.y0 &&!Crsr.touchStarted) {
+		if(Crsr.cachedX == Crsr.x0 && Crsr.cachedY==Crsr.y0 && !Crsr.touchStarted) {
 			Crsr.state=(Crsr.state=="move")?"draw":"move";
-			console.log(Crsr.state);//updateCursor();
+			updateCursor();
 		}
 	},200);
 	setTimeout(function() {
 		if (Crsr.cachedX==Crsr.x0 && Crsr.cachedY==Crsr.y0 && Crsr.touchStarted) {
 			Crsr.prevState=Crsr.state;
 			Crsr.state="configure";
-			console.log(Crsr.state);//updateCursor();
+			updateCursor();
 		}
 	},500);
 	/*----------------------*/
 
-	down(x,y);
+	down(Crsr.x,Crsr.y);
 }
 function touchmove(e) {
 	if(debug)
 		console.log("> touchmove()");
 	
 	e.preventDefault();
+	/*
 	var r = e.target.getBoundingClientRect();
-	var	touchEvent=e.changedTouches[0];
-	var x=parseInt(((touchEvent.pageX-r.left) / e.target.clientWidth )*brain_W);
-	var y=parseInt(((touchEvent.pageY-r.top) / e.target.clientHeight )*brain_H);
-	
-	/*-- Precision cursor --*/
+	*/
+	var	touchEvent=e.originalEvent.changedTouches[0];
 	var W=parseFloat($('#resizable canvas').css('width'));
 	var H=parseFloat($('#resizable canvas').css('height'));
 	var w=parseFloat($('#resizable canvas').attr('width'));
 	var h=parseFloat($('#resizable canvas').attr('height'));
-	var c={x:(w/W)*parseFloat($("#cursor").css("left")),y:(h/H)*parseFloat($("#cursor").css("top"))}
-	var f={x:(w/W)*parseFloat($("#finger").css("left")),y:(h/H)*parseFloat($("#finger").css("top"))}
+	var x=parseInt(touchEvent.pageX*(w/W));
+	var y=parseInt(touchEvent.pageY*(h/H));
+	
+	/*-- Precision cursor --*/
+	var dx=x-Crsr.x0;
+	var dy=y-Crsr.y0;
 	if(Crsr.state=="move"||Crsr.state=="draw") {
-		$("#cursor").css({left:(W/w)*(c.x+x-Crsr.x0)+"px",top:(H/h)*(c.y+y-Crsr.y0)+"px",width:User.penSize*W/w,height:User.penSize*H/h});
-        $("#finger").css({left:(W/w)*(f.x+x-Crsr.x0)+"px",top:(H/h)*(f.y+y-Crsr.y0)+"px"});
-	} else
-		$("#finger").css({left:(W/w)*(f.x+x-Crsr.x0)+"px",top:(H/h)*(f.y+y-Crsr.y0)+"px"});
+		Crsr.x+=dx;
+		Crsr.y+=dy;
+		$("#cursor").css({left:Crsr.x*(W/w),top:Crsr.y*(H/h),width:User.penSize*(W/w),height:User.penSize*(H/h)});
+		if(Crsr.state=="draw")
+			move(Crsr.x,Crsr.y);
+	}
+	Crsr.fx+=dx;
+	Crsr.fy+=dy;
+	$("#finger").css({left:Crsr.fx*(W/w)+"px",top:Crsr.fy*(H/h)+"px"});
 	Crsr.x0=x;
 	Crsr.y0=y;
-	/*----------------------*/
-	
-	if(Crsr.state=="draw")
-		move(x,y);
 }
 function touchend(e) {
 	if(debug) console.log("> touchend()");
@@ -506,11 +533,33 @@ function touchend(e) {
 	Crsr.touchStarted=false;
 	if(Crsr.state=="configure") {
 		Crsr.state=Crsr.prevState;
-		//updateCursor();
+		updateCursor();
 	}
 	/*----------------------*/
 	
 	up(e);
+}
+function initCursor() {
+	var W=parseFloat($('#resizable canvas').css('width'));
+	var H=parseFloat($('#resizable canvas').css('height'));
+	var w=parseFloat($('#resizable canvas').attr('width'));
+	var h=parseFloat($('#resizable canvas').attr('height'));
+	Crsr.x=parseInt(w/2);
+	Crsr.y=parseInt(h/2);
+	Crsr.fx=parseInt(w/2);
+	Crsr.fy=parseInt(h/2);
+	$("#cursor").css({left:(Crsr.x*(W/w))+"px",top:(Crsr.y*(H/h))+"px",width:User.penSize*(W/w),height:User.penSize*(H/h)});
+	$("#finger").css({left:(Crsr.fx*(W/w))+"px",top:(Crsr.fy*(H/h))+"px",display:"none"});
+}
+function updateCursor() {
+    $("#finger").removeClass("move draw configure");
+    switch(Crsr.state) {
+        case "move": $("#finger").addClass("move");	break;
+        case "draw": $("#finger").addClass("draw");	break;
+        case "configure": $("#finger").addClass("configure");	break;
+    }
+    //$("#msg").html(C.state);
+    console.log(Crsr.state);
 }
 function down(x,y) {
 	if(debug) console.log("> down()");
@@ -544,13 +593,6 @@ function down(x,y) {
 function move(x,y) {
 	if(debug==2) console.log("> move()");
 	
-	var W=parseFloat($('#resizable canvas').css('width'));
-	var H=parseFloat($('#resizable canvas').css('height'));
-	var w=parseFloat($('#resizable canvas').attr('width'));
-	var h=parseFloat($('#resizable canvas').attr('height'));
-	
-	$("#cursor").css({left:W*x/w,top:H*y/h,width:User.penSize*W/w,height:User.penSize*H/h});
-
 	if(MyLoginWidget.loggedin==0)
 		return;
 
@@ -596,7 +638,7 @@ function keyDown(e)
 //========================================================================================
 // Paint functions common to all users
 //========================================================================================
-function paintxy(u,c,x,y,user)
+function paintxy(u,c,x,y,usr)
 {
 	if(debug) console.log("> paintxy()");
 	
@@ -613,31 +655,30 @@ function paintxy(u,c,x,y,user)
 	var	layer=atlas[0];
 	var	dim=layer.dim;
 	
-	//var	coord=xyz2slice(x,y,user.slice,user.view);
-	var	coord={"x":x,"y":y,"z":user.slice};
-	if(user.x0<0) {
-		user.x0=coord.x;
-		user.y0=coord.y;
+	var	coord={"x":x,"y":y,"z":usr.slice};
+	if(usr.x0<0) {
+		usr.x0=coord.x;
+		usr.y0=coord.y;
 	}
 	
 	switch(c)
 	{
 		case 'le':
-			line(coord.x,coord.y,0,user);
+			line(coord.x,coord.y,0,usr);
 			break;
 		case 'lf':
-			line(coord.x,coord.y,1,user);
+			line(coord.x,coord.y,1,usr);
 			break;
 		case 'f':
-			fill(coord.x,coord.y,coord.z,1,user.view);
+			fill(coord.x,coord.y,coord.z,1,usr.view);
 			break;
 		case 'e':
-			fill(coord.x,coord.y,coord.z,0,user.view);
+			fill(coord.x,coord.y,coord.z,0,usr.view);
 			break;
 	}
 
-	user.x0=coord.x;
-	user.y0=coord.y;
+	usr.x0=coord.x;
+	usr.y0=coord.y;
 }
 function fill(x,y,z,val,myView)
 {
@@ -669,7 +710,7 @@ function fill(x,y,z,val,myView)
 	}
 	drawImages();
 }
-function line(x,y,val,user)
+function line(x,y,val,usr)
 {
 	if(debug) console.log("> line()");
 	
@@ -681,11 +722,11 @@ function line(x,y,val,user)
 	var	xyzi1=new Array(4);
 	var	xyzi2=new Array(4);
 	var	i;
-	var	x1=user.x0;
-	var y1=user.y0;
+	var	x1=usr.x0;
+	var y1=usr.y0;
 	var x2=x;
 	var y2=y;
-	var	z=user.slice;
+	var	z=usr.slice;
 
     // Define differences and error check
     var dx = Math.abs(x2 - x1);
@@ -694,8 +735,8 @@ function line(x,y,val,user)
     var sy = (y1 < y2) ? 1 : -1;
     var err = dx - dy;
 
-    xyzi1=slice2xyzi(x1,y1,z,user.view);
-    xyzi2=slice2xyzi(x2,y2,z,user.view);
+    xyzi1=slice2xyzi(x1,y1,z,usr.view);
+    xyzi2=slice2xyzi(x2,y2,z,usr.view);
     annotationLength+=Math.sqrt(	Math.pow(brain_pixdim[0]*(xyzi1[0]-xyzi2[0]),2)+
     								Math.pow(brain_pixdim[1]*(xyzi1[1]-xyzi2[1]),2)+
     								Math.pow(brain_pixdim[2]*(xyzi1[2]-xyzi2[2]),2));
@@ -716,10 +757,10 @@ function line(x,y,val,user)
 			err += dx;
 			y1 += sy;
 		}
-		for(j=0;j<user.penSize;j++)
-		for(k=0;k<user.penSize;k++)
+		for(j=0;j<usr.penSize;j++)
+		for(k=0;k<usr.penSize;k++)
 		{
-			i=slice2index(x1+j,y1+k,z,user.view);
+			i=slice2index(x1+j,y1+k,z,usr.view);
 			layer.data[i]=val;
 		}
 	}
@@ -865,8 +906,8 @@ function receiveUserDataMessage(data) {
 	if(debug) console.log("> receiveUserDataMessage()");
 	
 	var u=data.uid;
-	var user=$.parseJSON(data.user);
-	Collab[u]=user;
+	var usr=$.parseJSON(data.user);
+	Collab[u]=usr;
 	
 	var	nusers=1+Collab.filter(function(value) { return value !== undefined }).length;
 	$("#chat").text("Chat ("+nusers+" connected)");
@@ -991,6 +1032,7 @@ function init()
 	// 3. Add cursor
 	$(document.body).append("<div id='finger'></div>");
 	$(document.body).append("<div id='cursor'></div>");
+	updateCursor();
 }
 function loginChanged()
 {
@@ -1018,11 +1060,6 @@ function initAtlasMaker()
 	canvas.onmouseup = mouseup;
 	
 	// configure canvas for tablets
-	/*
-	canvas.addEventListener("touchstart",touchstart,false);
-	canvas.addEventListener("touchmove",touchmove,false);
-	canvas.addEventListener("touchend",touchend,false);
-	*/
 	$("#finger").on("touchstart",function(e){touchstart(e)});
 	$("#finger").on("touchend",function(e){touchend(e)});
 	$("#finger").on("touchmove",function(e){touchmove(e)});
