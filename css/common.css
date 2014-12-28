@@ -54,7 +54,7 @@ body {
 	padding: 0 0 0 230px;
 
 	margin: 0 0 18px;
-	font-size: small;
+	font-size: 1rem;
 	line-height: 200%;
 }
 /* Sidebar Left
@@ -79,7 +79,7 @@ body {
 h1 { font-family:'Voltaire', sans-serif;}
 h2 {
 	font-family:'Voltaire', sans-serif;
-	font-size:	small;
+	font-size:	1rem;
 	color:		#555;
 }
 p {
@@ -88,7 +88,7 @@ p {
 	line-height: 150%;
 }
 #middle p {
-		font-size: small;
+		font-size: 1rem;
 }
 #footer a {
 	color: orange;
@@ -97,4 +97,52 @@ p {
 	color:dimgrey;
 	font-family: 'Voltaire', sans-serif;
 	text-decoration:none;
+}
+/* Login
+-----------------------------------------------------------------------------*/
+#login {
+	text-align:center;
+	display:inline-block;
+}
+#login * {
+	width:auto;
+	font-family: 'Voltaire', sans-serif;
+	font-size:1rem;
+	margin:0.5rem;
+	display:inline;
+}
+#login .hidden {
+	display:none !important;
+}
+#login.loginbox {
+	border:1px solid lightGrey;
+	position:absolute;
+	top:10px;
+	left:-150px;
+	background-color:white;
+	padding:20px;
+	max-width:80%;
+	margin-left: 50%;
+    width: 300px;
+    line-height:20px;
+	box-shadow: 0 10px 10px 0 rgba(0, 0, 0, 0.5);
+    z-index:20;
+}
+#login.loginbox * {
+	color:black;
+}
+#login.loginbox #username,
+#login.loginbox #e-mail,
+#login.loginbox #password,
+#login.loginbox #repassword,
+#login.loginbox #registerLink,
+#login.loginbox #remind,
+#login.loginbox #warning {
+	display:block;
+}
+#login.loginbox #username,
+#login.loginbox #e-mail,
+#login.loginbox #password,
+#login.loginbox #repassword {
+	width:90%;
 }

@@ -1,11 +1,58 @@
-#login {
-	color:white;
+html,body {
+	margin:0;
+	padding:0;
+	background-color:black;
+	font-family: 'Voltaire', sans-serif;
 }
 canvas {
-	image-rendering: optimizeSpeed;
+	image-rendering: optimizeSpeed;             /*                     */
 	image-rendering: crisp-edges;
-	image-rendering: -moz-crisp-edges;
-	image-rendering: -o-crisp-edges;
-	image-rendering: -webkit-optimize-contrast;
-	-ms-interpolation-mode: nearest-neighbor;
+	image-rendering: -moz-crisp-edges;          /* Firefox             */
+	image-rendering: -o-crisp-edges;            /* Opera               */
+	image-rendering: -webkit-optimize-contrast; /* Chrome (and Safari) */
+	image-rendering: optimize-contrast;         /* CSS3 Proposed       */
+	-ms-interpolation-mode: nearest-neighbor;   /* IE8+                */
+	cursor:none;
+}
+#toolbar {
+	width: 220px;
+	padding: 2px;
+	display: inline-block;
+}
+.ui-button-text {
+   font-size:12px !important;
+} 
+td {
+	text-align: center;
+	vertical-align: top;
+}
+#login a {
+	color: white;
+}
+
+#cursor {
+	pointer-events: none;
+	position:absolute;
+	top:200;
+	left:200;
+	border:thin solid white;
+}
+#finger {
+	position:absolute;
+	top:200;
+	left:250;
+	width:30px;
+	height:30px;
+	border-style:solid;
+	border-width:4px;
+	border-radius:50%;
+}
+#finger.move {
+    border-color:yellow;
+}
+#finger.draw {
+    border-color:green;
+}
+#finger.configure {
+    border-color:orange;
 }

@@ -39,12 +39,22 @@ var atlas_px;
 
 var	name=AtlasMaker[0].name;
 var	url=AtlasMaker[0].url;
+var atlasName=AtlasMaker[0].atlasName;
 
 var socket;
 var flagConnected=0;
 var	msg,msg0="";
 
 var	prevData=0;
+
+var Crsr={ x0:undefined,
+		   y0:undefined,
+		   cachedX:undefined,
+		   cachedY:undefined,
+		   state:"move",
+		   prevState:undefined,
+		   touchStarted:false };
+
 
 //========================================================================================
 // Local user interaction
@@ -416,7 +426,8 @@ function mousedown(e) {
 	down(x,y);
 }
 function mousemove(e) {
-	if(debug==2) console.log("> mousemove()");
+	if(debug==2)
+		console.log("> mousemove()");
 	
 	e.preventDefault();
 	var r = e.target.getBoundingClientRect();
@@ -439,10 +450,30 @@ function touchstart(e) {
 	var x=parseInt(((touchEvent.pageX-r.left) / e.target.clientWidth )*brain_W);
 	var y=parseInt(((touchEvent.pageY-r.top) / e.target.clientHeight )*brain_H);
 	
+	/*-- Precision cursor --*/
+	Crsr.x0=Crsr.cachedX=x;
+	Crsr.y0=Crsr.cachedY=y;
+	Crsr.touchStarted=true;
+	setTimeout(function() {
+		if(Crsr.cachedX == Crsr.x0 && Crsr.cachedY==Crsr.y0 &&!Crsr.touchStarted) {
+			Crsr.state=(Crsr.state=="move")?"draw":"move";
+			console.log(Crsr.state);//updateCursor();
+		}
+	},200);
+	setTimeout(function() {
+		if (Crsr.cachedX==Crsr.x0 && Crsr.cachedY==Crsr.y0 && Crsr.touchStarted) {
+			Crsr.prevState=Crsr.state;
+			Crsr.state="configure";
+			console.log(Crsr.state);//updateCursor();
+		}
+	},500);
+	/*----------------------*/
+
 	down(x,y);
 }
 function touchmove(e) {
-	if(debug) console.log("> touchmove()");
+	if(debug)
+		console.log("> touchmove()");
 	
 	e.preventDefault();
 	var r = e.target.getBoundingClientRect();
@@ -450,10 +481,35 @@ function touchmove(e) {
 	var x=parseInt(((touchEvent.pageX-r.left) / e.target.clientWidth )*brain_W);
 	var y=parseInt(((touchEvent.pageY-r.top) / e.target.clientHeight )*brain_H);
 	
-	move(x,y);
+	/*-- Precision cursor --*/
+	var W=parseFloat($('#resizable canvas').css('width'));
+	var H=parseFloat($('#resizable canvas').css('height'));
+	var w=parseFloat($('#resizable canvas').attr('width'));
+	var h=parseFloat($('#resizable canvas').attr('height'));
+	var c={x:(w/W)*parseFloat($("#cursor").css("left")),y:(h/H)*parseFloat($("#cursor").css("top"))}
+	var f={x:(w/W)*parseFloat($("#finger").css("left")),y:(h/H)*parseFloat($("#finger").css("top"))}
+	if(Crsr.state=="move"||Crsr.state=="draw") {
+		$("#cursor").css({left:(W/w)*(c.x+x-Crsr.x0)+"px",top:(H/h)*(c.y+y-Crsr.y0)+"px",width:User.penSize*W/w,height:User.penSize*H/h});
+        $("#finger").css({left:(W/w)*(f.x+x-Crsr.x0)+"px",top:(H/h)*(f.y+y-Crsr.y0)+"px"});
+	} else
+		$("#finger").css({left:(W/w)*(f.x+x-Crsr.x0)+"px",top:(H/h)*(f.y+y-Crsr.y0)+"px"});
+	Crsr.x0=x;
+	Crsr.y0=y;
+	/*----------------------*/
+	
+	if(Crsr.state=="draw")
+		move(x,y);
 }
 function touchend(e) {
 	if(debug) console.log("> touchend()");
+	
+	/*-- Precision cursor --*/
+	Crsr.touchStarted=false;
+	if(Crsr.state=="configure") {
+		Crsr.state=Crsr.prevState;
+		//updateCursor();
+	}
+	/*----------------------*/
 	
 	up(e);
 }
@@ -462,7 +518,7 @@ function down(x,y) {
 	
 	if(MyLoginWidget.loggedin==0)
 		return;
-
+	
 	var z=User.slice;
 
 	if(User.doFill)
@@ -489,6 +545,13 @@ function down(x,y) {
 function move(x,y) {
 	if(debug==2) console.log("> move()");
 	
+	var W=parseFloat($('#resizable canvas').css('width'));
+	var H=parseFloat($('#resizable canvas').css('height'));
+	var w=parseFloat($('#resizable canvas').attr('width'));
+	var h=parseFloat($('#resizable canvas').attr('height'));
+	
+	$("#cursor").css({left:W*x/w,top:H*y/h,width:User.penSize*W/w,height:User.penSize*H/h});
+
 	if(MyLoginWidget.loggedin==0)
 		return;
 
@@ -505,7 +568,7 @@ function move(x,y) {
 }
 function up(e) {
 	if(debug) console.log("> up()");
-	
+
 	if(MyLoginWidget.loggedin==0)
 		return;
 
@@ -552,7 +615,8 @@ function paintxy(u,c,x,y,user)
 	var	layer=atlas[0];
 	var	dim=layer.dim;
 	
-	var	coord=xyz2slice(x,y,user.slice,user.view);
+	//var	coord=xyz2slice(x,y,user.slice,user.view);
+	var	coord={"x":x,"y":y,"z":user.slice};
 	if(user.x0<0) {
 		user.x0=coord.x;
 		user.y0=coord.y;
@@ -743,7 +807,7 @@ function initSocketConnection() {
 					inflate.push(new Uint8Array(this.result),true);
 					var layer=new Object();
 					layer.data=inflate.result;
-					layer.name="Atlas";
+					layer.name=AtlasMaker[0].atlasName;
 					layer.dim=brain_dim;
 					atlas.push(layer);
 					drawImages();
@@ -925,6 +989,10 @@ function init()
 			initAtlasMaker();
 		}
 	);
+	
+	// 3. Add cursor
+	$(document.body).append("<div id='finger'></div>");
+	$(document.body).append("<div id='cursor'></div>");
 }
 function loginChanged()
 {
@@ -952,9 +1020,15 @@ function initAtlasMaker()
 	canvas.onmouseup = mouseup;
 	
 	// configure canvas for tablets
+	/*
 	canvas.addEventListener("touchstart",touchstart,false);
 	canvas.addEventListener("touchmove",touchmove,false);
 	canvas.addEventListener("touchend",touchend,false);
+	*/
+	$("#finger").on("touchstart",function(e){touchstart(e)});
+	$("#finger").on("touchend",function(e){touchend(e)});
+	$("#finger").on("touchmove",function(e){touchmove(e)});
+
 
 	$(window).resize(function() {
 		resizeWindow();
@@ -1006,7 +1080,7 @@ function initAtlasMaker()
 	User.dirname=url.replace(/^http:\/\/[^\/]*/,'').replace(/[^\/]*$/,'');
 	var oReq = new XMLHttpRequest();
 	console.log("initAtlasMaker url",url);
-	oReq.open("POST", url, true);
+	oReq.open("GET", url, true);
 	oReq.responseType = "string";
 	oReq.onload = function(oEvent)
 	{
