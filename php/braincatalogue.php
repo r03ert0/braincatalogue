@@ -23,7 +23,7 @@ function braincatalogue($args)
 	if($args[1]=="blog")
 	{
 		$html=file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/blog.html");
-		$blog=file_get_contents("http://braincatalogue.dev/php/blog.php");
+		$blog=file_get_contents("http://braincatalogue.org/php/blog.php");
 	
 		$tmp=str_replace("<!--Core-->",$blog,$html);
 		$html=$tmp;

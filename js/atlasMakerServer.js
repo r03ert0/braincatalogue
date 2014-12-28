@@ -74,7 +74,7 @@ function initSocketConnection() {
 					if(data.uid==uid)
 						continue;
 					// don't broadcast to users using a different atlas
-					if(Users[data.uid] && (Users[uid].iAtlas!=Users[data.uid].iAtlas))
+					if((Users[data.uid] && Users[uid] && (Users[uid].iAtlas!=Users[data.uid].iAtlas)))
 						continue;
 					socket.clients[i].send(msg);
 				}
@@ -174,7 +174,11 @@ function sendAtlasToUser(atlasdata,ws)
 	if(debug)
 		console.log("[sendAtlasToUser]");
 	zlib.gzip(atlasdata,function(err,atlasdatagz) {
-		ws.send(atlasdatagz, {binary: true, mask: false});
+		try {
+			ws.send(atlasdatagz, {binary: true, mask: false});
+		} catch(e) {
+			console.log("ERROR: Can't send atlas data to user");
+		}
 	});
 }
 //========================================================================================
@@ -199,12 +203,9 @@ function addAtlas(dirname,atlasname,callback)
 function loadNifti(atlas,callback)
 {
 	// Load nifty label
-	try {
-		var niigz=fs.readFileSync(localdir+"/"+atlas.dirname+"/"+atlas.name);
-	} catch(ex) {
-		console.log("ERROR: No atlas at",localdir+"/"+atlas.dirname+"/"+atlas.name,ex);
-		return;
-	}
+	var niigz;
+	try{
+	niigz=fs.readFileSync(localdir+"/"+atlas.dirname+"/"+atlas.name);
 
 	zlib.gunzip(niigz,function(err,nii) {
 		var	sizeof_hdr=nii.readUInt32LE(0);
@@ -231,6 +232,9 @@ function loadNifti(atlas,callback)
 		
 		callback(atlas.data);
 	});
+	} catch(e) {
+		console.log("no atlas");
+	}
 }
 function saveNifti(atlas)
 {
@@ -269,10 +273,12 @@ function saveNifti(atlas)
 //========================================================================================
 function paintxy(u,c,x,y,user) // 'user' informs slice, atlas, vol, view, dim
 {
-	//console.log("paintxy user",user);
-
-	//var	coord=xyz2slice(x,y,user.slice,user.view);
-	var	coord={"x":x,"y":y,"z":user.slice};
+	if(Atlases[user.iAtlas].data==undefined) {
+		console.log("ERROR: No atlas to draw into");
+		return;
+	}
+	
+	var     coord={"x":x,"y":y,"z":user.slice};
 	if(user.x0<0) {
 		user.x0=coord.x;
 		user.y0=coord.y;
