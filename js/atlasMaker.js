@@ -1032,7 +1032,7 @@ function init()
 	// 3. Add cursor
 	var isTouchArr=["iPad","iPod"];
 	var curDevice=navigator.userAgent.split(/[(;]/)[1];
-	if($.inArray(curDevice,isTouchArr)) {
+	if($.inArray(curDevice,isTouchArr)>=0) {
 		$(document.body).append("<div id='finger'></div>");
 		$(document.body).append("<div id='cursor'></div>");
 		$("#finger").css({display:"inline"});
