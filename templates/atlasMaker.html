@@ -1,54 +1,24 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <head>
-	<link rel="stylesheet" href="/lib/jquery-ui.css">
-	<link rel="stylesheet" href="/css/common.css" type="text/css" media="screen, projection" />
-	<link rel="stylesheet" href="/css/atlasMaker.css" type="text/css" media="screen, projection" />
-	<link rel="stylesheet" href="/lib/jquery-ui.css">
-	<style>
-	html,body {
-		margin:0;
-		padding:0;
-		font-family:sans-serif;
-		background-color:black;
-	   font-size:12px !important;
-	}
-	img { 
-		image-rendering: optimizeSpeed;             /*                     */
-		image-rendering: -moz-crisp-edges;          /* Firefox             */
-		image-rendering: -o-crisp-edges;            /* Opera               */
-		image-rendering: -webkit-optimize-contrast; /* Chrome (and Safari) */
-		image-rendering: optimize-contrast;         /* CSS3 Proposed       */
-		-ms-interpolation-mode: nearest-neighbor;   /* IE8+                */
-	}
-	#toolbar {
-		width: 220px;
-		padding: 2px;
-		display: inline-block;
-	}
-	.ui-button-text {
-	   font-size:12px !important;
-	} 
-	td {
-		text-align: center;
-		vertical-align: top;
-	}
-	#login a {
-		color: white;
-	}
-	</style>
-	<script src="/lib/jquery-1.11.0.min.js"></script>
-	<script src="/lib/jquery-ui.js"></script>
-	<script src="/lib/jquery.ui.touch-punch.min.js"></script>
-	<script src="/lib/pako/pako.min.js"></script>
+<link href='http://fonts.googleapis.com/css?family=Voltaire' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="/lib/jquery-ui.css">
+<link rel="stylesheet" href="/css/common.css" type="text/css" media="screen, projection" />
+<link rel="stylesheet" href="/css/atlasMaker.css" type="text/css" media="screen, projection" />
+<link rel="stylesheet" href="/lib/jquery-ui.css">
+<script src="/lib/jquery-1.11.0.min.js"></script>
+<script src="/lib/jquery-ui.js"></script>
+<script src="/lib/jquery.ui.touch-punch.min.js"></script>
+<script src="/lib/pako/pako.min.js"></script>
 </head>
 
 <body ontouchmove="BlockMove(event);"> <!-- block move on tablets -->
 <script>function BlockMove(e){e.preventDefault()}</script>
 
 <!-- Login -->
-<div id="login" style="font-size:1rem;position:absolute;top:5px;right:5px"></div>
-<div id="info" style="font-size:1rem;position:absolute;bottom:5px;right:5px;color:white"></div>
+<div id="login" style="position:absolute;top:5px;right:5px"></div>
+<div id="info" style="position:absolute;bottom:5px;right:5px"></div>
 <script>
 	var	s = document.createElement('script');
 	s.async=false;
@@ -60,7 +30,8 @@
 <script>
 	var AtlasMaker=[{
 			name:"<!--SPECIMEN-->",
-			url:"/data/<!--SPECIMEN-->/info.txt"
+			url:"/data/<!--SPECIMEN-->/info.txt",
+			atlasName:"<!--ATLAS-->"
 		}];
 	var	s = document.createElement('script');
 	s.async=false;

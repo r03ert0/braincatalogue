@@ -271,7 +271,8 @@ function paintxy(u,c,x,y,user) // 'user' informs slice, atlas, vol, view, dim
 {
 	//console.log("paintxy user",user);
 
-	var	coord=xyz2slice(x,y,user);
+	//var	coord=xyz2slice(x,y,user.slice,user.view);
+	var	coord={"x":x,"y":y,"z":user.slice};
 	if(user.x0<0) {
 		user.x0=coord.x;
 		user.y0=coord.y;

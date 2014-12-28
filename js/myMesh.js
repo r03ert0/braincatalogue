@@ -1,10 +1,21 @@
 var container;
-var camera,tb,scene,renderer,composer,depthMaterial,depthTarget;
-function init_mesh(specimen,progress) {
+var camera;
+var	tb;
+var	scene;
+var	renderer;
+var	composer;
+var	depthMaterial;
+var	depthTarget;
+
+function init_mesh(specimen,progress)
+{
+	var	width, height;
+
 	container = document.getElementById('surface');
-	var	width=container.clientWidth;
-	var	height=container.clientHeight;
+	width=container.clientWidth;
+	height=container.clientHeight;
 	console.log(width,height);
+	
 	camera = new THREE.PerspectiveCamera(25,width/height,10,1000 );
 	camera.position.z = 200;
 	tb = new THREE.TrackballControls(camera,container);
@@ -12,7 +23,9 @@ function init_mesh(specimen,progress) {
 
 	scene = new THREE.Scene();
 
-	// Load mesh (ply format)
+	/* ------------------------
+	    Load mesh (ply format)
+	   ------------------------ */
 	var path="data/"+specimen;
 	var oReq = new XMLHttpRequest();
 	oReq.open("GET", "/data/"+name+"/mesh.ply", true);
@@ -34,17 +47,24 @@ function init_mesh(specimen,progress) {
 	progress.html("<span id='loader'><div class='dot'></div></span> Loading Surface...");
 	console.log("surface started loading");
 
-	renderer = new THREE.WebGLRenderer();
+	/* ---------------
+	    Init renderer
+	   --------------- */
+	renderer=webglAvailable() ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer();
 	renderer.setSize(width,height);
 	container.appendChild(renderer.domElement);
 
-	// depth
+	/* --------------
+	    Depth shader
+	   -------------- */
 	var depthShader = THREE.ShaderLib[ "depthRGBA" ];
 	var depthUniforms = THREE.UniformsUtils.clone( depthShader.uniforms );
 	depthMaterial = new THREE.ShaderMaterial( { fragmentShader: depthShader.fragmentShader, vertexShader: depthShader.vertexShader, uniforms: depthUniforms } );
 	depthMaterial.blending = THREE.NoBlending;
 
-	// postprocessing
+	/* -------------------
+	    AO postprocessing
+	   ------------------- */
 	composer = new THREE.EffectComposer( renderer );
 	composer.addPass( new THREE.RenderPass( scene, camera ) );
 	depthTarget = new THREE.WebGLRenderTarget( width, height, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, format: THREE.RGBAFormat } );
@@ -59,6 +79,17 @@ function init_mesh(specimen,progress) {
 	composer.addPass( effect );
 
 	window.addEventListener('resize',onWindowResize,false);
+}
+function webglAvailable() {
+    try {
+        var canvas = document.createElement("canvas");
+        return !!
+            window.WebGLRenderingContext && 
+            (canvas.getContext("webgl") || 
+                canvas.getContext("experimental-webgl"));
+    } catch(e) { 
+        return false;
+    } 
 }
 function onWindowResize() {
 	camera.aspect = container.clientWidth/container.clientHeight;

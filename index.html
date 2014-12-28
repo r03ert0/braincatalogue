@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="css/common.css" type="text/css" media="screen, projection" />
 <link rel="stylesheet" href="css/info.css" type="text/css" media="screen, projection" />
 <script src="/lib/jquery-1.11.0.min.js"></script>
+<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
 <script type="text/javascript">
 	window.onload = function()
 	{
@@ -26,6 +27,7 @@
 	s.async=false;
 	s.src="/lib/mylogin/login.js";
 	document.body.appendChild(s);
+	$("#sendLogin").button();
 </script>
 
 <div id="wrapper">
@@ -35,7 +37,7 @@
 		<div id="myinner">
 			<h1 style="display:inline-block"><a class="nodecoration" href="/" target="_top">Brain Catalogue</a></h1>
 			<div style="float:right">
-				<div id="login" class="nodecoration" style="display:inline-block"></div>
+				<div id="login" class="nodecoration"></div>
 				<a class="nodecoration" href="blog" style="padding:5px">Blog</a>
 				<a class="nodecoration" href="about.html" style="padding:5px">About</a>
 				<a class="nodecoration" href="http://siphonophore.org/blog/?cat=3&feed=rss2" style="padding:5px"><img src="feed-icon.svg" width="14px" height="14px"/></a>
@@ -62,7 +64,7 @@
 		<img align="left" alt="Creative Commons License" style="border:1px solid white" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" />
 		</a>
 		</td>
-		<td style="font-size:0.8rem;color:#fff;font-family:sans-serif">
+		<td style="font-size:1rem;color:#fff;font-family:sans-serif">
 		<span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">braincatalogue</span> by
 		<a xmlns:cc="http://creativecommons.org/ns#" href="siphonophore.org/braincatalogue" property="cc:attributionName" rel="cc:attributionURL">Roberto Toro</a>
 		is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.

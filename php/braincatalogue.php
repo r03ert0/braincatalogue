@@ -51,77 +51,107 @@ function braincatalogue($args)
 		$specimen=$args[1];
 		if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen))
 		{
-			header('HTTP/1.1 200 OK');
-			header("Status: 200 OK");
-
-			$html = file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/specimen.html");
-
-			$A="<table style='width:100%;'>";
-			if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/MRI-n4.nii.gz"))
+			if(count($args)>=3)
 			{
-			// Configure stereotaxic viewer
-			//-----------------------------
-			$A.=<<<EOF
-				<tr>
-				<td colspan=3 style='text-align:left'>
-					<h1 class="MRI"></h1>
-				</td>
-				</tr>
-				<tr>
-					<td>
-					<table style="width:512px">
-						<tr>
-						<td>
-							<div id="resizable" style="width:100%">
-								<canvas id="brainCanvas" style="width:100%;height:100%"></canvas>
-							</div>
-						</td>
-						</tr>
-						<tr>
-						<td>
-							<div id="slider" style="width:100%;margin:5px 0 10px 0;" oninput="javascript:changeSlice()">
-							</div>
-							<div id="radio">						
-								<input type="radio" id="sagittal" name="radio" checked="checked"><label for="sagittal">Sagittal</label>
-								<input type="radio" id="coronal" name="radio"><label for="coronal">Coronal</label>
-								<input type="radio" id="axial" name="radio"><label for="axial">Axial</label>
-							</div>
-						</td>
-						</tr>
-					</table>
-					</td>
-				</tr>
-EOF;
+			/*
+				Query for atlas
+			*/
+				$atlas=$args[2];
+				if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/".$atlas.".nii.gz"))
+				{
+					header('HTTP/1.1 200 OK');
+					header("Status: 200 OK");
+			
+					$html = file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/atlasMaker.html");
+					$tmp=str_replace("<!--SPECIMEN-->",$specimen,$html);
+					$html=$tmp;
+					$tmp=str_replace("<!--ATLAS-->",$atlas,$html);
+					$html=$tmp;
+					print $html;
+				}
+				else
+				{
+					header('HTTP/1.1 404 Not Found');
+					echo "We don't have data and atlas <i>".$atlas."</i> for specimen <i>".$specimen."</i>, yet...";
+				}
 			}
-			if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/mesh.ply"))
+			else
 			{
-			// Configure mesh view
-			//-----------------------------
-			$A.=<<<EOF
-				<tr><td colspan=3><h1>&nbsp;</h1></td></tr>
-				<tr>
-				<td colspan=3 style='text-align:left'>
-					<h1 class="Mesh"></h1>
-				</td>
-				</tr>
-				<tr>
-					<td colspan=3>
-						<div style="width:512px;height:512px" id="surface"></div>
+			/*
+				Query for specimen info
+			*/
+				header('HTTP/1.1 200 OK');
+				header("Status: 200 OK");
+			
+				$html = file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/specimen.html");
+
+				$A="<table style='width:100%;'>";
+				if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/MRI-n4.nii.gz"))
+				{
+				// Configure stereotaxic viewer
+				//-----------------------------
+				$A.=<<<EOF
+					<tr>
+					<td colspan=3 style='text-align:left'>
+						<h1 class="MRI"></h1>
 					</td>
-				</tr>
+					</tr>
+					<tr>
+						<td>
+						<table style="width:512px">
+							<tr>
+							<td>
+								<div id="resizable" style="width:100%">
+									<canvas id="brainCanvas" style="width:100%;height:100%"></canvas>
+								</div>
+							</td>
+							</tr>
+							<tr>
+							<td>
+								<div id="slider" style="width:100%;margin:5px 0 10px 0;" oninput="javascript:changeSlice()">
+								</div>
+								<div id="radio">						
+									<input type="radio" id="sagittal" name="radio" checked="checked"><label for="sagittal">Sagittal</label>
+									<input type="radio" id="coronal" name="radio"><label for="coronal">Coronal</label>
+									<input type="radio" id="axial" name="radio"><label for="axial">Axial</label>
+								</div>
+							</td>
+							</tr>
+						</table>
+						</td>
+					</tr>
 EOF;
-			}
-			$A.="</table>";
+				}
+				if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/mesh.ply"))
+				{
+				// Configure mesh view
+				//-----------------------------
+				$A.=<<<EOF
+					<tr><td colspan=3><h1>&nbsp;</h1></td></tr>
+					<tr>
+					<td colspan=3 style='text-align:left'>
+						<h1 class="Mesh"></h1>
+					</td>
+					</tr>
+					<tr>
+						<td colspan=3>
+							<div style="width:512px;height:512px" id="surface"></div>
+						</td>
+					</tr>
+EOF;
+				}
+				$A.="</table>";
 	
-			$tmp=str_replace("<!--DATAVIEW-->",$A,$html);
-			$html=$tmp;
+				$tmp=str_replace("<!--DATAVIEW-->",$A,$html);
+				$html=$tmp;
 
-			// Configure specimen
-			//--------------------
-			$tmp=str_replace("<!--SPECIMEN-->",$specimen,$html);
-			$html=$tmp;
+				// Configure specimen
+				//--------------------
+				$tmp=str_replace("<!--SPECIMEN-->",$specimen,$html);
+				$html=$tmp;
 
-			print $html;
+				print $html;
+			}
 		}
 		else
 		{
