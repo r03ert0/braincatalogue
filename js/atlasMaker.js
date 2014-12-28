@@ -473,7 +473,7 @@ function touchstart(e) {
 	var y=parseInt(touchEvent.pageY*(h/H));
 	
 	/*-- Precision cursor --*/
-	$("#finger").css({display:"inline"});
+	$("#finger").css("display","inline");
 	Crsr.x0=Crsr.cachedX=x;
 	Crsr.y0=Crsr.cachedY=y;
 	Crsr.touchStarted=true;
@@ -549,7 +549,7 @@ function initCursor() {
 	Crsr.fx=parseInt(w/2);
 	Crsr.fy=parseInt(h/2);
 	$("#cursor").css({left:(Crsr.x*(W/w))+"px",top:(Crsr.y*(H/h))+"px",width:User.penSize*(W/w),height:User.penSize*(H/h)});
-	$("#finger").css({left:(Crsr.fx*(W/w))+"px",top:(Crsr.fy*(H/h))+"px",display:"none"});
+	$("#finger").css({left:(Crsr.fx*(W/w))+"px",top:(Crsr.fy*(H/h))+"px"});
 }
 function updateCursor() {
     $("#finger").removeClass("move draw configure");
@@ -1030,9 +1030,14 @@ function init()
 	);
 	
 	// 3. Add cursor
-	$(document.body).append("<div id='finger'></div>");
-	$(document.body).append("<div id='cursor'></div>");
-	updateCursor();
+	var isTouchArr=["iPad","iPod"];
+	var curDevice=navigator.userAgent.split(/[(;]/)[1];
+	if($.inArray(curDevice,isTouchArr)) {
+		$(document.body).append("<div id='finger'></div>");
+		$(document.body).append("<div id='cursor'></div>");
+		$("#finger").css({display:"inline"});
+		updateCursor();
+	}
 }
 function loginChanged()
 {
