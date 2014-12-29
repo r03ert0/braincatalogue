@@ -489,7 +489,7 @@ function touchstart(e) {
 			Crsr.state="configure";
 			updateCursor();
 		}
-	},500);
+	},1000);
 	/*----------------------*/
 
 	down(Crsr.x,Crsr.y);
