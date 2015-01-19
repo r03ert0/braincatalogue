@@ -1022,7 +1022,7 @@ function init()
 	//var div = Siph.settings[0].container;
 	$(document.body).append("<div class='atlasMaker'></div>");
 
-	// 2. Load "experiment" template
+	// 2. Load "atlasMakerTools" template
 	$("div.atlasMaker").load("/templates/atlasMakerTools.html",
 		function(responseText, textStatus, XMLHttpRequest) {
 			initAtlasMaker();
@@ -1045,11 +1045,15 @@ function loginChanged()
 		console.log("[loginChanged] changed to",MyLoginWidget.loggedin);
 	if(MyLoginWidget.loggedin)
 	{
-		$(".loginRequired").show();	// Show all controls that required to be logged in
+		$(".loginRequired").show();	// Show all controls required to log in
 		User.username=MyLoginWidget.username;
+		sendUserDataMessage();	// inform the server
 	}
 	else
-		$(".loginRequired").hide();	// Hide all controls that required to be logged in
+	{
+		$(".loginRequired").hide();	// Hide all controls required to log in
+		sendUserDataMessage();	// inform the server
+	}
 }
 function initAtlasMaker()
 {
@@ -1126,7 +1130,7 @@ function initAtlasMaker()
 	{
         var data=JSON.parse(this.response);
         User.mri=data.mri;
-        User.name=data.name
+        User.name=data.name;
         loadNifti();
         initSocketConnection();
 		drawImages();
