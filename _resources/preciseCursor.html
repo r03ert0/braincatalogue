@@ -1,0 +1,144 @@
+<!--
+	http://jsfiddle.net/fhxr35b6/5/
+-->
+
+<div id="msg"></div>
+<div id="finger"></div>
+<div id="cursor"></div>
+<svg id="d" xmlns="http://www.w3.org/2000/svg"/>
+<div style="position:absolute;right:0;bottom:0">Precision drawing for tablets. To prevent ocluding the drawing cursor with ones own finger, the position of the finger is displaced from the position of the cursor. When the finger ring is in yellow, the cursor can be moved without drawing. Tap, and the finger ring will turn green, for drawing. Tap and press for 1 second, and the finger ring will turn orange, allowing to displace its position relative to the cursor.</div>
+
+<style>
+body {
+    background-color:black;
+    color:white;
+}
+#cursor {
+width:5px;
+height:5px;
+border:thin solid white;
+position:fixed;
+top:10px;
+left:10px
+pointer-events:none;
+}
+#finger {
+width:30px;
+height:30px;
+border-width:4px;
+border-style:solid;
+border-radius: 50%;
+position:fixed;
+top:40px;
+left:40px
+}
+#finger.move {
+    border-color:yellow;
+}
+#finger.draw {
+    border-color:green;
+}
+#finger.configure {
+    border-color:orange;
+}
+#msg {
+position:absolute;
+top:5px;
+left:5px;
+}
+svg#d{
+width:600px;
+height:600px;
+}
+</style>
+
+<script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+<script>
+var C={ x0:undefined,
+	    y0:undefined,
+		cachedX:undefined,
+		cachedY:undefined,
+		state:"move",
+		prevState:undefined,
+		touchStarted:false };
+
+init();
+
+function init() {
+	// update cursor color based on its state
+	updateCursor();
+	
+	// handle cursor events
+	$("#finger").on("touchstart",function(e){cursorStart(e)});
+	$("#finger").on("touchend",function(e){cursorEnded(e)});
+	$("#finger").on("touchmove",function(e){cursorMove(e)});
+}
+function cursorStart(e) {
+	e.preventDefault();
+	var touch = e.originalEvent.touches[0];
+	C.x0=C.cachedX=touch.pageX;
+	C.y0=C.cachedY=touch.pageY;
+	C.touchStarted=true;
+
+	setTimeout(function() {
+		if(C.cachedX == C.x0 && C.cachedY==C.y0 &&!C.touchStarted) {
+			C.state=(C.state=="move")?"draw":"move";
+			updateCursor();
+		}
+	},200);
+
+	setTimeout(function() {
+		if (C.cachedX==C.x0 && C.cachedY==C.y0 && C.touchStarted) {
+			C.prevState=C.state;
+			C.state="configure";
+			updateCursor();
+		}
+	},500);  
+}
+function cursorEnded(e) {
+	C.touchStarted=false;
+	if(C.state=="configure") {
+		C.state=C.prevState;
+		updateCursor();
+	}
+}
+function cursorMove(e) {
+	e.preventDefault();
+	var touch = e.originalEvent.touches[0];
+	var x=touch.pageX;
+	var y=touch.pageY;
+	var c={x:parseFloat($("#cursor").css("left")),y:parseFloat($("#cursor").css("top"))}
+	var f={x:parseFloat($("#finger").css("left")),y:parseFloat($("#finger").css("top"))}
+	var line;
+
+	if(C.state=="move"||C.state=="draw") {
+		$("#cursor").css({left:(c.x+x-C.x0)+"px",top:(c.y+y-C.y0)+"px"});
+        $("#finger").css({left:(f.x+x-C.x0)+"px",top:(f.y+y-C.y0)+"px"});
+
+	
+		if(C.state=="draw") {
+			line=makeSVG('line',{x1:c.x-3,y1:c.y-3,x2:c.x+x-C.x0-3,y2:c.y+y-C.y0-3,stroke:'green'});
+			$("svg#d")[0].appendChild(line);
+		}
+	} else {
+		$("#finger").css({left:(f.x+x-C.x0)+"px",top:(f.y+y-C.y0)+"px"});
+	}
+	C.x0=x;
+	C.y0=y;
+}
+function updateCursor() {
+    $("#finger").removeClass("move draw configure");
+    switch(C.state) {
+        case "move": $("#finger").addClass("move");	break;
+        case "draw": $("#finger").addClass("draw");	break;
+        case "configure": $("#finger").addClass("configure");	break;
+    }
+    $("#msg").html(C.state);
+}
+function makeSVG(tag, attrs) {
+    var el=document.createElementNS("http://www.w3.org/2000/svg",tag);
+    for(var k in attrs)
+        el.setAttribute(k, attrs[k]);
+    return el;
+}
+</script>

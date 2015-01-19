@@ -48,15 +48,33 @@ function braincatalogue($args)
 	}
 	else
 	{
-		$specimen=$args[1];
-		if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen))
+		/*
+			This bit of code permits to have MRI directories that
+			do not appear in the front page.
+			It works by looking from the end of the url if the
+			directory exists. If it doesn't, it may be because
+			the user is asking for a segmentation atlas. In that
+			case, the code tries eliminating the last part.
+		*/
+		$found=false;
+		for($i=count($args);$i>0;$i--)
 		{
-			if(count($args)>=3)
+			$specimen=join("/",array_slice($args,0,$i));
+			if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen))
+			{
+				$found=true;
+				break;
+			}
+		}
+		
+		if($found)
+		{
+			if($i<count($args))
 			{
 			/*
 				Query for atlas
 			*/
-				$atlas=$args[2];
+				$atlas=$args[count($args)-1];
 				if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/".$atlas.".nii.gz"))
 				{
 					header('HTTP/1.1 200 OK');
@@ -72,7 +90,7 @@ function braincatalogue($args)
 				else
 				{
 					header('HTTP/1.1 404 Not Found');
-					echo "We don't have data and atlas <i>".$atlas."</i> for specimen <i>".$specimen."</i>, yet...";
+					echo "We don't have an atlas <i>".$atlas."</i> for specimen <i>".$specimen."</i>, yet...";
 				}
 			}
 			else

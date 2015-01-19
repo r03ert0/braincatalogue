@@ -7,7 +7,10 @@ function returnimages($dirname="../data")
 	{
 		while(false !== ($file = readdir($handle)))
 		{
-			if($file{0}!=".")
+			/* Do not list hidden files, or directories
+			   starting with an underscore "_"
+			*/
+			if($file{0}!="." and $file{0}!="_")
 			{
 				$name=str_replace("_"," ",$file);
 				echo '<div class="square">';

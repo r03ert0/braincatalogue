@@ -6,6 +6,7 @@
 */
 
 var WebSocketServer=require("ws").Server;
+var os=require("os");
 var fs=require("fs");
 var zlib=require("zlib");
 
@@ -15,6 +16,10 @@ var	Users=[];
 var	usrsckts=[];
 var	localdir=__dirname+"/../";
 var	uidcounter=1;
+
+console.log("atlasMakerServer.js");
+console.log(new Date());
+console.log("free memory",os.freemem());
 
 initSocketConnection();
 
@@ -42,21 +47,22 @@ function initSocketConnection() {
 	var host = "ws://localhost:12345/echo";
 	
 	if(debug)
-		console.log("[initSocketConnection] host:",host);
+		console.log(new Date(),"[initSocketConnection] host:",host);
 	
 	try
 	{
 		socket = new WebSocketServer({port:12345});
 		socket.on("connection",function(s)
 		{
-			console.log("[connection open]");
+			console.log(new Date(),"[connection open]");
 			var	usr={"uid":uidcounter++,"socket":s};
 			usrsckts.push(usr);
-			console.log("user",usr.uid,"connected, total:",usrsckts.length,"users");
+			console.log("User id "+usr.uid+" connected, total: "+usrsckts.length+" users");
+			
 			s.on('message',function(msg)
 			{
 				if(debug)
-					console.log("[connection: message]");
+					console.log(new Date(),"[connection: message]");
 				var uid=getUserId(this);
 				var	data=JSON.parse(msg);
 				data.uid=uid;
@@ -93,15 +99,45 @@ function initSocketConnection() {
 			
 			s.on('close',function(msg)
 			{
+				console.log(new Date());
 				console.log("[connection: close]");
 				console.log("usrsckts length",usrsckts.length);
 				for(var i in usrsckts)
 					if(usrsckts[i].socket==s)
-						console.log("user",usrsckts[i].uid,"is closing connection\n\n");
+						console.log("user",usrsckts[i].uid,"is closing connection");
 				var uid=getUserId(this);
 				var u=uid;	// user
-				Users[u]=undefined;
+				console.log("User ID "+u+" is disconnecting");
+				console.log("User was connected to atlas "+Users[u].dirname+"/"+Users[u].mri.atlas);
+				
+				// count how many users remain connected to the atlas after user leaves
+				var sum=0;
+				for(i in Users)
+					if(Users[i].dirname==Users[u].dirname && Users[i].mri.atlas==Users[u].mri.atlas)
+						sum++;
+				sum--;
+				if(sum)
+					console.log("There remain "+sum+" users connected to that atlas");
+				else
+				{
+					console.log("No user connected to atlas "+Users[u].dirname+"/"+Users[u].mri.atlas+": unloading it");
+					for(i in Atlases)
+					{
+						if(Atlases[i].dirname==Users[u].dirname && Atlases[i].name==Users[u].mri.atlas)
+						{
+							saveNifti(Atlases[i]);
+							clearInterval(Atlases[i].interval);
+							Atlases.splice(i,1);
+							console.log("free memory",os.freemem());
+							break;
+						}
+					}
+				}
+				
+				// remove the user from the list
+				Users.splice(u,1);
 				removeUser(this);
+				
 				// display the total number of connected users
 				var	nusers=Users.filter(function(value){ return value !== undefined }).length;
 				if(debug)
@@ -114,12 +150,12 @@ function initSocketConnection() {
 	}
 	catch (ex)
 	{
-		console.log("ERROR: Unable to create a server",ex);
+		console.log(new Date(),"ERROR: Unable to create a server",ex);
 	}
 }
 function receivePaintMessage(ws,data) {
 	if(debug)
-		console.log("[receivePaintMessage]");
+		console.log(new Date(),"[receivePaintMessage]");
 
 	var	msg=JSON.parse(data.data);
 	var u=parseInt(data.uid);	// user id
@@ -134,7 +170,7 @@ function receivePaintMessage(ws,data) {
 function receiveUserDataMessage(ws,data)
 {
 	if(debug)
-		console.log("[receiveUserDataMessage]");
+		console.log(new Date(),"[receiveUserDataMessage]");
 	var u=data.uid;
 	var user=JSON.parse(data.user);
 	var	i,atlasLoadedFlag,firstConnectionFlag;
@@ -143,6 +179,7 @@ function receiveUserDataMessage(ws,data)
 		console.log("DataMessage user",user);
 	firstConnectionFlag=(Users[u]==undefined);
 
+	// Check if the atlas the user is requesting has not been loaded
 	atlasLoadedFlag=false;
 	for(i=0;i<Atlases.length;i++)
 		if(Atlases[i].dirname==user.dirname && Atlases[i].name==user.mri.atlas)
@@ -152,6 +189,7 @@ function receiveUserDataMessage(ws,data)
 		}
 	user.iAtlas=i;	// i-th value if it was found, or last if it wasn't
 	
+	// send the atlas to the user (load it if required)
 	if(atlasLoadedFlag)
 	{
 		if(firstConnectionFlag)
@@ -162,22 +200,46 @@ function receiveUserDataMessage(ws,data)
 	}
 	else
 	{
+		// the atlas requested has not been loaded before
 		// load the atlas she's requesting
 		addAtlas(user.dirname,user.mri.atlas,function(atlas){sendAtlasToUser(atlas,ws)});
 	}
 	
+	// If the user didn't have a name (wasn't logged in), but now has one,
+	// display the name in the log
+	if(user.hasOwnProperty('username'))
+	{
+		if(Users[u]==undefined)
+			console.log(new Date(),"User id "+u+" is "+user.username);
+		else
+		if(!Users[u].hasOwnProperty('username'))
+			console.log(new Date(),"User id "+u+" is "+user.username);
+	}
+	else
+		console.log(new Date(),"Name unknown for user id "+u);
+	
 	// Update user data
 	Users[u]=user;
+
+	if(firstConnectionFlag)
+	{
+		// display how many user are using the same atlas
+		var sum=0;
+		for(i in Users)
+			if(Users[i].dirname==user.dirname && Users[i].mri.atlas==user.mri.atlas)
+				sum++;
+		console.log(sum+" users are connected to the atlas "+user.dirname+"/"+user.mri.atlas);
+	}	
 }
 function sendAtlasToUser(atlasdata,ws)
 {
 	if(debug)
-		console.log("[sendAtlasToUser]");
+		console.log(new Date(),"[sendAtlasToUser]");
 	zlib.gzip(atlasdata,function(err,atlasdatagz) {
 		try {
 			ws.send(atlasdatagz, {binary: true, mask: false});
 		} catch(e) {
-			console.log("ERROR: Can't send atlas data to user");
+			console.log(new Date(),"ERROR: Can't send atlas data to user");
 		}
 	});
 }
@@ -189,7 +251,7 @@ function addAtlas(dirname,atlasname,callback)
 	if(debug)
 		console.log("[add atlas]");
 
-	console.log("Load atlas",atlasname,"from",dirname);
+	console.log(new Date(),"Load atlas",atlasname,"from",dirname);
 	
 	var atlas=new Object();
 
@@ -198,7 +260,7 @@ function addAtlas(dirname,atlasname,callback)
 	loadNifti(atlas,callback);	
 	Atlases.push(atlas);
 	
-	setInterval(function(){saveNifti(atlas)},10*60*1000); // 10 minutes
+	atlas.timer=setInterval(function(){saveNifti(atlas)},10*60*1000); // 10 minutes
 }
 function loadNifti(atlas,callback)
 {
@@ -225,15 +287,17 @@ function loadNifti(atlas,callback)
 			sum+=atlas.data[i];
 		atlas.sum=sum;
 
+		console.log(new Date());
 		console.log("size",atlas.data.length);
 		console.log("dim",atlas.dim);
 		console.log("datatype",datatype);
 		console.log("vox_offset",vox_offset);
+		console.log("free memory",os.freemem());
 		
 		callback(atlas.data);
 	});
 	} catch(e) {
-		console.log("no atlas");
+		console.log(new Date(),"no atlas");
 	}
 }
 function saveNifti(atlas)
@@ -245,7 +309,7 @@ function saveNifti(atlas)
 			sum+=atlas.data[i];
 		if(sum==atlas.sum)
 		{
-			console.log("Atlas",atlas.dirname,atlas.name,"no change, no save");
+			console.log("Atlas",atlas.dirname,atlas.name,"no change, no save, freemem",os.freemem());
 			return;
 		}
 		atlas.sum=sum;
@@ -274,7 +338,7 @@ function saveNifti(atlas)
 function paintxy(u,c,x,y,user) // 'user' informs slice, atlas, vol, view, dim
 {
 	if(Atlases[user.iAtlas].data==undefined) {
-		console.log("ERROR: No atlas to draw into");
+		console.log(new Date(),"ERROR: No atlas to draw into");
 		return;
 	}
 	
