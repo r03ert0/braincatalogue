@@ -126,7 +126,7 @@ function initSocketConnection() {
 						if(Atlases[i].dirname==Users[u].dirname && Atlases[i].name==Users[u].mri.atlas)
 						{
 							saveNifti(Atlases[i]);
-							clearInterval(Atlases[i].interval);
+							clearInterval(Atlases[i].timer);
 							Atlases.splice(i,1);
 							console.log("free memory",os.freemem());
 							break;
