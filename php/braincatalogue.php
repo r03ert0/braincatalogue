@@ -59,9 +59,7 @@ function braincatalogue($args)
 		$found=false;
 		for($i=count($args);$i>0;$i--)
 		{
-			$specimen=join("/",array_slice($args,1,$i));
-			//var_dump($args);
-			//echo "[".$specimen."]";
+			$specimen=join("/",array_slice($args,0,$i));
 			if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen))
 			{
 				$found=true;
@@ -71,12 +69,15 @@ function braincatalogue($args)
 		
 		if($found)
 		{
+			//var_dump($args);
+			//echo "[".$specimen."] ".$found;
+
 			if($i<count($args))
 			{
 			/*
 				Query for atlas
 			*/
-				$atlas=$args[count($args)-1];
+				$atlas=$args[count($args)];
 				if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/".$atlas.".nii.gz"))
 				{
 					header('HTTP/1.1 200 OK');
@@ -106,6 +107,7 @@ function braincatalogue($args)
 				$html = file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/specimen.html");
 
 				$A="<table style='width:100%;'>";
+				
 				if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/MRI-n4.nii.gz"))
 				{
 				// Configure stereotaxic viewer
