@@ -71,7 +71,7 @@ function drawImages()
 	else
 	{
 		var img = new Image();
-  		img.src = "data/"+name+"/"+view+".jpg";
+  		img.src = "/data/"+name+"/"+view+".jpg";
   		img.onload = function(){
 			var W=parseFloat($('#resizable').css('width'));
 			var	w=this.width;
@@ -116,7 +116,8 @@ function drawBrainImage()
 function loadBrain(progress)
 {
 	var oReq = new XMLHttpRequest();
-	oReq.open("GET", "data/"+name+"/MRI-n4.nii.gz", true);
+	console.log("loadBrain:",name);
+	oReq.open("GET", "/data/"+name+"/MRI-n4.nii.gz", true);
 	oReq.addEventListener("progress", function(e){progress.html("Loading MRI ("+parseInt(100*e.loaded/e.total)+"%)")}, false);
 	//progress.html("<span id='loader'><div class='dot'></div></span> Loading MRI "+parseInt(100*e.loaded/e.total)+"%");
 	oReq.responseType = "arraybuffer";
