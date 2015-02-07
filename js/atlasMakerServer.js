@@ -215,8 +215,8 @@ function receiveUserDataMessage(ws,data)
 		if(!Users[u].hasOwnProperty('username'))
 			console.log(new Date(),"User id "+u+" is "+user.username);
 	}
-	else
-		console.log(new Date(),"Name unknown for user id "+u);
+	//else
+	//	console.log(new Date(),"Name unknown for user id "+u);
 	
 	// Update user data
 	Users[u]=user;
