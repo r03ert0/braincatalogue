@@ -59,7 +59,9 @@ function braincatalogue($args)
 		$found=false;
 		for($i=count($args);$i>0;$i--)
 		{
-			$specimen=join("/",array_slice($args,0,$i));
+			$specimen=join("/",array_slice($args,1,$i));
+			//var_dump($args);
+			//echo "[".$specimen."]";
 			if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen))
 			{
 				$found=true;
