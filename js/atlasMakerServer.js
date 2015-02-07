@@ -108,7 +108,7 @@ function initSocketConnection() {
 				var uid=getUserId(this);
 				var u=uid;	// user
 				console.log("User ID "+u+" is disconnecting");
-				console.log("User was connected to atlas "+Users[u].dirname+"/"+Users[u].mri.atlas);
+				console.log("User was connected to atlas "+Users[u].dirname+Users[u].mri.atlas);
 				
 				// count how many users remain connected to the atlas after user leaves
 				var sum=0;
@@ -120,7 +120,7 @@ function initSocketConnection() {
 					console.log("There remain "+sum+" users connected to that atlas");
 				else
 				{
-					console.log("No user connected to atlas "+Users[u].dirname+"/"+Users[u].mri.atlas+": unloading it");
+					console.log("No user connected to atlas "+Users[u].dirname+Users[u].mri.atlas+": unloading it");
 					for(i in Atlases)
 					{
 						if(Atlases[i].dirname==Users[u].dirname && Atlases[i].name==Users[u].mri.atlas)
@@ -228,7 +228,7 @@ function receiveUserDataMessage(ws,data)
 		for(i in Users)
 			if(Users[i].dirname==user.dirname && Users[i].mri.atlas==user.mri.atlas)
 				sum++;
-		console.log(sum+" users are connected to the atlas "+user.dirname+"/"+user.mri.atlas);
+		console.log(sum+" users are connected to the atlas "+user.dirname+user.mri.atlas);
 	}	
 }
 function sendAtlasToUser(atlasdata,ws)
@@ -267,7 +267,7 @@ function loadNifti(atlas,callback)
 	// Load nifty label
 	var niigz;
 	try{
-	niigz=fs.readFileSync(localdir+"/"+atlas.dirname+"/"+atlas.name);
+	niigz=fs.readFileSync(localdir+"/"+atlas.dirname+atlas.name);
 
 	zlib.gunzip(niigz,function(err,nii) {
 		var	sizeof_hdr=nii.readUInt32LE(0);
