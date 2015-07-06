@@ -1,39 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link href='http://fonts.googleapis.com/css?family=Voltaire' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="css/common.css" type="text/css" media="screen, projection" />
-<link rel="stylesheet" href="css/info.css" type="text/css" media="screen, projection" />
-<script src="js/jquery-1.11.0.min.js"></script>
-<style>
-.blog a {
-	text-decoration:none;
-}
-.blog a:hover {
-	text-decoration:underline;
-}
-</style>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Quicksand:400,300,100' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="/css/common.css" type="text/css" media="screen, projection" />
+	<link rel="stylesheet" href="/css/info.css" type="text/css" media="screen, projection" />
+	<script src="/lib/jquery-1.11.0.min.js"></script>
+	<script src="/lib/mylogin/login.js"></script>
+	<style>
+	.blog a {
+		text-decoration:none;
+	}
+	.blog a:hover {
+		text-decoration:underline;
+	}
+	</style>
 </head>
 
-<body style="color: rgb(0,0,0); background-color:rgb(255,255,255);" alink="#ff9900" link="#666666" vlink="#999999">
+<body>
 
 <div id="wrapper">
 
+	<!-- Header -->
 	<header id="header">
 		<div id="myinner">
-			<h1><a class="nodecoration" href="/" target="_top">Brain Catalogue</a></h1>
-			<hr size="1px">
-			<p style="text-align:right">
-				<a class="nodecoration" href="about.html" style="padding:5px">About</a>
-				<a class="nodecoration" href="blog" style="padding:5px">Blog</a>
-				<a class="nodecoration" href="contact.html" style="padding:5px">Contact</a>
-				<a class="nodecoration" href="http://siphonophore.org/blog/?cat=3&feed=rss2" style="padding:5px"><img src="feed-icon.svg" width="14px" height="14px"/></a>
-			</p>
+			<h1 style="display:inline-block">
+				<a class="menu nodecoration" href="/" target="_top">
+					Brain Catalogue
+				</a>
+			</h1>
+			<div id="menu">
+				<div id="login" class="menu">Login</div>
+				<a class="menu" href="blog">Blog</a>
+				<a class="menu" href="about.html">About</a>
+				<a class="menu" href="http://siphonophore.org/blog/?cat=3&feed=rss2">
+					<img src="/img/feed-icon.svg" width="14px" height="14px"/>
+				</a>
+			</div>
 		</div>
 	</header><!-- #header-->
 		
-		<!-- 2. Middle -->
+	<!-- 2. Middle -->
 	<section id="middle">
 		<div id="container">
 		<!--Core-->
@@ -43,16 +51,16 @@
 </div> <!-- wrapper -->
 
 <footer id="footer">
-	<div style="padding:10px 10px">
+	<div>
 		<table>
 		<tr>
 		<td>
 		<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">
-		<img align="left" alt="Creative Commons License" style="border:1px solid white" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" />
+		<img align="left" alt="Creative Commons License" src="/img/88x31.png" />
 		</a>
 		</td>
-		<td style="font-size:0.8rem;color:#fff;font-family:sans-serif">
-		<span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">braincatalogue</span> by
+		<td>
+		<span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Brain Catalogue</span> by
 		<a xmlns:cc="http://creativecommons.org/ns#" href="siphonophore.org/braincatalogue" property="cc:attributionName" rel="cc:attributionURL">Roberto Toro</a>
 		is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.
 		</td>
@@ -60,6 +68,10 @@
 		</table>
 	</div>
 </footer> <!-- footer -->
+
+<script>
+	MyLoginWidget.init();
+</script>
 
 </body>
 </html>

@@ -59,6 +59,8 @@ var Crsr={ x:undefined,			// cursor x coord
 		   touchStarted:false	// touch started flag
 		  };
 
+// undo stack
+var Undo=[];
 
 //========================================================================================
 // Local user interaction
@@ -271,7 +273,7 @@ function saveNifti()
 }
 function configureBrainImage()
 {
-	if(debug) console.log("> configureBrainImage()");
+	if(debug==0) console.log("> configureBrainImage()");
 	
 	// init query image
 	switch(User.view)
@@ -348,12 +350,13 @@ function drawImages()
 		var img = new Image();
   		img.src = User.dirname+"/"+User.view+".jpg";
   		img.onload = function(){
-			var W=parseFloat($('#resizable').css('width'));
+			var W=$('body').width();
 			var	w=this.width;
 			var	h=this.height;
-			$('#resizable').css('height', h*W/w );
-			canvas.width=W;
-			canvas.height=h*W/w;
+			$('#resizable').width(W);
+			$('#resizable').height(h*W/w);
+			//canvas.width=W;
+			//canvas.height=h*W/w;
 			nearestNeighbour(context);
   			context.drawImage(this,0,0,W,h*W/w);
   		};
@@ -559,7 +562,7 @@ function updateCursor() {
         case "configure": $("#finger").addClass("configure");	break;
     }
     //$("#msg").html(C.state);
-    console.log(Crsr.state);
+    //console.log(Crsr.state);
 }
 function down(x,y) {
 	if(debug) console.log("> down()");
@@ -613,9 +616,12 @@ function up(e) {
 	if(MyLoginWidget.loggedin==0)
 		return;
 
+	// Send mouse up (touch ended) message
 	User.mouseIsDown = false;
 	User.x0=-1;
-	sendUserDataMessage();
+	var msg=JSON.stringify({"c":"mu"});
+	sendPaintMessage(msg);
+	// sendUserDataMessage();
 	
 	// add annotated length to User.annotation length and post to DB
 	logAnnotationLength();
@@ -679,6 +685,54 @@ function paintxy(u,c,x,y,usr)
 
 	usr.x0=coord.x;
 	usr.y0=coord.y;
+}
+function paintvol(voxels)
+{
+	/* this function is exclusively used for undoing */
+	
+	if(debug) console.log("> paintvol()");
+	
+	var	i,
+		ind,			// voxel index
+		val,			// voxel delta-value, such that -=val undoes
+		layer=atlas[0];
+	for(i=0;i<voxels.length;i++) {
+		ind=voxels[i][0];
+		val=voxels[i][1];
+	    layer.data[ind]-=val;
+	}
+
+	drawImages();
+}
+function paintslice(u,img,user)
+{
+	/* part of undo */
+	// u: user number
+	// img: img data
+	msg=JSON.stringify({"img":img});
+	if(u==-1 && msg!=msg0)
+	{
+		//sendPaintMessage(msg);
+		msg0=msg;
+	}
+
+	var layer=atlas[0];
+	// Should be normally called only from the server
+	// img contains the img data
+	// we must apply this image on the right slice / view ( user.slice, user.view) !!
+	var idx_img = 0;
+	var width = getCanvasWidth(user.view);
+	var height = getCanvasHeight(user.view);
+	var i,x,y;
+	for(y = 0 ; y < height; y++) {
+		for(x = 0 ; x < width; x++) {
+			i = slice2index(x, y, user.slice, user.view);
+			layer.data[i] = img[idx_img];
+			idx_img++;
+		}
+	}
+
+	drawImages();
 }
 function fill(x,y,z,val,myView)
 {
@@ -807,6 +861,13 @@ function xyz2slice(x,y,z,myView)
 	}	
 	return new Object({"x":x,"y":y,"z":z});	
 }
+//========================================================================================
+// Undo
+//========================================================================================
+function newUndoLayer() {
+	var undoLayer={};
+	Undo.push(undoLayer);
+}
 
 //========================================================================================
 // Web sockets
@@ -862,7 +923,7 @@ function initSocketConnection() {
 			
 			// If we receive a message from an unknown user,
 			// send our own data to make us known
-			if(!Collab[data.uid])
+			if(data.uid!=undefined && !Collab[data.uid])
 				sendUserDataMessage();
 			
 			switch(data.type)
@@ -875,6 +936,9 @@ function initSocketConnection() {
 					break;
 				case "paint":
 					receivePaintMessage(data);
+					break;
+				case "paintvol":
+					receivePaintVolumeMessage(data);
 					break;
 				case "disconnect":
 					receiveDisconnectMessage(data);
@@ -960,6 +1024,51 @@ function receivePaintMessage(data) {
 
 	paintxy(u,c,x,y,Collab[u]);
 }
+function receivePaintVolumeMessage(data) {
+	if(debug)
+		console.log("> receivePaintVolumeMessage()");
+	
+	var	i,ind,val,voxels;
+	
+	voxels=JSON.parse(data.data);
+	paintvol(voxels.data);
+}
+function sendPaintSliceMessage(msg) {
+	/* part of undo */
+	if(debug)
+		console.log("[sendPaintSliceMessage]");
+
+	if(flagConnected==0)
+		return;
+	try {
+		socket.send(JSON.stringify({"type":"img","data":msg}));
+		socket.send(msg);
+	} catch (ex) {
+		console.log("ERROR: Unable to sendImgMessage",ex);
+	}
+}
+function receivePaintSliceMessage(data) {
+	/* part of undo */
+	if(debug)
+		console.log("[receivePaintSliceMessage]");
+
+	var msg=$.parseJSON(data.data);
+	var u=parseInt(data.uid);       // user
+	var img=msg.img;    // img data
+
+	paintslice(u,img,Collab[u]);
+}
+function sendUndoMessage() {
+	if(debug) console.log("> sendUndoMessage()");
+	
+	if(flagConnected==0)
+		return;
+	try {
+		socket.send(JSON.stringify({"type":"paint","data":'{"c":"u"}'}));
+	} catch (ex) {
+		console.log("ERROR: Unable to sendUndoMessage",ex);
+	}
+}
 function receiveDisconnectMessage(data) {
 	if(debug) console.log("> receiveDisconnectMessage()");
 	
@@ -1006,7 +1115,7 @@ function logAnnotationLength()
 		$("#info").text("length: "+length+" mm");
 	})
 	.fail(function() {
-		console.log( "error" );
+		console.log( "Error" );
 	});
 }
 
@@ -1101,6 +1210,7 @@ function initAtlasMaker()
 
 	$("span#tool").buttonset().unbind('keydown');
 	$("#tool input[type=radio]").change(function(){changeTool($(this).attr('id'))})
+	$("button#undo").button().click(function(){sendUndoMessage()});
 
 	$("input#fill").button().click(function(){toggleFill()});
 	

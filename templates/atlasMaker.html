@@ -1,16 +1,15 @@
 <html>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <head>
-<link href='http://fonts.googleapis.com/css?family=Voltaire' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="/lib/jquery-ui.css">
-<link rel="stylesheet" href="/css/common.css" type="text/css" media="screen, projection" />
-<link rel="stylesheet" href="/css/atlasMaker.css" type="text/css" media="screen, projection" />
-<link rel="stylesheet" href="/lib/jquery-ui.css">
-<script src="/lib/jquery-1.11.0.min.js"></script>
-<script src="/lib/jquery-ui.js"></script>
-<script src="/lib/jquery.ui.touch-punch.min.js"></script>
-<script src="/lib/pako/pako.min.js"></script>
+	<meta charset="utf-8">
+	<link href='http://fonts.googleapis.com/css?family=Voltaire' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="/lib/jquery-ui.css">
+	<link rel="stylesheet" href="/css/common.css"/>
+	<link rel="stylesheet" href="/css/atlasMaker.css"/>
+	<script src="/lib/jquery-1.11.0.min.js"></script>
+	<script src="/lib/jquery-ui.js"></script>
+	<script src="/lib/jquery.ui.touch-punch.min.js"></script>
+	<script src="/lib/pako/pako.min.js"></script>
 </head>
 
 <body ontouchmove="BlockMove(event);"> <!-- block move on tablets -->
@@ -19,11 +18,9 @@
 <!-- Login -->
 <div id="login" style="position:absolute;top:5px;right:5px"></div>
 <div id="info" style="position:absolute;bottom:5px;right:5px"></div>
+<script src="/lib/mylogin/login.js"></script>
 <script>
-	var	s = document.createElement('script');
-	s.async=false;
-	s.src="/lib/mylogin/login.js";
-	document.body.appendChild(s);
+	MyLoginWidget.init();
 </script>
 
 <!-- AtlasMaker -->
@@ -33,11 +30,7 @@
 			url:"/data/<!--SPECIMEN-->/info.txt",
 			atlasName:"<!--ATLAS-->"
 		}];
-	var	s = document.createElement('script');
-	s.async=false;
-	s.src="/js/atlasMaker.js";
-	document.body.appendChild(s);
 </script>
-
+<script src="/js/atlasMaker.js"></script>
 </body>
 </html>

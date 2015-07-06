@@ -2,14 +2,8 @@
 -----------------------------------------------------------------------------*/
 .square {
 	float: left;
-	display: block;
-	background: rgba(255, 255, 255, 0.1);
-	padding:7px;
+	display: inline;
 	line-height:1em;
-	border-radius:0px;
-	box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.5);
-	margin: 10px;
-	/*border: 1px solid rgba(0, 0, 0, 0.3);*/
 	-webkit-transition: all 0.2s ease-out;
 	-moz-transition: all 0.2s ease-out;
 	-ms-transition: all 0.2s ease-out;
@@ -18,7 +12,8 @@
 }
 a.gallery {
 	color:dimgrey;
-	font-family: 'Voltaire', sans-serif;
+	font-family: 'Roboto', sans-serif;
+	font-weight:100;
 	text-decoration:none;
 }
 .crop {
@@ -28,11 +23,23 @@ a.gallery {
 	position:relative;
 }
 .picture,.description {
-	width:100%;
-	height:100%;
 	position:absolute;
+
+	width:100%;
+
+	height:100%;
 	top:0;
 	left:0;
+
+}
+
+.picture img{
+
+	width:100%;
+
+	filter:grayscale(80%) contrast(120%);
+	-webkit-filter:grayscale(80%) contrast(120%);
+
 }
 .description {
 	background:#fff;
@@ -46,6 +53,8 @@ a.gallery {
 	display:table;
 }
 .description h3 {
+	font-family: 'Roboto', sans-serif;
+	font-weight:100;
     display:table-cell;
     vertical-align:middle;
     text-align:center;

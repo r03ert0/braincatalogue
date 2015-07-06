@@ -1,25 +1,30 @@
 <div id="toolbar" class="ui-widget-content ui-corner-all" style="position:absolute;background-color:#bbb">
 	
-	<!------------
-		Controls
-	  ------------!>
+	<!-- Controls -->
 	<div id="controls">
-		<span id="download_mri"></span>
-		<br \>
-		<span id="download_atlas"></span>
-		<div style="height:5px"></div>
+		<div id="controlsHeader"></div>
+		
+		<div id="actions">
+			<span id="download_mri"></span>
+			<br \>
+			<span id="download_atlas"></span>
+			<div style="height:5px"></div>
+		</div>
 
 		<div id="plane" style="margin:10px 0 5px 0">						
-			<label>Stereotaxic plane</label><br/>
+			<label class="tb_label">Stereotaxic plane</label><br/>
 			<input type="radio" name="radio" id="sagittal" checked="checked"><label for="sagittal">Sagittal</label>
 			<input type="radio" name="radio" id="coronal"><label for="coronal">Coronal</label>
 			<input type="radio" name="radio" id="axial"><label for="axial">Axial</label>
 		</div>
 
-		<div id="slider" style="width:auto;margin:10px 0 5px 0" oninput="javascript:changeSlice()"></div>
-		<button id="prevSlice">-</button>
-		<button id="nextSlice">+</button>
-		<span id="slice"></span></br>
+		<div id="slicetools">
+			<label class="tb_label">Slice selection</label><br/>
+			<div id="slider" style="width:auto;margin:10px 0 5px 0" oninput="javascript:changeSlice()"></div>
+			<button id="prevSlice">-</button>
+			<button id="nextSlice">+</button>
+			<span id="slice"></span></br>
+		</div>
 
 		<div class="loginRequired">
 			<!--
@@ -30,16 +35,20 @@
 			-->
 
 			<div style="margin:10px 0 5px 0">
-			<label>Tool</label><br/>
-			<span id="tool">						
-				<input type="radio" name="tool" id="paint" checked="checked"><label for="paint">Paint</label>
-				<input type="radio" name="tool" id="erase"><label for="erase">Erase</label>
-			</span>
-			<input type="checkbox" id="fill"><label for="fill">Fill</label>
+				<label class="tb_label">Paint Tools</label><br/>
+				<span id="tool">						
+					<input type="radio" name="tool" id="paint" checked="checked"><label for="paint">Paint</label>
+					<input type="radio" name="tool" id="erase"><label for="erase">Erase</label>
+				</span>
+				<input type="checkbox" id="fill"><label for="fill">Fill</label>
+				<div id="undocontainer">
+					<button id="undo" class="undo undo_disabled">Undo</button>
+					<span id="num_undo"></span>
+				</div>
 			</div>
 
 			<div id="penSize" style="margin:10px 0 5px 0">						
-				<label>Pen size</label><br/>
+				<label class="tb_label">Pen size</label><br/>
 				<input type="radio" name="penSize" id="1" checked="checked"><label for="1">1</label>
 				<input type="radio" name="penSize" id="2"><label for="2">2</label>
 				<input type="radio" name="penSize" id="3"><label for="3">3</label>

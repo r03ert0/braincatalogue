@@ -13,23 +13,14 @@ function returnimages($dirname="../data")
 			if($file{0}!="." and $file{0}!="_")
 			{
 				$name=str_replace("_"," ",$file);
-				echo '<div class="square">';
-				echo '<a class="gallery" alt="'.$name.'"';
-				//echo ' title="'.$name.'"';
-				echo ' href="/'.$file.'"';
-				echo '>';
-				echo '<div class="crop">';
-				echo ' <div class="picture"><img src="data/'.$file.'/picture.jpg"/></div>';
-				echo ' <div class="description"><h3>'.$name.'</h3></div>';
-				echo '</div>';
-				echo '</a></div>';
-				$curdir++;
+				$obj["name"]=$name;
+				$obj["file"]=$file;
+				$files[]=$obj;
 			}
 		}
 	}
 	closedir($handle);
-
-	return($files);
+	echo json_encode($files);
 }
 
 returnimages();
