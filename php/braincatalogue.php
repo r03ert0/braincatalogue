@@ -28,6 +28,8 @@ function braincatalogue($args)
 		$tmp=str_replace("<!--Core-->",$blog,$html);
 		$html=$tmp;
 	
+		header('HTTP/1.1 200 OK');
+		header("Status: 200 OK");
 		print $html;
 	}
 	else
@@ -36,12 +38,12 @@ function braincatalogue($args)
 		$specimen=$args[2];
 		if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen))
 		{
-			header('HTTP/1.1 200 OK');
-			header("Status: 200 OK");
-
 			$html = file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/atlasMaker.html");
 			$tmp=str_replace("<!--SPECIMEN-->",$specimen,$html);
 			$html=$tmp;
+
+			header('HTTP/1.1 200 OK');
+			header("Status: 200 OK");
 			print $html;
 		}
 		
@@ -115,7 +117,7 @@ function braincatalogue($args)
 				$A.=<<<EOF
 					<tr>
 					<td colspan=3 style='text-align:left'>
-						<h1 class="MRI"></h1>
+						<h2 class="MRI"></h2>
 					</td>
 					</tr>
 					<tr>
@@ -149,11 +151,15 @@ EOF;
 				// Configure mesh view
 				//-----------------------------
 				$A.=<<<EOF
-					<tr><td colspan=3><h1>&nbsp;</h1></td></tr>
 					<tr>
-					<td colspan=3 style='text-align:left'>
-						<h1 class="Mesh"></h1>
-					</td>
+						<td colspan=3>
+							<h1>&nbsp;</h1>
+						</td>
+					</tr>
+					<tr>
+						<td colspan=3 style='text-align:left'>
+							<h2 class="Mesh"></h2>
+						</td>
 					</tr>
 					<tr>
 						<td colspan=3>

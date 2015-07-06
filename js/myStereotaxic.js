@@ -118,8 +118,9 @@ function loadBrain(progress)
 	var oReq = new XMLHttpRequest();
 	console.log("loadBrain:",name);
 	oReq.open("GET", "/data/"+name+"/MRI-n4.nii.gz", true);
-	oReq.addEventListener("progress", function(e){progress.html("Loading MRI ("+parseInt(100*e.loaded/e.total)+"%)")}, false);
-	//progress.html("<span id='loader'><div class='dot'></div></span> Loading MRI "+parseInt(100*e.loaded/e.total)+"%");
+	oReq.addEventListener("progress", function(e){
+		progress.html("Loading MRI ("+parseInt(100*e.loaded/e.total)+"%)");
+	}, false);
 	oReq.responseType = "arraybuffer";
 	oReq.onload = function(oEvent)
 	{
@@ -192,7 +193,7 @@ function loadBrain(progress)
 		*/
 		configureBrainImage();
 		progress.html("<a class='download' href='/data/"+name+"/MRI-n4.nii.gz'><img src='/img/download.svg' style='vertical-align:middle;margin-bottom:5px'/></a>MRI");
-		$("h1.MRI").append("&nbsp;<a class='download' href='"+name+"/Atlas'><img src='/img/edit.svg' style='vertical-align:middle;margin-bottom:5px'/></a>Edit")
+		$("h2.MRI").append("&nbsp;<a class='download' href='"+name+"/Atlas'><img src='/img/edit.svg' style='vertical-align:middle;margin-bottom:5px'/></a>Edit")
 		drawImages();
 	};
 	oReq.send();

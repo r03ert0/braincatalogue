@@ -19,6 +19,7 @@ function init_mesh(specimen,progress)
 	camera = new THREE.PerspectiveCamera(25,width/height,10,1000 );
 	camera.position.z = 200;
 	tb = new THREE.TrackballControls(camera,container);
+	tb.autoRotate=true;
 	tb.addEventListener( 'change', render );
 
 	scene = new THREE.Scene();
@@ -50,8 +51,14 @@ function init_mesh(specimen,progress)
 	/* ---------------
 	    Init renderer
 	   --------------- */
-	renderer=webglAvailable() ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer();
+	if(webglAvailable()) {
+		renderer=new THREE.WebGLRenderer({alpha:true});
+	}
+	else {
+		renderer=new THREE.CanvasRenderer({alpha:true});
+	}
 	renderer.setSize(width,height);
+	renderer.setClearColor(0x000000,0);
 	container.appendChild(renderer.domElement);
 
 	/* --------------

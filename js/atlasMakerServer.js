@@ -5,17 +5,21 @@
 	Launch using > node atlasMakerServer.js
 */
 
+var	debug=0;
+
 var WebSocketServer=require("ws").Server;
 var os=require("os");
 var fs=require("fs");
 var zlib=require("zlib");
 
-var	debug=0;
+var socket;
 var	Atlases=[];
 var	Users=[];
 var	usrsckts=[];
 var	localdir=__dirname+"/../";
 var	uidcounter=1;
+
+var UndoStack=[];
 
 console.log("atlasMakerServer.js");
 console.log(new Date());
@@ -51,14 +55,16 @@ function initSocketConnection() {
 	
 	try
 	{
-		socket = new WebSocketServer({port:12345});
-		socket.on("connection",function(s)
+		var websocket = new WebSocketServer({port:12345});
+		websocket.on("connection",function(s)
 		{
 			console.log(new Date(),"[connection open]");
 			var	usr={"uid":uidcounter++,"socket":s};
 			usrsckts.push(usr);
-			console.log("User id "+usr.uid+" connected, total: "+usrsckts.length+" users");
+			console.log("User id "+usr.uid+
+						" connected, total: "+usrsckts.length+" users");
 			
+			socket=s;
 			s.on('message',function(msg)
 			{
 				if(debug)
@@ -80,7 +86,10 @@ function initSocketConnection() {
 					if(data.uid==uid)
 						continue;
 					// don't broadcast to users using a different atlas
-					if((Users[data.uid] && Users[uid] && (Users[uid].iAtlas!=Users[data.uid].iAtlas)))
+					if((   Users[data.uid]
+						&& Users[uid]
+						&& (Users[uid].iAtlas!=Users[data.uid].iAtlas)
+					  ))
 						continue;
 					socket.clients[i].send(msg);
 				}
@@ -89,10 +98,10 @@ function initSocketConnection() {
 				switch(data.type)
 				{
 					case "intro":
-						receiveUserDataMessage(this,data);
+						receiveUserDataMessage(data);
 						break;
 					case "paint":
-						receivePaintMessage(this,data);
+						receivePaintMessage(data);
 						break;
 				}
 			});
@@ -108,22 +117,29 @@ function initSocketConnection() {
 				var uid=getUserId(this);
 				var u=uid;	// user
 				console.log("User ID "+u+" is disconnecting");
-				console.log("User was connected to atlas "+Users[u].dirname+Users[u].mri.atlas);
+				if(Users[u].dirname)
+					console.log("User was connected to atlas "+ Users[u].dirname+Users[u].mri.atlas);
+				else
+					console.log("User was not connected to any atlas");					
 				
 				// count how many users remain connected to the atlas after user leaves
 				var sum=0;
 				for(i in Users)
-					if(Users[i].dirname==Users[u].dirname && Users[i].mri.atlas==Users[u].mri.atlas)
+					if(Users[i].dirname==Users[u].dirname
+						&& Users[i].mri.atlas==Users[u].mri.atlas)
 						sum++;
 				sum--;
 				if(sum)
 					console.log("There remain "+sum+" users connected to that atlas");
 				else
 				{
-					console.log("No user connected to atlas "+Users[u].dirname+Users[u].mri.atlas+": unloading it");
+					console.log("No user connected to atlas "
+								+ Users[u].dirname
+								+ Users[u].mri.atlas+": unloading it");
 					for(i in Atlases)
 					{
-						if(Atlases[i].dirname==Users[u].dirname && Atlases[i].name==Users[u].mri.atlas)
+						if(Atlases[i].dirname==Users[u].dirname
+							&& Atlases[i].name==Users[u].mri.atlas)
 						{
 							saveNifti(Atlases[i]);
 							clearInterval(Atlases[i].timer);
@@ -139,7 +155,9 @@ function initSocketConnection() {
 				removeUser(this);
 				
 				// display the total number of connected users
-				var	nusers=Users.filter(function(value){ return value !== undefined }).length;
+				var	nusers=Users.filter(function(value){
+					return value !== undefined
+				}).length;
 				if(debug)
 				{
 					console.log("user",u,"closed connection");
@@ -153,7 +171,7 @@ function initSocketConnection() {
 		console.log(new Date(),"ERROR: Unable to create a server",ex);
 	}
 }
-function receivePaintMessage(ws,data) {
+function receivePaintMessage(data) {
 	if(debug)
 		console.log(new Date(),"[receivePaintMessage]");
 
@@ -163,23 +181,25 @@ function receivePaintMessage(ws,data) {
 	var c=msg.c;				// command
 	var x=parseInt(msg.x);		// x coordinate
 	var y=parseInt(msg.y);		// y coordinate
+	var undoLayer=getCurrentUndoLayer(user);	// current undoLayer for user
 	
 	// console.log("PaintMessage u",user,"user",user);
-	paintxy(u,c,x,y,user);
+	paintxy(u,c,x,y,user,undoLayer);
 }
-function receiveUserDataMessage(ws,data)
+function receiveUserDataMessage(data)
 {
 	if(debug)
 		console.log(new Date(),"[receiveUserDataMessage]");
+
 	var u=data.uid;
 	var user=JSON.parse(data.user);
 	var	i,atlasLoadedFlag,firstConnectionFlag;
 	
 	if(debug)
-		console.log("DataMessage user",user);
+		console.log("DataMessage user",user.username);
 	firstConnectionFlag=(Users[u]==undefined);
 
-	// Check if the atlas the user is requesting has not been loaded
+	// 1. Check if the atlas the user is requesting has not been loaded
 	atlasLoadedFlag=false;
 	for(i=0;i<Atlases.length;i++)
 		if(Atlases[i].dirname==user.dirname && Atlases[i].name==user.mri.atlas)
@@ -189,41 +209,42 @@ function receiveUserDataMessage(ws,data)
 		}
 	user.iAtlas=i;	// i-th value if it was found, or last if it wasn't
 	
-	// send the atlas to the user (load it if required)
+	
+	// 2. Send the atlas to the user (load it if required)
 	if(atlasLoadedFlag)
 	{
 		if(firstConnectionFlag)
 		{
 			// send the new user our data
-			sendAtlasToUser(Atlases[i].data,ws);
+			sendAtlasToUser(Atlases[i].data);
 		}
 	}
 	else
 	{
 		// the atlas requested has not been loaded before
 		// load the atlas she's requesting
-		addAtlas(user.dirname,user.mri.atlas,function(atlas){sendAtlasToUser(atlas,ws)});
-	}
+		addAtlas(user.dirname,user.mri.atlas,function(atlas){sendAtlasToUser(atlas)});
+	}	
 	
+	// 3. Update user data
 	// If the user didn't have a name (wasn't logged in), but now has one,
 	// display the name in the log
 	if(user.hasOwnProperty('username'))
 	{
 		if(Users[u]==undefined)
-			console.log(new Date(),"User id "+u+" is "+user.username);
+			console.log(new Date(),"No User yet for id "+u, user);
 		else
-		if(!Users[u].hasOwnProperty('username'))
-			console.log(new Date(),"User id "+u+" is "+user.username);
+		if(!Users[u].hasOwnProperty('username')) {
+			console.log(new Date(),"User "+user.username+", id "+u+" logged in");
+		}
 	}
 	//else
 	//	console.log(new Date(),"Name unknown for user id "+u);
-	
-	// Update user data
 	Users[u]=user;
 
+	// 4. Update number of users connected to atlas
 	if(firstConnectionFlag)
 	{
-		// display how many user are using the same atlas
 		var sum=0;
 		for(i in Users)
 			if(Users[i].dirname==user.dirname && Users[i].mri.atlas==user.mri.atlas)
@@ -231,18 +252,28 @@ function receiveUserDataMessage(ws,data)
 		console.log(sum+" users are connected to the atlas "+user.dirname+user.mri.atlas);
 	}	
 }
-function sendAtlasToUser(atlasdata,ws)
+function sendAtlasToUser(atlasdata)
 {
 	if(debug)
 		console.log(new Date(),"[sendAtlasToUser]");
 	zlib.gzip(atlasdata,function(err,atlasdatagz) {
 		try {
-			ws.send(atlasdatagz, {binary: true, mask: false});
+			socket.send(atlasdatagz, {binary: true, mask: false});
 		} catch(e) {
 			console.log(new Date(),"ERROR: Can't send atlas data to user");
 		}
 	});
 }
+function sendPaintVolumeMessage(msg) {
+	if(debug)
+		console.log("> sendPaintVolumeMessage()");
+	try {
+		socket.send(JSON.stringify({"type":"paintvol","data":msg}));
+	} catch (ex) {
+		console.log("ERROR: Unable to sendPaintVolumeMessage",ex);
+	}
+}
+
 //========================================================================================
 // Load & Save
 //========================================================================================
@@ -309,14 +340,17 @@ function saveNifti(atlas)
 			sum+=atlas.data[i];
 		if(sum==atlas.sum)
 		{
-			console.log("Atlas",atlas.dirname,atlas.name,"no change, no save, freemem",os.freemem());
+			console.log("Atlas",atlas.dirname,atlas.name,
+						"no change, no save, freemem",os.freemem());
 			return;
 		}
 		atlas.sum=sum;
 
 		var	voxel_offset=352;
 		var	nii=new Buffer(atlas.dim[0]*atlas.dim[1]*atlas.dim[2]+voxel_offset);
-		console.log("Atlas",atlas.dirname,atlas.name,"data length",atlas.data.length+voxel_offset,"buff length",nii.length);
+		console.log("Atlas",atlas.dirname,atlas.name,
+					"data length",atlas.data.length+voxel_offset,
+					"buff length",nii.length);
 		atlas.hdr.copy(nii);
 		atlas.data.copy(nii,voxel_offset);
 		zlib.gzip(nii,function(err,niigz) {
@@ -333,16 +367,103 @@ function saveNifti(atlas)
 }
 
 //========================================================================================
+// Undo
+//========================================================================================
+
+/* TODO
+ UndoStacks should be stored separately for each user, in that way
+ when a user leaves, its undo stack is disposed. With the current
+ implementation, we'll be storing undo stacks for long gone users...
+*/
+
+function pushUndoLayer(user) {
+	if(debug)
+		console.log("[pushUndoLayer] for user",user.username);
+		
+	var undoLayer={"user":user,"actions":[]};
+	UndoStack.push(undoLayer);
+
+	if(debug)
+		console.log("Number of layers",UndoStack.length);
+	
+	return undoLayer;
+}
+function getCurrentUndoLayer(user) {
+	if(debug)
+		console.log("[getCurrentUndoLayer]");
+		
+	var i,undoLayer,found=false;
+	
+	for(i=UndoStack.length-1;i>=0;i--) {
+		undoLayer=UndoStack[i];
+		if(undoLayer==undefined)
+			break;
+		if(undoLayer.user.username==user.username) {
+			found=true;
+			break;
+		}
+	}
+	if(!found) {
+		// There was no undoLayer for this user. This may be the
+		// first user's action. Create an appropriate undoLayer for it. 
+		console.log("not found, make it");
+		undoLayer=pushUndoLayer(user);
+	}	
+	return undoLayer;
+}
+function undo(user) {
+	if(debug)
+		console.log("[undo]");
+		
+	var undoLayer;
+	var	i,action,found=false;
+	
+	for(i=UndoStack.length-1;i>=0;i--) {
+		undoLayer=UndoStack[i];
+		if(undoLayer==undefined)
+			break;
+		if(undoLayer.user.username==user.username && undoLayer.actions.length>0) {
+			found=true;
+			UndoStack.splice(i,1); // remove layer from UndoStack
+			console.log("found");
+			break;
+		}
+	}
+	if(!found) {
+		// There was no undoLayer for this user.
+		console.log("No more undo layers for user "+user.username);
+		return;
+	}
+	
+	/*
+		undoLayer.actions is a sparse array, with many undefined values.
+		Here I take each of the values in actions, and add them to arr.
+		Each element of arr is an array of 2 elements, index and value.
+	*/
+	var arr=[];
+	var msg;
+	for(i in undoLayer.actions) {
+		arr.push([i,undoLayer.actions[i]]);
+	}
+	msg={"data":arr};
+	sendPaintVolumeMessage(JSON.stringify(msg));
+
+	console.log(UndoStack.length+" undo layers remaining (all users)");	
+}
+//========================================================================================
 // Painting
 //========================================================================================
-function paintxy(u,c,x,y,user) // 'user' informs slice, atlas, vol, view, dim
+function paintxy(u,c,x,y,user,undoLayer)
+/*
+	From 'user' we know slice, atlas, vol, view, dim
+*/
 {
 	if(Atlases[user.iAtlas].data==undefined) {
 		console.log(new Date(),"ERROR: No atlas to draw into");
 		return;
 	}
 	
-	var     coord={"x":x,"y":y,"z":user.slice};
+	var coord={"x":x,"y":y,"z":user.slice};
 	if(user.x0<0) {
 		user.x0=coord.x;
 		user.y0=coord.y;
@@ -350,60 +471,64 @@ function paintxy(u,c,x,y,user) // 'user' informs slice, atlas, vol, view, dim
 	
 	switch(c)
 	{
-		case 'le':
-			line(coord.x,coord.y,0,user);
+		case 'le': // Line, erasing
+			line(coord.x,coord.y,0,user,undoLayer);
 			break;
-		case 'lf':
-			line(coord.x,coord.y,1,user);
+		case 'lf': // Line, painting
+			line(coord.x,coord.y,1,user,undoLayer);
 			break;
-		case 'f':
-			fill(coord.x,coord.y,coord.z,1,user);
+		case 'f': // Fill, painting
+			fill(coord.x,coord.y,coord.z,1,user,undoLayer);
+			//pushUndoLayer(user);
 			break;
-		case 'e':
-			fill(coord.x,coord.y,coord.z,0,user);
+		case 'e': // Fill, erasing
+			fill(coord.x,coord.y,coord.z,0,user,undoLayer);
+			//pushUndoLayer(user);
+			break;
+		case 'mu': // Mouse up (touch ended)
+			console.log("mu!");
+			pushUndoLayer(user);
+			break;
+		case 'u':
+			undo(user);
 			break;
 	}
 	user.x0=coord.x;
 	user.y0=coord.y;
 }
-function fill(x,y,z,val,user)
-{
-	var view=user.view;
-	var	vol=Atlases[user.iAtlas].data;
-	var dim=Atlases[user.iAtlas].dim;
-	var	Q=[],n;
-	var	i;
-		
-	Q.push({"x":x,"y":y});
-	while(Q.length>0)
-	{
-		n=Q.pop();
-		x=n.x;
-		y=n.y;
-		if(vol[slice2index(x,y,z,user)]!=val)
-		{
-			i=slice2index(x,y,z,user);
-			vol[i]=val;
-			
-			i=slice2index(x-1,y,z,user);
-			if(i>=0 && vol[i]!=val)
-				Q.push({"x":x-1,"y":y});
-			
-			i=slice2index(x+1,y,z,user);
-			if(i>=0 && vol[i]!=val)
-				Q.push({"x":x+1,"y":y});
-			
-			i=slice2index(x,y-1,z,user);
-			if(i>=0 && vol[i]!=val)
-				Q.push({"x":x,"y":y-1});
-			
-			i=slice2index(x,y+1,z,user);
-			if(i>=0 && vol[i]!=val)
-				Q.push({"x":x,"y":y+1});
-		}
+function paintVoxel(mx,my,mz,user,vol,val,undoLayer) {
+	var	myView=user.view;
+	var	dim=Atlases[user.iAtlas].dim;
+	var	x,y,z;
+	var	i=-1;
+	switch(myView)
+	{	case 'sag':	x=mz; y=mx; z=my;break; // sagital
+		case 'cor':	x=mx; y=mz; z=my;break; // coronal
+		case 'axi':	x=mx; y=my; z=mz;break; // axial
+	}	
+	if(z>=0&&z<dim[2]&&y>=0&&y<dim[1]&&x>=0&&x<dim[0])
+		i=z*dim[1]*dim[0]+y*dim[0]+x;
+	if(vol[i]!=val) {
+		undoLayer.actions[i]=val-vol[i];
+		vol[i]=val;
 	}
 }
-function line(x,y,val,user)
+function sliceXYZ2index(mx,my,mz,user)
+{
+	var	myView=user.view;
+	var	dim=Atlases[user.iAtlas].dim;
+	var	x,y,z;
+	var	i=-1;
+	switch(myView)
+	{	case 'sag':	x=mz; y=mx; z=my;break; // sagital
+		case 'cor':	x=mx; y=mz; z=my;break; // coronal
+		case 'axi':	x=mx; y=my; z=mz;break; // axial
+	}	
+	if(z>=0&&z<dim[2]&&y>=0&&y<dim[1]&&x>=0&&x<dim[0])
+		i=z*dim[1]*dim[0]+y*dim[0]+x;
+	return i;
+}
+function line(x,y,val,user,undoLayer)
 {
 	// Bresenham's line algorithm adapted from
 	// http://stackoverflow.com/questions/4672279/bresenham-algorithm-in-javascript
@@ -426,8 +551,9 @@ function line(x,y,val,user)
     var sy = (y1 < y2) ? 1 : -1;
     var err = dx - dy;
 
-    i=slice2index(x1,y1,z,user);
-    vol[i]=val;
+	for(j=0;j<user.penSize;j++)
+	for(k=0;k<user.penSize;k++)
+	    paintVoxel(x1+j,y1+k,z,user,vol,val,undoLayer);
     
 	while (!((x1 == x2) && (y1 == y2)))
 	{
@@ -444,39 +570,44 @@ function line(x,y,val,user)
 		}
 		for(j=0;j<user.penSize;j++)
 		for(k=0;k<user.penSize;k++)
-		{
-			i=slice2index(x1+j,y1+k,z,user);
-			vol[i]=val;
-		}
+			paintVoxel(x1+j,y1+k,z,user,vol,val,undoLayer);
 	}
 }
-function slice2index(mx,my,mz,user)
+function fill(x,y,z,val,user,undoLayer)
 {
-	var	myView=user.view;
-	var	dim=Atlases[user.iAtlas].dim;
-	var	x,y,z;
-	var	i=-1;
-	switch(myView)
-	{	case 'sag':	x=mz; y=mx; z=my;break; // sagital
-		case 'cor':	x=mx; y=mz; z=my;break; // coronal
-		case 'axi':	x=mx; y=my; z=mz;break; // axial
-	}	
-	if(z>=0&&z<dim[2]&&y>=0&&y<dim[1]&&x>=0&&x<dim[0])
-		i=z*dim[1]*dim[0]+y*dim[0]+x;
-	return i;
-}
-function xyz2slice(x,y,user)
-{
-	//console.log("xyz2slice user",user);
-	var myView=user.view;
-	var	z=user.slice;
-	var	mx,my,mz;
-	switch(myView)
-	{	case 'sag':	mz=x; mx=y; my=z;break; // sagital
-		case 'cor':	mx=x; mz=y; my=z;break; // coronal
-		case 'axi':	mx=x; my=y; mz=z;break; // axial
-	}	
-	return new Object({"x":x,"y":y,"z":z});	
+	var view=user.view;
+	var	vol=Atlases[user.iAtlas].data;
+	var dim=Atlases[user.iAtlas].dim;
+	var	Q=[],n;
+	var	i;
+		
+	Q.push({"x":x,"y":y});
+	while(Q.length>0)
+	{
+		n=Q.pop();
+		x=n.x;
+		y=n.y;
+		if(vol[sliceXYZ2index(x,y,z,user)]!=val)
+		{
+			paintVoxel(x,y,z,user,vol,val,undoLayer);
+			
+			i=sliceXYZ2index(x-1,y,z,user);
+			if(i>=0 && vol[i]!=val)
+				Q.push({"x":x-1,"y":y});
+			
+			i=sliceXYZ2index(x+1,y,z,user);
+			if(i>=0 && vol[i]!=val)
+				Q.push({"x":x+1,"y":y});
+			
+			i=sliceXYZ2index(x,y-1,z,user);
+			if(i>=0 && vol[i]!=val)
+				Q.push({"x":x,"y":y-1});
+			
+			i=sliceXYZ2index(x,y+1,z,user);
+			if(i>=0 && vol[i]!=val)
+				Q.push({"x":x,"y":y+1});
+		}
+	}
 }
 
 /*
@@ -498,4 +629,8 @@ function xyz2slice(x,y,user)
 		.slice
 		.penSize
 		.view
+
+	undoBuffer
+		.type:	line, slice, volume
+		.data:
 */

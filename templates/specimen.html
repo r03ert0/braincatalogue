@@ -1,39 +1,37 @@
 <!DOCTYPE html>
 <html>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <head>
-<link href='http://fonts.googleapis.com/css?family=Voltaire' rel='stylesheet' type='text/css'/>
-<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'/>
-<link rel="stylesheet" href="/lib/jquery-ui.css">
-<link rel="stylesheet" href="/css/common.css" type="text/css" media="screen, projection" />
-<link rel="stylesheet" href="/css/specimen.css" type="text/css" media="screen, projection" />
-<style>
-.ui-slider {height:2px}
-.ui-slider-handle {height:10px !important}
-</style>
+	<meta charset="utf-8">
+	<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'/>
+	<link href='http://fonts.googleapis.com/css?family=Quicksand:400,300,100' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="/lib/jquery-ui.css">
+	<link rel="stylesheet" href="/css/common.css" type="text/css" media="screen, projection" />
+	<link rel="stylesheet" href="/css/specimen.css" type="text/css" media="screen, projection" />
+	<style>
+	.ui-slider {height:2px}
+	.ui-slider-handle {height:10px !important}
+	</style>
 </head>
 
 <body>
 
-<!-- Login -->
-<script>
-	var	s = document.createElement('script');
-	s.async=false;
-	s.src="/lib/mylogin/login.js";
-	document.body.appendChild(s);
-</script>
-
 <div id="wrapper">
 
-	<!-- 1. Header -->
+	<!-- Header -->
 	<header id="header">
 		<div id="myinner">
-			<h1 style="display:inline-block"><a class="nodecoration" href="/" target="_top">Brain Catalogue</a></h1>
-			<div style="float:right">
-				<div id="login" class="nodecoration"></div>
-				<a class="nodecoration" href="blog" style="padding:5px">Blog</a>
-				<a class="nodecoration" href="about.html" style="padding:5px">About</a>
-				<a class="nodecoration" href="http://siphonophore.org/blog/?cat=3&feed=rss2" style="padding:5px"><img src="/feed-icon.svg" width="14px" height="14px"/></a>
+			<h1 style="display:inline-block">
+				<a class="menu nodecoration" href="/" target="_top">
+					Brain Catalogue
+				</a>
+			</h1>
+			<div id="menu">
+				<div id="login" class="menu">Login</div>
+				<a class="menu" href="blog">Blog</a>
+				<a class="menu" href="about.html">About</a>
+				<a class="menu" href="http://siphonophore.org/blog/?cat=3&feed=rss2">
+					<img src="/img/feed-icon.svg" width="14px" height="14px"/>
+				</a>
 			</div>
 		</div>
 	</header><!-- #header-->
@@ -41,27 +39,27 @@
 	<section id="middle">
 		<div id="container">
 			<div id="content">
-				<!-- 3.1.1 Name -->
-				<div id="name">name</div>
+			
+				<!-- 3.1.1 Picture -->
+				<aside id="sideLeft">
+					<div id="picture"></div>
+				</aside><!-- #sideLeft -->
+
+				<!-- 3.1.2 Name -->
+				<div id="name"></div>
 				<br>
 				
-				<!-- 3.1.2 Description -->
+				<!-- 3.1.3 Description -->
 				<div id="description"></div>
 				<br>
 
-				<!-- 3.1.3 Data -->
+				<!-- 3.1.4 Data -->
 				<div id="data"><!--DATAVIEW--></div>
 				
-				<!-- 3.1.4 Acknowledgments -->
-				<div style="height:50px;"></div>
-				<h2>ACKNOWLEDGEMENTS</h2>
-				<p><div id="acknowledgements">acknowledgements</div>
+				<!-- 3.1.5 Acknowledgments -->
+				<p><div id="acknowledgements"></div>
 			</div><!-- #content-->
 		</div><!-- #container-->
-
-		<aside id="sideLeft">
-			<div id="picture">picture</div>
-		</aside><!-- #sideLeft -->
 
 	</section><!-- #middle-->
 
@@ -70,37 +68,32 @@
 <div style="margin-bottom:100px;"></div>
 
 <footer id="footer">
-	<small>
-	<div id="lastUpdated">lastUpdated</div>
-	</small>
-
-	<div style="padding:10px 10px">
+	<div>
 		<table>
 		<tr>
 		<td>
 		<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">
-		<img align="left" alt="Creative Commons License" style="border:1px solid white" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" />
+		<img align="left" alt="Creative Commons License" src="/img/88x31.png" />
 		</a>
 		</td>
-		<td style="font-size:0.8rem;color:#fff;font-family:sans-serif">
-		<span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">braincatalogue</span> by
+		<td>
+		<span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Brain Catalogue</span> by
 		<a xmlns:cc="http://creativecommons.org/ns#" href="siphonophore.org/braincatalogue" property="cc:attributionName" rel="cc:attributionURL">Roberto Toro</a>
 		is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.
 		</td>
 		</tr>
 		</table>
 	</div>
-</footer><!-- #footer -->
+</footer> <!-- footer -->
 
 <!-- External -->
 <script src="/lib/jquery-1.11.0.min.js"></script>
 <script src="/lib/jquery-ui-1.10.4.custom.min.js"></script>
 <script src="/lib/jquery.ui.touch-punch.min.js"></script>
 <script src="/lib/three.min.js"></script>
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.min.js"></script>-->
 <script src="/lib/TrackballControls.js"></script>
+<script src="/lib/OrbitControls.js"></script>
 <script src="/lib/PLYLoader.js"></script>
-<script src="/lib/BinaryLoader.js"></script>
 <script src="/lib/CopyShader.js"></script>
 <script src="/lib/SSAOShader.js"></script>
 <script src="/lib/EffectComposer.js"></script>
@@ -112,6 +105,7 @@
 <!-- RT code -->
 <script src="/js/myMesh.js"></script>
 <script src="/js/myStereotaxic.js"></script>
+<script src="/lib/mylogin/login.js"></script>
 
 <script>
 
@@ -131,7 +125,10 @@ jQuery.getJSON(root+'info.txt',function(data)
 	//getFromWikipedia("<!--SPECIMEN-->");
 	jQuery("div#description").html(data.description.description);
 	jQuery("#description").append(" <a href='http://en.wikipedia.org/wiki/<!--SPECIMEN-->' target='wikipedia'>More from Wikipedia...</a><br><br>");
-	jQuery("div#acknowledgements").html(data.description.acknowledgements);
+	if(data.description.acknowledgements) {
+		jQuery("div#acknowledgements").append("<h2>ACKNOWLEDGEMENTS</h2>");
+		jQuery("div#acknowledgements").append(data.description.acknowledgements);
+	}
 	jQuery("div#lastUpdated").html(data.description.lastUpdated);
 });
 
@@ -140,14 +137,15 @@ if($(".MRI").length)
 	$("#slider").slider({slide: changeSlice,min:0,max:100,value:50});
 	$("#radio").buttonset();
 	$('#radio input[type=radio]').change(function(){changeView($(this).attr('id'))})
-	init_stereotaxic("<!--SPECIMEN-->",$("h1.MRI"));
+	init_stereotaxic("<!--SPECIMEN-->",$("h2.MRI"));
 }
 
 if($(".Mesh").length)
 {
-	init_mesh("/data/<!--SPECIMEN-->/mesh.js",$("h1.Mesh"));
+	init_mesh("/data/<!--SPECIMEN-->/mesh.js",$("h2.Mesh"));
 	animate();
 }
+MyLoginWidget.init();
 
 </script>
 
