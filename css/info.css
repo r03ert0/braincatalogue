@@ -4,11 +4,6 @@
 	float: left;
 	display: inline;
 	line-height:1em;
-	-webkit-transition: all 0.2s ease-out;
-	-moz-transition: all 0.2s ease-out;
-	-ms-transition: all 0.2s ease-out;
-	-o-transition: all 0.2s ease-out;
-	transition: all 0.2s ease-out;
 }
 a.gallery {
 	color:dimgrey;
@@ -22,7 +17,7 @@ a.gallery {
 	overflow: hidden;
 	position:relative;
 }
-.picture,.description {
+.picture,.description-background,.description-name {
 	position:absolute;
 
 	width:100%;
@@ -41,8 +36,8 @@ a.gallery {
 	-webkit-filter:grayscale(80%) contrast(120%);
 
 }
-.description {
-	background:#fff;
+.description-background {
+	background:rgba(255,255,255,0.8);
 	opacity:0;
 	z-index:10;
 	-webkit-transition: all 0.4s ease-out;
@@ -50,15 +45,29 @@ a.gallery {
 	-ms-transition: all 0.4s ease-out;
 	-o-transition: all 0.4s ease-out;
 	transition: all 0.4s ease-out;
+}
+.description-name {
+	opacity:0;
+	z-index:15;
+	-webkit-transition: all 0.4s ease-out;
+	-moz-transition: all 0.4s ease-out;
+	-ms-transition: all 0.4s ease-out;
+	-o-transition: all 0.4s ease-out;
+	transition: all 0.4s ease-out;
+	pointer-events: none;
 	display:table;
 }
-.description h3 {
+.description-name h3 {
 	font-family: 'Roboto', sans-serif;
 	font-weight:100;
-    display:table-cell;
+	color:black;
+	display:table-cell;
     vertical-align:middle;
     text-align:center;
 }
-.description:hover {
-	opacity:0.6;
+.description-background:hover {
+	opacity:1.0;
+}
+.description-background:hover + .description-name {
+	opacity:1.0;
 }

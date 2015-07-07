@@ -73,10 +73,12 @@
           file=data[i].file;
           el=['<div class="square">',
               '<a class="gallery" alt="'+name+'" href="/'+file+'">',
-              '<div class="crop">',
-              '<div class="picture"><img src="data/'+file+'/picture.jpg"/></div>',
-              '<div class="description"><h3>'+name+'</h3></div>',
-              '</div></a></div>'].join('');
+              '  <div class="crop">',
+              '    <div class="picture"><img src="data/'+file+'/picture.jpg"/></div>',
+              '    <div class="description-background"></div>',
+              '    <div class="description-name"><h3>'+name+'</h3></div>',
+              '  </div>',
+              '</a></div>'].join('');
           $("#specimens").append(el);
 		}
 		onWindowResize();

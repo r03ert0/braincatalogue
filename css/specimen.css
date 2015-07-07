@@ -1,5 +1,5 @@
 #description a {
-	color: blue;
+	color: #08c;
 	outline: none;
 	text-decoration: underline;
 }
@@ -36,5 +36,5 @@ div#acknowledgements h2 {
 	font-family:'Droid Serif', serif;
 	font-size:1rem;
 	line-height: 200%;
-	margin-top:50px;
+	margin-top:10px;
 }
