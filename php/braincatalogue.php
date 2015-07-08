@@ -94,8 +94,19 @@ function braincatalogue($args)
 				}
 				else
 				{
+					/*
 					header('HTTP/1.1 404 Not Found');
 					echo "We don't have an atlas <i>".$atlas."</i> for specimen <i>".$specimen."</i>, yet...";
+					*/
+					header('HTTP/1.1 200 OK');
+					header("Status: 200 OK");
+			
+					$html = file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/atlasMaker.html");
+					$tmp=str_replace("<!--SPECIMEN-->",$specimen,$html);
+					$html=$tmp;
+					$tmp=str_replace("<!--ATLAS-->",$atlas,$html);
+					$html=$tmp;
+					print $html;
 				}
 			}
 			else
