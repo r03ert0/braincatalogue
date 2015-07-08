@@ -5,7 +5,7 @@
 	Launch using > node atlasMakerServer.js
 */
 
-var	debug=0;
+var	debug=1;
 
 var WebSocketServer=require("ws").Server;
 var os=require("os");
@@ -196,7 +196,7 @@ function receiveUserDataMessage(data)
 	var	i,atlasLoadedFlag,firstConnectionFlag;
 	
 	if(debug)
-		console.log("DataMessage user",user.username);
+		console.log("DataMessage user:",user);
 	firstConnectionFlag=(Users[u]==undefined);
 
 	// 1. Check if the atlas the user is requesting has not been loaded
@@ -223,7 +223,7 @@ function receiveUserDataMessage(data)
 	{
 		// the atlas requested has not been loaded before
 		// load the atlas she's requesting
-		addAtlas(user.dirname,user.mri.atlas,function(atlas){sendAtlasToUser(atlas)});
+		addAtlas(user.dirname,user.mri.atlas,user.dim,function(atlas){sendAtlasToUser(atlas)});
 	}	
 	
 	// 3. Update user data
@@ -277,17 +277,18 @@ function sendPaintVolumeMessage(msg) {
 //========================================================================================
 // Load & Save
 //========================================================================================
-function addAtlas(dirname,atlasname,callback)
+function addAtlas(dirname,atlasname,dim,callback)
 {
 	if(debug)
 		console.log("[add atlas]");
 
-	console.log(new Date(),"Load atlas",atlasname,"from",dirname);
+	console.log(new Date(),"Load atlas "+atlasname+" from "+dirname);
 	
 	var atlas=new Object();
 
 	atlas.name=atlasname;
 	atlas.dirname=dirname;
+	atlas.dim=dim;
 	loadNifti(atlas,callback);	
 	Atlases.push(atlas);
 	
@@ -296,23 +297,43 @@ function addAtlas(dirname,atlasname,callback)
 function loadNifti(atlas,callback)
 {
 	// Load nifty label
-	var niigz;
-	try{
-	niigz=fs.readFileSync(localdir+"/"+atlas.dirname+atlas.name);
+	
+	var path=localdir+"/"+atlas.dirname+atlas.name;
+	var datatype=2;
+	var	vox_offset=352;
+	
+	if(!fs.existsSync(path)) {
+		console.log("No atlas with that name. Creating it");
+		
+/*			92,1,0,0,100,115,114,32,32,32,32,32,32,0,82,79,73,52,109,109,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,114,48,4,0,45,0,54,0,45,0,1,0,0,0,0,0,0,0,109,109,176,0,0,0,0,0,0,0,0,0,0,0,4,0,8,
+			0,0,0,0,0,0,0,0,0,128,64,0,0,128,64,0,0,128,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,176,67,
+			0,224,66,69,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,0,0,0,0,0,0,0,103,101,110,
+			101,114,97,116,101,100,32,98,121,32,114,116,111,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,110,
+			111,110,101,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,0,0,22,0,30,0,18,0,0,
+			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 */
+/*
+To create this buffer, I used an hex editor to dump the 1st 352 bytes of a
+nii file, and converted them to decimal using:
+gawk 'BEGIN{s="5C 01 ...";split(s,a," ");for(i=1;i<353;i++)printf"%s,",strtonum("0x"a[i])}'
+*/
+		atlas.hdr=new Buffer([
+			92,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,230,0,
+			44,1,14,1,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,8,0,0,0,0,0,128,191,195,245,168,
+			62,195,245,168,62,195,245,168,62,0,0,0,0,0,0,128,63,0,0,128,63,0,0,128,63,0,0,176,67,0,0,0,
+			0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,70,114,101,101,83,117,
+			114,102,101,114,32,77,97,121,32,50,53,32,50,48,49,49,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,128,0,0,128,63,0,0,0,0,144,194,93,66,164,112,
+			125,194,195,245,40,194,195,245,168,190,0,0,0,128,0,0,0,0,144,194,93,66,0,0,0,128,195,245,168,
+			62,0,0,0,128,164,112,125,194,0,0,0,0,0,0,0,0,195,245,168,62,195,245,40,194,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,110,43,49,0,0,0,0,0]);
+		
+		atlas.hdr.writeUInt16LE(datatype,72,2); // datatype 2: unsigned char (8 bits/voxel)
+		atlas.data=new Buffer(atlas.dim[0]*atlas.dim[1]*atlas.dim[2]);
 
-	zlib.gunzip(niigz,function(err,nii) {
-		var	sizeof_hdr=nii.readUInt32LE(0);
-		var	dimensions=nii.readUInt16LE(40);
-		atlas.hdr=nii.slice(0,vox_offset);
-		atlas.dim=[];
-		atlas.dim[0]=nii.readUInt16LE(42);
-		atlas.dim[1]=nii.readUInt16LE(44);
-		atlas.dim[2]=nii.readUInt16LE(46);
-		var datatype=nii.readUInt16LE(72);
-		var	vox_offset=nii.readFloatLE(108);
-	
-		atlas.data=nii.slice(vox_offset);
-	
 		var i,sum=0;
 		for(i=0;i<atlas.dim[0]*atlas.dim[1]*atlas.dim[2];i++)
 			sum+=atlas.data[i];
@@ -324,11 +345,41 @@ function loadNifti(atlas,callback)
 		console.log("datatype",datatype);
 		console.log("vox_offset",vox_offset);
 		console.log("free memory",os.freemem());
-		
 		callback(atlas.data);
-	});
-	} catch(e) {
-		console.log(new Date(),"no atlas");
+	} else {
+		console.log("Atlas with that name found. Loading it");
+		var niigz;
+		try {
+			niigz=fs.readFileSync(path);
+			zlib.gunzip(niigz,function(err,nii) {
+				var	sizeof_hdr=nii.readUInt32LE(0);
+				var	dimensions=nii.readUInt16LE(40);
+				atlas.hdr=nii.slice(0,vox_offset);
+				atlas.dim=[];
+				atlas.dim[0]=nii.readUInt16LE(42);
+				atlas.dim[1]=nii.readUInt16LE(44);
+				atlas.dim[2]=nii.readUInt16LE(46);
+				datatype=nii.readUInt16LE(72);
+				vox_offset=nii.readFloatLE(108);
+
+				atlas.data=nii.slice(vox_offset);
+
+				var i,sum=0;
+				for(i=0;i<atlas.dim[0]*atlas.dim[1]*atlas.dim[2];i++)
+					sum+=atlas.data[i];
+				atlas.sum=sum;
+
+				console.log(new Date());
+				console.log("size",atlas.data.length);
+				console.log("dim",atlas.dim);
+				console.log("datatype",datatype);
+				console.log("vox_offset",vox_offset);
+				console.log("free memory",os.freemem());
+				callback(atlas.data);
+			});
+		} catch(e) {
+			console.log(new Date(),"Error reading atlas data");
+		}
 	}
 }
 function saveNifti(atlas)
@@ -442,8 +493,15 @@ function undo(user) {
 	*/
 	var arr=[];
 	var msg;
+	var	vol=Atlases[user.iAtlas].data;
+	var val;
+
 	for(i in undoLayer.actions) {
-		arr.push([i,undoLayer.actions[i]]);
+		val=undoLayer.actions[i];
+		arr.push([i,val]);
+
+	    // The actual undo having place:
+	    vol[i]-=val;
 	}
 	msg={"data":arr};
 	sendPaintVolumeMessage(JSON.stringify(msg));

@@ -172,6 +172,7 @@ function loadNifti()
 {
 	if(debug) console.log("> loadNifti()");
 	
+	var def=$.Deferred();
 	var oReq = new XMLHttpRequest();
 	var	progress=$(".atlasMaker span#download_mri");
 	oReq.open("GET", User.dirname+"/"+User.mri.brain, true);
@@ -224,9 +225,13 @@ function loadNifti()
 		configureAtlasImage();
 		initCursor();
 		progress.html("<a class='download_mri' href='"+User.dirname+User.mri.brain+"'><img src='/img/download.svg' style='vertical-align:middle'/></a>"+User.name);
-		drawImages();		
+		drawImages();
+		
+		def.resolve();		
 	};
 	oReq.send();
+	
+	return def.promise();
 }
 function saveNifti()
 {
@@ -961,6 +966,7 @@ function sendUserDataMessage() {
 		return;
 	var msg=JSON.stringify({"type":"intro","user":JSON.stringify(User)});
 	try {
+		console.log("socket.send",msg,brain_dim);
 		socket.send(msg);
 	} catch (ex) {
 		console.log("ERROR: Unable to sendUserDataMessage",ex);
@@ -1239,10 +1245,12 @@ function initAtlasMaker()
 	oReq.onload = function(oEvent)
 	{
         var data=JSON.parse(this.response);
-        User.mri=data.mri;
+        //User.mri=data.mri;console.log(data.mri);
+        User.mri={"brain":data.mri.brain,"atlas":atlasName+".nii.gz"};
         User.name=data.name;
-        loadNifti();
-        initSocketConnection();
+        loadNifti().then(
+	        initSocketConnection
+	    );
 		drawImages();
 	};
 	oReq.send();
