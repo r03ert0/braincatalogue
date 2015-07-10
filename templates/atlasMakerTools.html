@@ -1,4 +1,4 @@
-<div id="toolbar" class="ui-widget-content ui-corner-all" style="position:absolute;background-color:#bbb">
+<div id="toolbar" class="ui-corner-all">
 	
 	<!-- Controls -->
 	<div id="controls">
@@ -11,7 +11,7 @@
 			<div style="height:5px"></div>
 		</div>
 
-		<div id="plane" style="margin:10px 0 5px 0">						
+		<div id="plane">						
 			<label class="tb_label">Stereotaxic plane</label><br/>
 			<input type="radio" name="radio" id="sagittal" checked="checked"><label for="sagittal">Sagittal</label>
 			<input type="radio" name="radio" id="coronal"><label for="coronal">Coronal</label>
@@ -20,10 +20,10 @@
 
 		<div id="slicetools">
 			<label class="tb_label">Slice selection</label><br/>
-			<div id="slider" style="width:auto;margin:10px 0 5px 0" oninput="javascript:changeSlice()"></div>
+			<div id="slider" oninput="javascript:changeSlice()"></div>
 			<button id="prevSlice">-</button>
 			<button id="nextSlice">+</button>
-			<span id="slice"></span></br>
+			<span id="slice"></span>
 		</div>
 
 		<div class="loginRequired">
@@ -41,10 +41,7 @@
 					<input type="radio" name="tool" id="erase"><label for="erase">Erase</label>
 				</span>
 				<input type="checkbox" id="fill"><label for="fill">Fill</label>
-				<div id="undocontainer">
-					<button id="undo" class="undo undo_disabled">Undo</button>
-					<span id="num_undo"></span>
-				</div>
+				<button id="undo" class="undo undo_disabled">Undo</button>
 			</div>
 
 			<div id="penSize" style="margin:10px 0 5px 0">						

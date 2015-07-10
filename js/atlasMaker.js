@@ -1160,13 +1160,13 @@ function loginChanged()
 		console.log("[loginChanged] changed to",MyLoginWidget.loggedin);
 	if(MyLoginWidget.loggedin)
 	{
-		$(".loginRequired").show();	// Show all controls required to log in
+		$(".loginRequired").css('display','inline-block');	// Show all controls required to log in
 		User.username=MyLoginWidget.username;
 		sendUserDataMessage();	// inform the server
 	}
 	else
 	{
-		$(".loginRequired").hide();	// Hide all controls required to log in
+		$(".loginRequired").css('display','none');	// Hide all controls required to log in
 		sendUserDataMessage();	// inform the server
 	}
 }
@@ -1227,7 +1227,15 @@ function initAtlasMaker()
 	$("button#prevSlice").button().click(function(){prevSlice()});
 	$("button#nextSlice").button().click(function(){nextSlice()});
 
-	$("div#toolbar").draggable().resizable({resize:function(){$("#log").outerHeight($(this).innerHeight()-$("#controls").outerHeight(true)-$("label#chat").outerHeight(true)-$("#msg").outerHeight(true))}});
+	$("div#toolbar").draggable().resizable({resize:function(){
+		$("#log").outerHeight(
+			$(this).height()
+			-$("#controls").outerHeight(true)
+			-$("label#chat").outerHeight(true)
+			-$("#msg").outerHeight(true)
+			-4
+		);
+	}});
 	$("div#toolbar").draggable().resizable();
 	$("div#toolbar").blur();
 	
