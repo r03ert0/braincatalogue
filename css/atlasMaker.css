@@ -37,7 +37,7 @@ td {
     background-color: #bbb;
     overflow: hidden;
 }
-#toolbar #header {
+#toolbar #controlsHeader {
     cursor: default;
     background: #bff3a4;
     -moz-box-shadow: 1px 1px 2px 0px #656565;
@@ -55,20 +55,17 @@ td {
 #actions {
     margin: 5px 0 5px 0;
 }
+
 #plane,
 #penSize,
 #painttools,
 #slider {
     margin: 10px 0 5px 0;
 }
+
 #prevSlice,
 #nextSlice {
-    float: left;
     width: 30px;
-}
-#slider {
-    float: left;
-    width: 70%;
 }
 #slice {
     margin: 0 auto;
@@ -99,10 +96,6 @@ button.undo {
 }
 button.undo_disabled {
     background: #fff url(../img/icon_undo_grayed.png) no-repeat center center !important;
-}
-#undocontainer {
-    float: right;
-    position: relative;
 }
 #undocontainer #num_undo {
     position: absolute;
@@ -176,4 +169,8 @@ button.undo_disabled {
 }
 #finger.configure {
     border-color:orange;
+}
+
+.loginRequired {
+	width:100%;
 }
