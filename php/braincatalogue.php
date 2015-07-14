@@ -5,15 +5,15 @@ ini_set('display_errors', 'On');
 include $_SERVER['DOCUMENT_ROOT']."/php/base.php";
 $connection=mysqli_connect($dbhost, $dbuser, $dbpass,"braincatalogue") or die("MySQL Error 1: " . mysql_error());
 
-if(isset($_GET["action"]))
+if(isset($_POST["action"]))
 {
-	switch($_GET["action"])
+	switch($_POST["action"])
 	{
 		case "updateWiki":
 			wikiUpdateAll();
 			break;
 		case "add_log":
-			add_log($_GET);
+			add_log($_POST);
 			break;
 	}
 }
@@ -353,9 +353,29 @@ function add_log($query)
 				if($result)
 					echo $value->length;
 				else
-					echo "ERROR: Unable to add user's annotationLength: ".$q."\n";
+					echo '{"result":"ERROR: Unable to add annotationLength: '.$q.'"}';
 			}
+			break;
 		}
+		case "createAtlas":
+		{
+			$userName=$query["userName"];
+			$key=$query["key"];
+			$value=mysqli_real_escape_string($connection,$query["value"]);
+
+			$q="INSERT INTO braincatalogue.Log (`UserName`, `Type`, `Data`) VALUES (";
+			$q.="\"".$userName."\", ";
+			$q.="\"".$key."\", ";
+			$q.="\"".$value."\")";
+			$result = mysqli_query($connection,$q);
+			if($result)
+				echo '{"result":"Success"}';
+			else
+				echo '{"result":"ERROR: Unable to add createAtlas log: '.$q.'"}';
+
+			break;
+		}
+
 	}
 }
 ?>

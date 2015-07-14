@@ -2,13 +2,10 @@
 	
 	<!-- Controls -->
 	<div id="controls">
-		<div id="controlsHeader"></div>
-		
-		<div id="actions">
+		<div id="toolbarHeader">
 			<span id="download_mri"></span>
 			<br \>
 			<span id="download_atlas"></span>
-			<div style="height:5px"></div>
 		</div>
 
 		<div id="plane">						
@@ -18,23 +15,20 @@
 			<input type="radio" name="radio" id="axial"><label for="axial">Axial</label>
 		</div>
 
-		<div id="slicetools">
+		<div id="sliceTools">
 			<label class="tb_label">Slice selection</label><br/>
-			<div id="slider" oninput="javascript:changeSlice()"></div>
-			<button id="prevSlice">-</button>
-			<button id="nextSlice">+</button>
-			<span id="slice"></span>
+			<div id="sliderTool">
+				<button id="prevSlice">-</button>
+				<div id="sliderContainer">
+					<div id="slider" oninput="javascript:changeSlice()"></div>
+				</div>
+				<button id="nextSlice">+</button>
+			</div>
 		</div>
+			<div id="slice"></div>
 
 		<div class="loginRequired">
-			<!--
-			<div style="margin:5px 0 5px 0">
-			<button id="save">Save</button>
-			<button id="import_nii">Import</button>
-			</div>
-			-->
-
-			<div style="margin:10px 0 5px 0">
+			<div id="paintTools">
 				<label class="tb_label">Paint Tools</label><br/>
 				<span id="tool">						
 					<input type="radio" name="tool" id="paint" checked="checked"><label for="paint">Paint</label>
@@ -44,7 +38,7 @@
 				<button id="undo" class="undo undo_disabled">Undo</button>
 			</div>
 
-			<div id="penSize" style="margin:10px 0 5px 0">						
+			<div id="penSize">						
 				<label class="tb_label">Pen size</label><br/>
 				<input type="radio" name="penSize" id="1" checked="checked"><label for="1">1</label>
 				<input type="radio" name="penSize" id="2"><label for="2">2</label>
@@ -53,21 +47,19 @@
 				<input type="radio" name="penSize" id="10"><label for="10">10</label>
 				<input type="radio" name="penSize" id="15"><label for="15">15</label>
 			</div>
-
-			<div style="height:5px"></div>
 		</div>
 	</div>
 	
-	<!--------
-		Chat
-	  --------!>
+	<!-- Chat --!>
 	<div class="loginRequired">
-		<label id="chat">Chat (not connected)</label>
-		<div id="log" style="width:auto;margin:0 0;height:50px;border:1px solid #777;overflow:auto;background-color:lightGrey"></div>
-		<input id="msg" style="width:100%;border:1px solid black;" type="text" onkeypress="onkey(event)">
+		<div id="chatTools">
+			<label id="chat">Chat (not connected)</label>
+			<div id="log"></div>
+			<input id="msg" type="text" onkeypress="onkey(event)">
+		</div>
 	</div>
 </div>
 
-<div id="resizable" style="width:100%">
-	<canvas id="canvas" style="width:100%;height:100%"></canvas>
+<div id="resizable">
+	<canvas id="canvas"></canvas>
 </div>
