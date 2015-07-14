@@ -3,16 +3,16 @@ html,body {
 	padding:0;
 	background-color:black;
 	font-family: 'Voltaire', sans-serif;
-    font-size:12px !important;
+    font-size:14px;
+    color:white;
 }
 canvas {
-	image-rendering: optimizeSpeed;             /*                     */
-	image-rendering: crisp-edges;
-	image-rendering: -moz-crisp-edges;          /* Firefox             */
-	image-rendering: -o-crisp-edges;            /* Opera               */
-	image-rendering: -webkit-optimize-contrast; /* Chrome (and Safari) */
-	image-rendering: optimize-contrast;         /* CSS3 Proposed       */
-	-ms-interpolation-mode: nearest-neighbor;   /* IE8+                */
+	image-rendering: optimizeSpeed;             /* Older versions of FF          */
+	image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
+	image-rendering: -webkit-optimize-contrast; /* Safari                        */
+	image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
+	image-rendering: pixelated;                 /* Awesome future-browsers       */
+	-ms-interpolation-mode: nearest-neighbor;   /* IE                            */
 	cursor:none;
 }
 .ui-button-text {
@@ -35,43 +35,40 @@ td {
     left: 5px;
     position: absolute;
     background-color: #bbb;
+    color:black;
     overflow: hidden;
-}
-#toolbar #controlsHeader {
-    cursor: default;
-    background: #bff3a4;
-    -moz-box-shadow: 1px 1px 2px 0px #656565;
-    -webkit-box-shadow: 1px 1px 2px 0px #656565;
-    -o-box-shadow: 1px 1px 2px 0px #656565;
-    box-shadow: 1px 1px 2px 0px #656565;
-    filter:progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=134, Strength=2);
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
 }
 .tb_label {
     cursor: default;
 }
-#actions {
-    margin: 5px 0 5px 0;
-}
 
 #plane,
+#sliceTools,
+#paintTools,
 #penSize,
-#painttools,
-#slider {
-    margin: 10px 0 5px 0;
+#chatTools {
+    margin-top:5px;
 }
 
+#sliderTool {
+	display:table-row;
+	vertical-align:middle;
+	width:100%;
+}
 #prevSlice,
 #nextSlice {
-    width: 30px;
+	display:table-cell;
+    width: 32px;
+}
+#sliderContainer {
+	display:table-cell;
+	width:100%;
 }
 #slice {
-    margin: 0 auto;
+    margin:0px auto;
     width: 30px;
 }
-#slicetools {
+#sliceTools {
     width: 100%;
 }
 label.paint,
@@ -97,17 +94,10 @@ button.undo {
 button.undo_disabled {
     background: #fff url(../img/icon_undo_grayed.png) no-repeat center center !important;
 }
-#undocontainer #num_undo {
-    position: absolute;
-    right: 2px;
-    bottom: 2px;
-    font-size: 8px;
-    color: #444;
-}
 #log {
     width: auto;
     margin: 0 0;
-    height: 50px;
+    height: 100px;
     border: 1px solid #777;
     overflow: auto;
     background-color: lightGrey;
@@ -133,14 +123,6 @@ button.undo_disabled {
 }
 .hidepaintcursor {
     display: none;
-}
-.buffer_containers {
-    position: absolute;
-    color:white;
-    border: 1px solid #ccc;
-    width: 350px;
-    height: 200px;
-    right: 0px;
 }
 
 #cursor {

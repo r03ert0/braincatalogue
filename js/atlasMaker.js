@@ -81,7 +81,7 @@ function changeView(theView)
 			User.view='axi';
 			break;
 	}
-	sendUserDataMessage();
+	sendUserDataMessage("change view");
 	
 	if(brain)
 	{
@@ -105,21 +105,21 @@ function changeTool(theTool)
 			User.penValue=0;
 			break;
 	}
-	sendUserDataMessage();
+	sendUserDataMessage("change tool");
 }
 function changePenSize(theSize)
 {
 	if(debug) console.log("> changePenSize()");
 	
 	User.penSize=parseInt(theSize);
-	sendUserDataMessage();
+	sendUserDataMessage("change pen size");
 }
 function changeSlice(e)
 {
 	if(debug) console.log("> changeSlice()");
 	
 	User.slice=parseInt($("#slider").slider("value"));
-	sendUserDataMessage();
+	sendUserDataMessage("change slice");
 
 	drawImages();
 }
@@ -130,7 +130,7 @@ function prevSlice()
 	User.slice=parseInt($("#slider").slider("value"))-1;
 	if(User.slice<0)
 		User.slice=0;
-	sendUserDataMessage();
+	sendUserDataMessage("previous slice");
 
 	$("#slider").slider("option","value",User.slice);
 	drawImages();
@@ -142,7 +142,7 @@ function nextSlice()
 	User.slice=parseInt($("#slider").slider("value"))+1;
 	if(User.slice>brain_D-1)
 		User.slice=brain_D-1;
-	sendUserDataMessage();
+	sendUserDataMessage("next slice");
 
 	$("#slider").slider("option","value",User.slice);
 	drawImages();
@@ -152,7 +152,7 @@ function toggleFill()
 	if(debug) console.log("> toggleFill()");
 	
 	User.doFill=!User.doFill;
-	sendUserDataMessage();
+	sendUserDataMessage("toggle fill");
 }
 
 function resizeWindow()
@@ -175,8 +175,8 @@ function loadNifti()
 	var def=$.Deferred();
 	var oReq = new XMLHttpRequest();
 	var	progress=$(".atlasMaker span#download_mri");
-	oReq.open("GET", User.dirname+"/"+User.mri.brain, true);
-	oReq.addEventListener("progress", function(e){progress.html("Loading "+User.name+" ("+parseInt(100*e.loaded/e.total)+"%)")}, false);
+	oReq.open("GET", User.dirname+"/"+User.mri, true);
+	oReq.addEventListener("progress", function(e){progress.html("Loading "+User.specimenName+" ("+parseInt(100*e.loaded/e.total)+"%)")}, false);
 	oReq.responseType = "arraybuffer";
 	oReq.onload = function(oEvent)
 	{
@@ -224,7 +224,7 @@ function loadNifti()
 		configureBrainImage();
 		configureAtlasImage();
 		initCursor();
-		progress.html("<a class='download_mri' href='"+User.dirname+User.mri.brain+"'><img src='/img/download.svg' style='vertical-align:middle'/></a>"+User.name);
+		progress.html("<a class='download_mri' href='"+User.dirname+User.mri+"'><img src='/img/download.svg' style='vertical-align:middle'/></a>"+User.specimenName);
 		drawImages();
 		
 		def.resolve();		
@@ -274,7 +274,7 @@ function saveNifti()
 	var niigzBlob = new Blob([deflate.result]);
 	
 	$("a#download_atlas").attr("href",window.URL.createObjectURL(niigzBlob));
-	$("a#download_atlas").attr("download",User.name+".nii.gz");
+	$("a#download_atlas").attr("download",User.specimenName+".nii.gz");
 }
 function configureBrainImage()
 {
@@ -299,7 +299,7 @@ function configureBrainImage()
 	
 	User.slice=parseInt(brain_D/2);
 	User.dim=brain_dim;
-	sendUserDataMessage();
+	sendUserDataMessage("configure brain image");
 	$("#slider").slider("option","max",brain_D);
 	$("#slider").slider("option","value",User.slice);
 }
@@ -317,10 +317,8 @@ function addAtlasLayer(dim)
 	if(debug) console.log("> addAtlasLayer()");
 	
 	if(prevData)
-	{
 		if(debug)
 			console.log("data available from server, use it");
-	}
 	
 	atlas.push(layer);
 }
@@ -447,8 +445,7 @@ function mousedown(e) {
 	down(x,y);
 }
 function mousemove(e) {
-	if(debug==2)
-		console.log("> mousemove()");
+	if(debug==2) console.log("> mousemove()");
 	
 	e.preventDefault();
 	var W=parseFloat($('#resizable canvas').css('width'));
@@ -467,8 +464,7 @@ function mouseup(e) {
 	up(e);
 }
 function touchstart(e) {
-	if(debug)
-		console.log("> touchstart()");
+	if(debug) console.log("> touchstart()");
 	
 	e.preventDefault();
 	var r = e.target.getBoundingClientRect();
@@ -503,8 +499,7 @@ function touchstart(e) {
 	down(Crsr.x,Crsr.y);
 }
 function touchmove(e) {
-	if(debug)
-		console.log("> touchmove()");
+	if(debug) console.log("> touchmove()");
 	
 	e.preventDefault();
 	/*
@@ -587,7 +582,7 @@ function down(x,y) {
 	else
 	{
 		User.mouseIsDown = true;
-		sendUserDataMessage();
+		sendUserDataMessage("mouse down");
 		if(User.tool=='paint')
 			paintxy(-1,'mf',x,y,User);
 		else
@@ -624,12 +619,13 @@ function up(e) {
 	// Send mouse up (touch ended) message
 	User.mouseIsDown = false;
 	User.x0=-1;
-	var msg=JSON.stringify({"c":"mu"});
+	var msg={"c":"mu"};
 	sendPaintMessage(msg);
-	// sendUserDataMessage();
 	
 	// add annotated length to User.annotation length and post to DB
-	logAnnotationLength();
+	logToDatabase("annotationLength",JSON.stringify({specimen:name,atlas:atlas[0].name,length:annotationLength}))
+		.then(function(value){var length=parseInt(value);$("#info").text("length: "+length+" mm")});
+
 	annotationLength=0;
 }
 function keyDown(e)
@@ -656,7 +652,7 @@ function paintxy(u,c,x,y,usr)
 	// u: user number
 	// c: command
 	// x, y: coordinates
-	msg=JSON.stringify({"c":c,"x":x,"y":y});
+	msg={"c":c,"x":x,"y":y};
 	if(u==-1 && msg!=msg0)
 	{
 		sendPaintMessage(msg);
@@ -714,7 +710,7 @@ function paintslice(u,img,user)
 	/* part of undo */
 	// u: user number
 	// img: img data
-	msg=JSON.stringify({"img":img});
+	msg={"img":img};
 	if(u==-1 && msg!=msg0)
 	{
 		//sendPaintMessage(msg);
@@ -891,21 +887,19 @@ function initSocketConnection() {
 	// WS connection
 	var host = "ws://" + window.location.host + ":12345/echo";
 	
-	if(debug)
-		console.log("[initSocketConnection] host:",host);
+	if(debug) console.log("[initSocketConnection] host:",host);
 	
 	try {
 		socket = createSocket(host);
 		socket.onopen = function(msg) {
 			$("#chat").text("Chat (1 connected)");
 			flagConnected=1;
-			sendUserDataMessage();
+			sendUserDataMessage("init socket connection");
 		};
 		socket.onmessage = function(msg) {
 			// Message: label data initialisation
 			if(msg.data instanceof Blob) {
-				if(debug)
-					console.log("received data blob",msg.data.size,"bytes long");
+				if(debug) console.log("received data blob",msg.data.size,"bytes long");
 				var fileReader = new FileReader();
 				fileReader.onload = function() {
 					var	inflate=new pako.Inflate();
@@ -917,19 +911,25 @@ function initSocketConnection() {
 					atlas.push(layer);
 					drawImages();
 					var	link=$(".atlasMaker span#download_atlas");
-					link.html("<a class='download' href='"+User.dirname+User.mri.atlas+"'><img src='/img/download.svg' style='vertical-align:middle'/></a>"+layer.name);
+					link.html("<a class='download' href='"+User.dirname+User.atlasName+".nii.gz'><img src='/img/download.svg' style='vertical-align:middle'/></a>"+layer.name);
 				};
 				fileReader.readAsArrayBuffer(msg.data);
 				return;
 			}
 			
 			// Message: interaction message
-			var	data=$.parseJSON(msg.data);
+			var	data=JSON.parse(msg.data);
 			
+			// [deprecated]
 			// If we receive a message from an unknown user,
 			// send our own data to make us known
-			if(data.uid!=undefined && !Collab[data.uid])
-				sendUserDataMessage();
+			// [now, the server does the introductions]
+			/*
+			if(data.uid!=undefined && !Collab[data.uid]) {
+				console.log("Received message from unknown user");
+				sendUserDataMessage("introduce to new user");
+			}
+			*/
 			
 			switch(data.type)
 			{
@@ -959,25 +959,30 @@ function initSocketConnection() {
 		$("#chat").text("Chat (not connected - connection error)");
 	}
 }
-function sendUserDataMessage() {
+function sendUserDataMessage(description) {
 	if(debug) console.log("> sendUserDataMessage()");
 		
 	if(flagConnected==0)
 		return;
-	var msg=JSON.stringify({"type":"intro","user":JSON.stringify(User)});
+	var msg={"type":"intro","user":User,"description":description};
 	try {
-		console.log("socket.send",msg,brain_dim);
-		socket.send(msg);
+		socket.send(JSON.stringify(msg));
 	} catch (ex) {
 		console.log("ERROR: Unable to sendUserDataMessage",ex);
 	}
 }
 function receiveUserDataMessage(data) {
 	if(debug) console.log("> receiveUserDataMessage()");
+	if(debug) console.log("description: "+data.description,data);
 	
 	var u=data.uid;
-	var usr=$.parseJSON(data.user);
-	Collab[u]=usr;
+	
+	if(Collab[u]==undefined) {
+		var	msg="<b>"+data.user.username+"</b> entered atlas "+data.user.specimenName+"/"+data.user.atlasName+"<br />"
+		$("#log").append(msg);
+		$("#log").scrollTop($("#log")[0].scrollHeight);
+	}
+	Collab[u]=data.user;
 	
 	var	nusers=1+Collab.filter(function(value) { return value !== undefined }).length;
 	$("#chat").text("Chat ("+nusers+" connected)");
@@ -1014,7 +1019,7 @@ function sendPaintMessage(msg) {
 	if(flagConnected==0)
 		return;
 	try {
-		socket.send(JSON.stringify({"type":"paint","data":msg}));
+		socket.send(JSON.stringify({type:"paint",data:msg}));
 	} catch (ex) {
 		console.log("ERROR: Unable to sendPaintMessage",ex);
 	}
@@ -1022,7 +1027,7 @@ function sendPaintMessage(msg) {
 function receivePaintMessage(data) {
 	if(debug) console.log("> receivePaintMessage()");
 	
-	var	msg=$.parseJSON(data.data);
+	var	msg=data.data;
 	var u=parseInt(data.uid);	// user
 	var c=msg.c;	// command
 	var x=parseInt(msg.x);	// x coordinate
@@ -1031,23 +1036,21 @@ function receivePaintMessage(data) {
 	paintxy(u,c,x,y,Collab[u]);
 }
 function receivePaintVolumeMessage(data) {
-	if(debug)
-		console.log("> receivePaintVolumeMessage()");
+	if(debug) console.log("> receivePaintVolumeMessage()");
 	
 	var	i,ind,val,voxels;
 	
-	voxels=JSON.parse(data.data);
+	voxels=data.data;
 	paintvol(voxels.data);
 }
 function sendPaintSliceMessage(msg) {
 	/* part of undo */
-	if(debug)
-		console.log("[sendPaintSliceMessage]");
+	if(debug) console.log("[sendPaintSliceMessage]");
 
 	if(flagConnected==0)
 		return;
 	try {
-		socket.send(JSON.stringify({"type":"img","data":msg}));
+		socket.send(JSON.stringify({type:"img",data:msg}));
 		socket.send(msg);
 	} catch (ex) {
 		console.log("ERROR: Unable to sendImgMessage",ex);
@@ -1055,10 +1058,9 @@ function sendPaintSliceMessage(msg) {
 }
 function receivePaintSliceMessage(data) {
 	/* part of undo */
-	if(debug)
-		console.log("[receivePaintSliceMessage]");
+	if(debug) console.log("[receivePaintSliceMessage]");
 
-	var msg=$.parseJSON(data.data);
+	var msg=data.data;
 	var u=parseInt(data.uid);       // user
 	var img=msg.img;    // img data
 
@@ -1070,21 +1072,18 @@ function sendUndoMessage() {
 	if(flagConnected==0)
 		return;
 	try {
-		socket.send(JSON.stringify({"type":"paint","data":'{"c":"u"}'}));
+		socket.send(JSON.stringify({type:"paint",data:{c:"u"}}));
 	} catch (ex) {
 		console.log("ERROR: Unable to sendUndoMessage",ex);
 	}
 }
 function receiveDisconnectMessage(data) {
 	if(debug) console.log("> receiveDisconnectMessage()");
-	
 	var u=parseInt(data.uid);	// user
-	Collab[u]=undefined;
-	
+	var	msg="<b>"+Collab[u].username+"</b> left atlas "+Collab[u].specimenName+"/"+Collab[u].atlasName+"<br />"
+	Collab.splice(u,1);
 	var	nusers=1+Collab.filter(function(value) { return value !== undefined }).length;
 	$("#chat").text("Chat ("+nusers+" connected)");
-
-	var	msg="<b>"+data.uid+"</b> left<br />"
 	$("#log").append(msg);
 	$("#log").scrollTop($("#log")[0].scrollHeight);
 }
@@ -1105,24 +1104,25 @@ function quit() {
 //==========
 // Database
 //==========
-function logAnnotationLength()
+function logToDatabase(key,value)
 {
+	var def=$.Deferred();
 	$.ajax({
 		url:"/php/braincatalogue.php",
-		type:"GET",
+		type:"POST",
 		data: {
 			action:"add_log",
 			userName:MyLoginWidget.username,
-			key:"annotationLength",
-			value:'{"specimen":"'+name+'","atlas":"'+atlas[0].name+'","length":'+annotationLength+'}'
+			key:key,
+			value:value
 	}})
 	.done(function(data) {
-		var length=parseInt(data);
-		$("#info").text("length: "+length+" mm");
+		def.resolve(data);
 	})
 	.fail(function() {
-		console.log( "Error" );
+		def.reject("Error");
 	});
+	return def.promise();
 }
 
 
@@ -1137,7 +1137,7 @@ function init()
 	//var div = Siph.settings[0].container;
 	$(document.body).append("<div class='atlasMaker'></div>");
 
-	// 2. Load "atlasMakerTools" template
+	// 2. Load "atlasMakerTools" html and init atlasMaker
 	$("div.atlasMaker").load("/templates/atlasMakerTools.html",
 		function(responseText, textStatus, XMLHttpRequest) {
 			initAtlasMaker();
@@ -1156,18 +1156,17 @@ function init()
 }
 function loginChanged()
 {
-	if(debug)
-		console.log("[loginChanged] changed to",MyLoginWidget.loggedin);
+	if(debug) console.log(">loginChanged() to",MyLoginWidget.loggedin);
 	if(MyLoginWidget.loggedin)
 	{
 		$(".loginRequired").css('display','inline-block');	// Show all controls required to log in
 		User.username=MyLoginWidget.username;
-		sendUserDataMessage();	// inform the server
+		sendUserDataMessage("logged in");	// inform the server
 	}
 	else
 	{
 		$(".loginRequired").css('display','none');	// Hide all controls required to log in
-		sendUserDataMessage();	// inform the server
+		sendUserDataMessage("logged out");	// inform the server
 	}
 }
 function initAtlasMaker()
@@ -1208,9 +1207,6 @@ function initAtlasMaker()
 	// configure annotation tools
 	$("a#download_atlas").button().click(function(){saveNifti()});
 
-	$("button#save").button().click(function(){console.log("save")});
-	$("button#import_nii").button().click(function(){console.log("import_nii")});
-
 	$("div#plane").buttonset().unbind('keydown');
 	$("#plane input[type=radio]").change(function(){changeView($(this).attr('id'))})
 
@@ -1244,7 +1240,10 @@ function initAtlasMaker()
 	//$("#slider").unbind('keypress');
 	$(document).keydown(function(e){keyDown(e)});
 
-	// Load dataset's json file
+	//==========================================
+	// Load data and start connection to server
+	//==========================================
+	
 	User.dirname=url.replace(/^http:\/\/[^\/]*/,'').replace(/[^\/]*$/,'');
 	var oReq = new XMLHttpRequest();
 	console.log("initAtlasMaker url",url);
@@ -1252,10 +1251,10 @@ function initAtlasMaker()
 	oReq.responseType = "string";
 	oReq.onload = function(oEvent)
 	{
-        var data=JSON.parse(this.response);
-        //User.mri=data.mri;console.log(data.mri);
-        User.mri={"brain":data.mri.brain,"atlas":atlasName+".nii.gz"};
-        User.name=data.name;
+        var specimen=JSON.parse(this.response);
+        User.mri=specimen.mri.brain;
+        User.specimenName=specimen.name;
+        User.atlasName=atlasName;
         loadNifti().then(
 	        initSocketConnection
 	    );
