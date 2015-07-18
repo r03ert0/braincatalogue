@@ -13,6 +13,8 @@ var fs=require("fs");
 var zlib=require("zlib");
 var req=require('request');
 
+var db_url=fs.readFileSync("db_url.txt","utf8");
+console.log(db_url);
 var	Atlases=[];
 var	Users=[];
 var	usrsckts=[];
@@ -25,6 +27,7 @@ var UndoStack=[];
 
 console.log("atlasMakerServer.js");
 console.log(new Date());
+setInterval(function(){console.log(new Date())},60*60*1000); // time mark every 60 minutes
 console.log("free memory",os.freemem());
 
 initSocketConnection();
@@ -59,7 +62,7 @@ function initSocketConnection() {
 		websocket = new WebSocketServer({port:12345});
 		websocket.on("connection",function(s)
 		{
-			console.log(new Date(),"[connection open]");
+			console.log("[connection open]");
 			var	usr={"uid":uidcounter++,"socket":s};
 			usrsckts.push(usr);
 			console.log("User id "+usr.uid+" connected, total: "+usrsckts.length+" users");
@@ -69,13 +72,12 @@ function initSocketConnection() {
 			
 			s.on('message',function(msg)
 			{
-				if(debug) console.log(new Date(),"[connection: message]");
+				if(debug>=2) console.log("[connection: message]");
 				if(debug>=2) console.log(msg);
 				
 				var uid=getUserId(this);
 				var	data=JSON.parse(msg);
 				data.uid=uid;
-				if(debug) console.log("UID:",data.uid);
 				
 				// integrate paint messages
 				switch(data.type)
@@ -116,13 +118,12 @@ function initSocketConnection() {
 					websocket.clients[i].send(JSON.stringify(data));
 					n++;
 				}
-				if(debug) console.log("broadcasted to",n,"users");
+				if(debug>=2) console.log("broadcasted to",n,"users");
 			});
 			
 			s.on('close',function(msg)
 			{
-				console.log(new Date());
-				console.log("[connection: close]");
+				console.log(new Date(),"[connection: close]");
 				console.log("usrsckts length",usrsckts.length);
 				for(var i in usrsckts)
 					if(usrsckts[i].socket==s)
@@ -139,10 +140,15 @@ function initSocketConnection() {
 				
 				// count how many users remain connected to the atlas after user leaves
 				var sum=0;
-				for(i in Users)
+				for(i in Users) {
+					if(Users[i].dirname==undefined ||Users[uid].dirname==undefined)
+						continue;
+					if(Users[i].atlasName==undefined || Users[uid].atlasName==undefined)
+						continue;
 					if(Users[i].dirname==Users[uid].dirname
 						&& Users[i].atlasName==Users[uid].atlasName)
 						sum++;
+				}
 				sum--;
 				if(sum)
 					console.log("There remain "+sum+" users connected to that atlas");
@@ -187,7 +193,7 @@ function initSocketConnection() {
 	}
 }
 function receivePaintMessage(data) {
-	if(debug) console.log(new Date(),"[receivePaintMessage]");
+	if(debug>=2) console.log("[receivePaintMessage]");
 
 	var	msg=data.data;
 	var uid=data.uid;	// user id
@@ -202,7 +208,7 @@ function receivePaintMessage(data) {
 }
 function receiveUserDataMessage(data,user_socket)
 {
-	if(debug) console.log(new Date(),"[receiveUserDataMessage]");
+	if(debug) console.log("[receiveUserDataMessage]");
 
 	var uid=data.uid;
 	var user=data.user;
@@ -243,10 +249,10 @@ function receiveUserDataMessage(data,user_socket)
 	if(user.hasOwnProperty('username'))
 	{
 		if(Users[uid]==undefined)
-			console.log(new Date(),"No User yet for id "+uid);
+			console.log("No User yet for id "+uid);
 		else
 		if(!Users[uid].hasOwnProperty('username')) {
-			console.log(new Date(),"User "+user.username+", id "+uid+" logged in");
+			console.log("User "+user.username+", id "+uid+" logged in");
 		}
 	}
 	//else
@@ -303,7 +309,7 @@ function sendPreviousUserDataMessage(new_uid) {
 }
 function sendAtlasToUser(atlasdata,user_socket)
 {
-	if(debug) console.log(new Date(),"[sendAtlasToUser]");
+	if(debug) console.log("[sendAtlasToUser]");
 	
 	zlib.gzip(atlasdata,function(err,atlasdatagz) {
 		try {
@@ -361,12 +367,12 @@ function addAtlas(user,callback) {
 		dim:user.dim
 	};
 
-	console.log(new Date(),"User requests atlas "+atlas.name+" from "+atlas.dirname);
+	console.log("User requests atlas "+atlas.name+" from "+atlas.dirname);
 	
 	loadNifti(atlas,user.username,callback);	
 	Atlases.push(atlas);
 	
-	atlas.timer=setInterval(function(){saveNifti(atlas)},10*60*1000); // 10 minutes
+	atlas.timer=setInterval(function(){saveNifti(atlas)},60*60*1000); // 60 minutes
 }
 function loadNifti(atlas,username,callback)
 {
@@ -499,7 +505,7 @@ function saveNifti(atlas)
 function logToDatabase(key,value,username)
 {
 	req.post({
-  		url:"http://braincatalogue.dev/php/braincatalogue.php",
+  		url:db_url,
 		form:{
 			action:"add_log",
 			userName:username,
@@ -530,7 +536,7 @@ function pushUndoLayer(user) {
 	return undoLayer;
 }
 function getCurrentUndoLayer(user) {
-	if(debug) console.log("[getCurrentUndoLayer]");
+	if(debug>=2) console.log("[getCurrentUndoLayer]");
 		
 	var i,undoLayer,found=false;
 	

@@ -3,8 +3,7 @@
 	<!-- Controls -->
 	<div id="controls">
 		<div id="toolbarHeader">
-			<span id="download_mri"></span>
-			<br \>
+			<span id="download_mri"></span><br \>
 			<span id="download_atlas"></span>
 		</div>
 
@@ -25,7 +24,7 @@
 				<button id="nextSlice">+</button>
 			</div>
 		</div>
-			<div id="slice"></div>
+		<div id="slice"></div>
 
 		<div class="loginRequired">
 			<div id="paintTools">
@@ -35,7 +34,7 @@
 					<input type="radio" name="tool" id="erase"><label for="erase">Erase</label>
 				</span>
 				<input type="checkbox" id="fill"><label for="fill">Fill</label>
-				<button id="undo" class="undo undo_disabled">Undo</button>
+				<button id="undo">Undo</button>
 			</div>
 
 			<div id="penSize">						
@@ -51,10 +50,10 @@
 	</div>
 	
 	<!-- Chat --!>
-	<div class="loginRequired">
-		<div id="chatTools">
-			<label id="chat">Chat (not connected)</label>
-			<div id="log"></div>
+	<div id="chatTools">
+		<label id="chat">Chat (not connected)</label>
+		<div id="log"></div>
+		<div class="loginRequired">
 			<input id="msg" type="text" onkeypress="onkey(event)">
 		</div>
 	</div>
