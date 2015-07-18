@@ -71,28 +71,12 @@ td {
 #sliceTools {
     width: 100%;
 }
-label.paint,
-label.erase,
-label.fill,
-button.undo {
+input#paint,
+input#erase,
+input#fill,
+button#undo {
     width: 50px;
     height: 26px;
-}
-label.paint {
-    background: #fff url(../img/icon_draw.png) no-repeat center center !important;
-}
-label.erase {
-    background: #fff url(../img/icon_erase.png) no-repeat center center !important;
-}
-label.fill {
-    background: #fff url(../img/icon_fill.png) no-repeat center center !important;
-}
-button.undo {
-    background: #fff url(../img/icon_undo.png) no-repeat center center !important;
-    height: 28px;
-}
-button.undo_disabled {
-    background: #fff url(../img/icon_undo_grayed.png) no-repeat center center !important;
 }
 #log {
     width: auto;
@@ -117,9 +101,7 @@ button.undo_disabled {
 .drawingcursor {
     border: 1px solid #F00;
     position: absolute;
-    
     pointer-events:none;
-    background:url('../img/transparent.png');
 }
 .hidepaintcursor {
     display: none;
