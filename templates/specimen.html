@@ -90,21 +90,9 @@
 <script src="/lib/jquery-1.11.0.min.js"></script>
 <script src="/lib/jquery-ui-1.10.4.custom.min.js"></script>
 <script src="/lib/jquery.ui.touch-punch.min.js"></script>
-<script src="/lib/three.min.js"></script>
-<script src="/lib/TrackballControls.js"></script>
-<script src="/lib/OrbitControls.js"></script>
-<script src="/lib/PLYLoader.js"></script>
-<script src="/lib/CopyShader.js"></script>
-<script src="/lib/SSAOShader.js"></script>
-<script src="/lib/EffectComposer.js"></script>
-<script src="/lib/RenderPass.js"></script>
-<script src="/lib/MaskPass.js"></script>
-<script src="/lib/ShaderPass.js"></script>
 <script src="/lib/pako/pako.min.js"></script>
 
 <!-- RT code -->
-<script src="/js/myMesh.js"></script>
-<script src="/js/myStereotaxic.js"></script>
 <script src="/lib/mylogin/login.js"></script>
 
 <script>
@@ -121,30 +109,67 @@ jQuery.getJSON(root+'info.txt',function(data)
 	jQuery("div#picture").html("<img class='picture' src='"+root+"picture.jpg'/>");
 
 	// Load text
-	jQuery("div#name").html("<h1>"+data.description.commonName+" (<i>"+data.description.scientificName+"</i>)</h1>");
-	//getFromWikipedia("<!--SPECIMEN-->");
+	var description=data.description.commonName;
+	if(data.description.scientificName!=undefined)
+		description+=" (<i>"+data.description.scientificName+"</i>)";
+	jQuery("div#name").html("<h1>"+description+"</h1>");
 	jQuery("div#description").html(data.description.description);
-	jQuery("#description").append(" <a href='http://en.wikipedia.org/wiki/<!--SPECIMEN-->' target='wikipedia'>More from Wikipedia...</a>");
 	if(data.description.acknowledgements) {
 		jQuery("div#acknowledgements").append("<h2>ACKNOWLEDGEMENTS</h2>");
 		jQuery("div#acknowledgements").append(data.description.acknowledgements);
 	}
 	jQuery("div#lastUpdated").html(data.description.lastUpdated);
+	
+	if(data.html) {
+		jQuery("#data").load(root+"/"+data.html);
+	}
 });
 
-if($(".MRI").length)
-{
-	$("#slider").slider({slide: changeSlice,min:0,max:100,value:50});
-	$("#radio").buttonset();
-	$('#radio input[type=radio]').change(function(){changeView($(this).attr('id'))})
-	init_stereotaxic("<!--SPECIMEN-->",$("h2.MRI"));
+function loadScript(script) {
+	var def=new $.Deferred();
+	var s = document.createElement("script");
+	s.src = script;
+	s.onload=function(){console.log("loaded",script,new Date());def.resolve(s);}
+	s.onerror=function(e){console.log("unable to load",script);def.reject(e);}
+	document.body.appendChild(s);
+	return def.promise();
 }
 
-if($(".Mesh").length)
-{
-	init_mesh("/data/<!--SPECIMEN-->/mesh.js",$("h2.Mesh"));
-	animate();
+if($(".MRI").length) {
+	var s = document.createElement("script");
+	s.src = "/js/myStereotaxic.js";
+	s.onload=function(){
+		$("#slider").slider({slide: changeSlice,min:0,max:100,value:50});
+		$("#radio").buttonset();
+		$('#radio input[type=radio]').change(function(){changeView($(this).attr('id'))})
+		init_stereotaxic("<!--SPECIMEN-->",$("h2.MRI"));
+	}
+	document.body.appendChild(s);
 }
+
+if($(".Mesh").length) {
+	loadScript("/lib/three.min.js")
+	.then(function(){loadScript("/lib/TrackballControls.js")})
+	.then(function(){loadScript("/lib/OrbitControls.js")})
+	.then(function(){loadScript("/lib/PLYLoader.js")})
+	.then(function(){loadScript("/lib/CopyShader.js")})
+	.then(function(){loadScript("/lib/SSAOShader.js")})
+	.then(function(){loadScript("/lib/EffectComposer.js")})
+	.then(function(){loadScript("/lib/RenderPass.js")})
+	.then(function(){loadScript("/lib/MaskPass.js")})
+	.then(function(){loadScript("/lib/ShaderPass.js")})
+	.then(function() {
+		var s = document.createElement("script");
+		s.src = "/js/myMesh.js";
+		s.onload=function(){
+			console.log("ready to init mesh");
+			init_mesh("/data/<!--SPECIMEN-->/mesh.js",$("h2.Mesh"));
+			animate();
+		}
+		document.body.appendChild(s);
+	});
+}
+
 MyLoginWidget.init();
 
 </script>

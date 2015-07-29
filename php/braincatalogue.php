@@ -117,6 +117,8 @@ function braincatalogue($args)
 				header('HTTP/1.1 200 OK');
 				header("Status: 200 OK");
 			
+				//$info=json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/info.txt"));
+
 				$html = file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/specimen.html");
 
 				$A="<table style='width:100%;'>";
