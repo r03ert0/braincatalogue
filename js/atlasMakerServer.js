@@ -141,6 +141,10 @@ function initSocketConnection() {
 				// count how many users remain connected to the atlas after user leaves
 				var sum=0;
 				for(i in Users) {
+					if(Users[uid]==undefined) {
+						console.log("ERROR: When counting the number of users connected to the atlas, user uid "+uid+" was not defined");
+						continue;
+					}
 					if(Users[i].dirname==undefined ||Users[uid].dirname==undefined)
 						continue;
 					if(Users[i].atlasName==undefined || Users[uid].atlasName==undefined)
