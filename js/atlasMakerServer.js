@@ -145,10 +145,14 @@ function initSocketConnection() {
 						console.log("ERROR: When counting the number of users connected to the atlas, user uid "+uid+" was not defined");
 						continue;
 					}
-					if(Users[i].dirname==undefined ||Users[uid].dirname==undefined)
+					if(Users[i].dirname==undefined ||Users[uid].dirname==undefined) {
+						console.log("ERROR: A user's dirname is unknown");
 						continue;
-					if(Users[i].atlasName==undefined || Users[uid].atlasName==undefined)
+					}
+					if(Users[i].atlasName==undefined || Users[uid].atlasName==undefined) {
+						console.log("ERROR: A user's atlasName is unknown");
 						continue;
+					}
 					if(Users[i].dirname==Users[uid].dirname
 						&& Users[i].atlasName==Users[uid].atlasName)
 						sum++;
