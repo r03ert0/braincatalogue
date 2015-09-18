@@ -796,8 +796,12 @@ function line(x,y,val,usr)
     								Math.pow(brain_pixdim[1]*(xyzi1[1]-xyzi2[1]),2)+
     								Math.pow(brain_pixdim[2]*(xyzi1[2]-xyzi2[2]),2));
     
-    i=xyzi1[3];
-    layer.data[i]=val;
+	for(j=0;j<usr.penSize;j++)
+	for(k=0;k<usr.penSize;k++)
+	{
+		i=slice2index(x1+j,y1+k,z,usr.view);
+		layer.data[i]=val;
+	}
     
 	while (!((x1 == x2) && (y1 == y2)))
 	{
@@ -951,6 +955,8 @@ function initSocketConnection() {
 			}
 		};
 		socket.onclose = function(msg) {
+			
+			socket.send(JSON.stringify({"type":"echo","msg":"user socket closing","username":User.username}));
 			$("#chat").text("Chat (not connected - server closed)");
 			flagConnected=0;
 		};
