@@ -88,6 +88,9 @@ function initSocketConnection() {
 					case "paint":
 						receivePaintMessage(data);
 						break;
+					case "echo":
+						console.log("ECHO: '"+data.msg+"' from user "+data.username);
+						break;
 				}
 
 				// broadcast
