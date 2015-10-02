@@ -50,9 +50,19 @@ a:visited {
 
 /* Header
 -----------------------------------------------------------------------------*/
-#header {
-	height:100px;
-	line-height:100px;
+@media all and (min-width: 40em) {
+	#header {
+		height:100px;
+		line-height:100px;
+	}
+}
+@media not all and (min-width: 40em) {
+	#header #menu {
+		display:block;
+		float:left;
+		margin-left:1.2em;
+		line-height:40px;
+	}
 }
 
 /* Login
@@ -166,11 +176,21 @@ a.menu, .menu a {
 	overflow: hidden;
 }
 #content {
-	padding: 0 0 0 230px;
 	margin: 0 50px;
 	font-size: 1rem;
 	line-height: 200%;
 }
+@media all and (min-width: 40em) {
+	#content {
+		padding: 0 0 0 230px;
+	}
+}
+@media not all and (min-width: 40em) {
+	#content {
+		padding: 0 0 0 0px;
+	}
+}
+
 #specimens {
 	width:100%;
 	height:100%;
@@ -181,7 +201,17 @@ a.menu, .menu a {
 #sideLeft {
 	float: left;
 	width: 200px;
-	margin-left: -230px;
+}
+@media all and (min-width: 40em) {
+	#sideLeft {
+		margin-left: -230px;
+	}
+}
+@media not all and (min-width: 40em) {
+	#sideLeft {
+		margin-left: 0px;
+		padding-right:20px;
+	}
 }
 
 /* Footer

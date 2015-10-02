@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <title><!--HomeUsername--></title>
+	<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'/>
+	<link href='http://fonts.googleapis.com/css?family=Quicksand:400,300,100' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="/lib/jquery-ui.css">
+	<link rel="stylesheet" href="/css/common.css" type="text/css" media="screen, projection" />
+	<link rel="stylesheet" href="/css/specimen.css" type="text/css" media="screen, projection" />
+</head>
+
+<body>
+
+<div id="wrapper">
+
+	<!-- Header -->
+	<header id="header">
+		<div id="myinner">
+			<h1 style="display:inline-block">
+				<a class="menu nodecoration" href="/" target="_top">
+					Brain Catalogue
+				</a>
+			</h1>
+			<div id="menu">
+				<div id="login" class="menu">Login</div>
+				<a class="menu" href="blog">Blog</a>
+				<a class="menu" href="about.html">About</a>
+				<a class="menu" href="http://siphonophore.org/blog/?cat=3&feed=rss2">
+					<img src="/img/feed-icon.svg" width="14px" height="14px"/>
+				</a>
+			</div>
+		</div>
+	</header><!-- #header-->
+
+	<div style="width:600px;margin-left:auto;margin-right:auto;margin-top:2rem">
+		<h2>HOME PAGE OF <b><span id="HomeUsername"></span></b></h2>
+		<!--AccountSettings-->
+	</div>
+
+	<script src="/lib/jquery-1.11.0.min.js"></script>
+	<script>
+	var	homeUsername="<!--HomeUsername-->";
+	$("span#HomeUsername").text(homeUsername.toUpperCase());
+	</script>
+
+</div><!-- #wrapper -->
+
+<div style="margin-bottom:100px;"></div>
+
+<footer id="footer">
+	<div>
+		<table>
+		<tr>
+		<td>
+		<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">
+		<img align="left" alt="Creative Commons License" src="/img/88x31.png" />
+		</a>
+		</td>
+		<td>
+		<span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Brain Catalogue</span> by
+		<a xmlns:cc="http://creativecommons.org/ns#" href="siphonophore.org/braincatalogue" property="cc:attributionName" rel="cc:attributionURL">Roberto Toro</a>
+		is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.
+		</td>
+		</tr>
+		</table>
+	</div>
+</footer> <!-- footer -->
+
+<!-- External -->
+<script src="/lib/jquery-1.11.0.min.js"></script>
+<script src="/lib/jquery-ui-1.10.4.custom.min.js"></script>
+<script src="/lib/jquery.ui.touch-punch.min.js"></script>
+<script src="/lib/pako/pako.min.js"></script>
+
+<!-- RT code -->
+<script src="/lib/mylogin/login.js">
+MyLoginWidget.init();
+</script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-50078058-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+</body>
+</html>
