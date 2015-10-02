@@ -151,7 +151,7 @@ function loadBrain(progress)
 				brain=new Float32Array(data,vox_offset);
 				break;
 		}
-	
+		
 		console.log("dim",brain_dim[0],brain_dim[1],brain_dim[2]);
 		console.log("datatype",brain_datatype);
 		console.log("pixdim",brain_pixdim[0],brain_pixdim[1],brain_pixdim[2]);
