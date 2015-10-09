@@ -33,6 +33,11 @@ function braincatalogue($args)
 		print $html;
 	}
 	else
+	if($args[1]=="user")
+	{
+		user_update($args[2]);
+	}
+	else
 	if($args[1]=="atlasMaker")
 	{
 		$specimen=$args[2];
@@ -135,7 +140,7 @@ function braincatalogue($args)
 					</tr>
 					<tr>
 						<td>
-						<table style="width:512px">
+						<table id="stereotaxic">
 							<tr>
 							<td>
 								<div id="resizable" style="width:100%">
@@ -176,7 +181,7 @@ EOF;
 					</tr>
 					<tr>
 						<td colspan=3>
-							<div style="width:512px;height:512px" id="surface"></div>
+							<div id="surface"></div>
 						</td>
 					</tr>
 EOF;
@@ -379,5 +384,38 @@ function add_log($query)
 		}
 
 	}
+}
+
+function user_update($username) {
+	global $dbname;
+	global $rootdir;
+
+	$html=file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/user.html");
+	
+	if(isset($_SESSION['Username']))
+		$tmp=str_replace("<!--HomeUsername-->",$_SESSION['Username'],$html);
+	else
+		$tmp=str_replace("<!--HomeUsername-->","",$html);
+	$html=$tmp;
+
+	if(isset($_SESSION['LoggedIn']))
+		$tmp=str_replace("<!--LoggedIn-->",$_SESSION['LoggedIn'],$html);
+	else
+		$tmp=str_replace("<!--LoggedIn-->","0",$html);
+	$html=$tmp;
+	
+	
+	// public data
+	$tmp=str_replace("<!--HomeUsername-->",$username,$html);
+	$html=$tmp;
+
+	// private data
+	if(isset($_SESSION['Username']) && $_SESSION['Username']==$username)
+	{
+		$tmp=str_replace("<!--E-Mail-->",$_SESSION['EmailAddress'],$html);
+		$html=$tmp;
+	}
+	
+	print $html;
 }
 ?>

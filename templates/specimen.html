@@ -4,6 +4,7 @@
 	<meta charset="utf-8">
     <meta name=viewport content="width=device-width, initial-scale=1">
     <title><!--SPECIMEN--></title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 	<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'/>
 	<link href='http://fonts.googleapis.com/css?family=Quicksand:400,300,100' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="/lib/jquery-ui.css">
@@ -21,22 +22,29 @@
 
 	<!-- Header -->
 	<header id="header">
-		<div id="myinner">
-			<h1 style="display:inline-block">
-				<a class="menu nodecoration" href="/" target="_top">
-					Brain Catalogue
-				</a>
-			</h1>
-			<div id="menu">
-				<div id="login" class="menu">Login</div>
-				<a class="menu" href="blog">Blog</a>
-				<a class="menu" href="about.html">About</a>
-				<a class="menu" href="http://siphonophore.org/blog/?cat=3&feed=rss2">
-					<img src="/img/feed-icon.svg" width="14px" height="14px"/>
-				</a>
+		<div class="myinner">
+			<div id="title" class="cell">
+				<h1 style="display:inline-block">
+					<a class="menu nodecoration" href="/" target="_top">
+						<span class="bcicon">a</span>  Brain Catalogue
+					</a>
+				</h1>
 			</div>
-		</div>
-	</header><!-- #header-->
+			<div id="menu" class="cell">
+					<span id="MyLogin"></span>
+					<span>
+						<a class="menu" href="blog">Blog</a>
+						<a class="menu" href="about.html">About</a>
+						<a class="menu" href="http://siphonophore.org/blog/?cat=3&feed=rss2"><i class="fa fa-rss"></i></a>
+					</span>
+					<!--
+					<a class="menu" href=#><i class="fa fa-user"></i></a>
+					<a class="menu" href=#><i class="fa fa-search"></i></a>
+					<a class="menu" href=#><i class="fa fa-bars"></i></a>
+					-->
+			</div>
+		</div><!-- .myinner -->
+	</header><!-- #header -->
 
 	<section id="middle">
 		<div id="container">
@@ -171,7 +179,7 @@ if($(".Mesh").length) {
 	});
 }
 
-MyLoginWidget.init();
+MyLoginWidget.init($("#MyLogin"));
 
 </script>
 

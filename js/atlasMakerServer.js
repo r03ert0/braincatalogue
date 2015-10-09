@@ -53,13 +53,13 @@ function removeUser(socket) {
 }
 function initSocketConnection() {
 	// WS connection
-	var host = "ws://localhost:12345/echo";
+	var host = "ws://localhost:8080";
 	
 	if(debug) console.log(new Date(),"[initSocketConnection] host:",host);
 	
 	try
 	{
-		websocket = new WebSocketServer({port:12345});
+		websocket = new WebSocketServer({port:8080});
 		websocket.on("connection",function(s)
 		{
 			console.log("[connection open]");

@@ -5,7 +5,7 @@
 html {
 	height: 100%;
 }
-header, nav, section, article, aside, footer {
+nav, section, article, aside, footer {
 	display: block;
 }
 body {
@@ -18,6 +18,7 @@ body {
 }
 h1 {
 	color: black !important;
+	font-size:1.5rem;
 }
 h2 {
 	font-family: 'Quicksand', sans-serif;
@@ -39,10 +40,18 @@ a:visited {
 	color: inherit;
 }
 
+@font-face {
+	font-family: 'brain_catalogue_icons';
+	src: url('/img/braincatalogueicons.woff') format('woff');
+}
+.bcicon {
+	font-family: 'brain_catalogue_icons';
+}
 
 /* Wrapper
 -----------------------------------------------------------------------------*/
 #wrapper {
+	width:100%;
 	min-height: 100%;
 	height: auto !important;
 	height: 100%;
@@ -50,38 +59,136 @@ a:visited {
 
 /* Header
 -----------------------------------------------------------------------------*/
+#header {
+	display:table;
+}
+#header * {
+	vertical-align:middle;
+}
 @media all and (min-width: 40em) {
 	#header {
-		height:100px;
-		line-height:100px;
+		width:calc(100% - 2rem);
+		padding-left:1rem;
+		padding-right:1rem;
+		padding-top:1rem;
+		padding-bottom:2rem;
+	}
+	#header #title h1 {
+		font-size:2rem;
+	}
+	.myinner {
+		width:calc(100% - 8rem);
+	}
+	.myinner {
+		display:table-row;
+	}
+	.cell {
+		display:table-cell;
+		padding:0.2rem;
 	}
 }
 @media not all and (min-width: 40em) {
-	#header #menu {
-		display:block;
-		float:left;
-		margin-left:1.2em;
-		line-height:40px;
+	#header {
+		width:calc(100% - 1rem);
+		padding-top:0.5rem;
+		padding-bottom:1rem;
+		padding-left:0.5rem;
 	}
+	#header #title h1 {
+		font-size:1.5rem;
+	}
+	.myinner {
+		display:block;
+	}
+	.cell {
+		display:block;
+		padding:0.2rem;
+	}
+}
+
+/* Title (Left)
+-----------------------------------------------------------------------------*/
+@media all and (min-width: 40em) {
+	#title {
+		height:2.5rem;
+		text-align:left;
+	}
+	#name {
+		text-align:left;
+	}
+}
+@media not all and (min-width: 40em) {
+	#title {
+		height:2rem;
+		text-align:center;
+	}
+	#name {
+		text-align:center;
+		margin-top:20px;
+	}
+}
+
+/* Menu (Right)
+-----------------------------------------------------------------------------*/
+.menu {
+	text-decoration:none;
+	font-family: 'Quicksand', sans-serif;
+	margin:0 0.3rem;
+	outline:none;
+	font-weight:400;
+}
+a.menu, .menu a {
+	border-bottom: 1px solid transparent;
+	border-color: transparent;
+}
+
+.menu:hover {
+	color: #08c !important;
+}
+#menu .menu:hover,
+#menu .menu :hover {
+	color: #08c !important;
+	border-color: #aaa;
+}
+.menu:visited, .menu :visited {
+	color: inherit;
+}
+@media all and (min-width: 40em) {
+	#menu {
+		text-align:right;
+	}
+}
+@media not all and (min-width: 40em) {
+	#menu {
+		text-align:center;
+		border-top:thin solid grey;
+		border-bottom:thin solid grey;
+	}
+}
+
+div#extra-menu {
+	border:thin solid black;
 }
 
 /* Login
 -----------------------------------------------------------------------------*/
 #login {
-	text-align:center;
+	/*text-align:center;*/
 	display:inline;
 }
 #login * {
-	width:auto;
 	font-family: 'Quicksand', sans-serif;
-	font-size:1rem;
+	width:auto;
 	display:inline;
+	vertical-align:middle;
 	text-decoration:none;
 }
+/*
 #login .hidden {
 	display:none !important;
 }
-#login.loginbox {
+*/
+.loginbox {
 	border:1px solid lightGrey;
 	position:absolute;
 	top:10px;
@@ -95,63 +202,25 @@ a:visited {
 	box-shadow: 0 10px 10px 0 rgba(0, 0, 0, 0.5);
     z-index:20;
 }
-#login.loginbox * {
+.loginbox * {
 	color:black;
 }
-#login.loginbox #username,
-#login.loginbox #e-mail,
-#login.loginbox #password,
-#login.loginbox #repassword,
-#login.loginbox #registerLink,
-#login.loginbox #remind,
-#login.loginbox #warning {
+.loginbox #username,
+.loginbox #e-mail,
+.loginbox #password,
+.loginbox #repassword,
+.loginbox #registerLink,
+.loginbox #remind,
+.loginbox #warning {
 	display:block;
 }
-#login.loginbox #username,
-#login.loginbox #e-mail,
-#login.loginbox #password,
-#login.loginbox #repassword {
+.loginbox #username,
+.loginbox #e-mail,
+.loginbox #password,
+.loginbox #repassword {
 	width:90%;
 }
 
-/* Left Title
------------------------------------------------------------------------------*/
-#myinner h1 {
-	display:inline-block;
-	margin: 0 1rem;
-}
-#myinner h1 a:visited {
-	display:inline-block;
-	color: black;
-}
-/* Right Menu
------------------------------------------------------------------------------*/
-div#menu {
-	float:right;
-	margin-right:1rem;
-}
-.menu {
-	font-family: 'Quicksand', sans-serif;
-	font-weight:400;
-	margin:0 0.5rem;
-	text-decoration:none;
-	outline:none;
-}
-a.menu, .menu a {
-	border-bottom: 1px solid transparent;
-	border-color: transparent;
-}
-.menu:hover {
-	color: #08c !important;
-}
-#menu .menu:hover,
-#menu .menu :hover {
-	color: #08c !important;
-	border-color: #aaa;
-}
-.menu:visited, .menu :visited {
-	color: inherit;
-}
 /* Middle
 -----------------------------------------------------------------------------*/
 #middle {
@@ -176,17 +245,18 @@ a.menu, .menu a {
 	overflow: hidden;
 }
 #content {
-	margin: 0 50px;
 	font-size: 1rem;
-	line-height: 200%;
+	line-height: 150%;
 }
 @media all and (min-width: 40em) {
 	#content {
+		margin: 0 50px;
 		padding: 0 0 0 230px;
 	}
 }
 @media not all and (min-width: 40em) {
 	#content {
+		margin: 0 5px;
 		padding: 0 0 0 0px;
 	}
 }
@@ -199,25 +269,25 @@ a.menu, .menu a {
 /* Sidebar Left
 -----------------------------------------------------------------------------*/
 #sideLeft {
-	float: left;
 	width: 200px;
 }
 @media all and (min-width: 40em) {
 	#sideLeft {
+		float: left;
 		margin-left: -230px;
 	}
 }
 @media not all and (min-width: 40em) {
 	#sideLeft {
-		margin-left: 0px;
-		padding-right:20px;
+		margin-left: calc(50% - 100px);
+/*		padding-right:20px;
+*/
 	}
 }
 
 /* Footer
 -----------------------------------------------------------------------------*/
 #footer {
-	font-family: 'Quicksand', sans-serif;
 	font-weight: 100;
 	font-size: 0.8rem;
 	width: 100%;

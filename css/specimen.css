@@ -18,7 +18,25 @@ img.picture {
 	line-height:1em;
 	box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.5);
 }
-div#surface canvas {
+@media all and (min-width: 40em) {
+	#stereotaxic {
+		width:512px;
+	}
+	#surface {
+		width:512px;
+		height:512px;
+	}
+}
+@media not all and (min-width: 40em) {
+	#stereotaxic {
+		width:100%;
+	}
+	#surface {
+		width: 100%;
+		padding-bottom: 100%;
+	}
+}
+#surface canvas {
 	-webkit-background: radial-gradient(circle,#333,black);
 	-moz-background: radial-gradient(circle,#333,black);
 	-o-background: radial-gradient(circle,#333,black);
