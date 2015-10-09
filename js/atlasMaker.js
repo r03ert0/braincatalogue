@@ -430,18 +430,14 @@ function mousedown(e) {
 	if(debug) console.log("> mousedown()");
 	
 	e.preventDefault();
-	/*
-	var r = e.target.getBoundingClientRect();
-	var x=parseInt(((e.clientX-r.left) / e.target.clientWidth )*brain_W);
-	var y=parseInt(((e.clientY-r.top) / e.target.clientHeight )*brain_H);
-	*/
+
 	var W=parseFloat($('#resizable canvas').css('width'));
 	var H=parseFloat($('#resizable canvas').css('height'));
 	var w=parseFloat($('#resizable canvas').attr('width'));
 	var h=parseFloat($('#resizable canvas').attr('height'));
+	var o=$('#resizable canvas').offset();
 	var x=parseInt(e.clientX*(w/W));
-	var y=parseInt(e.clientY*(h/H));
-	
+	var y=parseInt((e.clientY-o.top)*(h/H));
 	down(x,y);
 }
 function mousemove(e) {
@@ -452,11 +448,13 @@ function mousemove(e) {
 	var H=parseFloat($('#resizable canvas').css('height'));
 	var w=parseFloat($('#resizable canvas').attr('width'));
 	var h=parseFloat($('#resizable canvas').attr('height'));
+	var o=$('#resizable canvas').offset();
 	var x=parseInt(e.clientX*(w/W));
-	var y=parseInt(e.clientY*(h/H));
+	var y1=parseInt(e.clientY*(h/H));
+	var y2=parseInt((e.clientY-o.top)*(h/H));
 	
-	$("#cursor").css({left:x*(W/w),top:y*(H/h),width:User.penSize*(W/w),height:User.penSize*(H/h)});
-	move(x,y);
+	$("#cursor").css({left:x*(W/w),top:y1*(H/h),width:User.penSize*(W/w),height:User.penSize*(H/h)});
+	move(x,y2);
 }
 function mouseup(e) {
 	if(debug) console.log("> mouseup()");
@@ -467,14 +465,15 @@ function touchstart(e) {
 	if(debug) console.log("> touchstart()");
 	
 	e.preventDefault();
-	var r = e.target.getBoundingClientRect();
+
+	var o=$('#resizable canvas').offset();
 	var	touchEvent=e.originalEvent.changedTouches[0];
 	var W=parseFloat($('#resizable canvas').css('width'));
 	var H=parseFloat($('#resizable canvas').css('height'));
 	var w=parseFloat($('#resizable canvas').attr('width'));
 	var h=parseFloat($('#resizable canvas').attr('height'));
 	var x=parseInt(touchEvent.pageX*(w/W));
-	var y=parseInt(touchEvent.pageY*(h/H));
+	var y=parseInt((touchEvent.pageY-o.top)*(h/H));
 	
 	/*-- Precision cursor --*/
 	$("#finger").css("display","inline");
@@ -502,16 +501,15 @@ function touchmove(e) {
 	if(debug) console.log("> touchmove()");
 	
 	e.preventDefault();
-	/*
-	var r = e.target.getBoundingClientRect();
-	*/
+
+	var o=$('#resizable canvas').offset();
 	var	touchEvent=e.originalEvent.changedTouches[0];
 	var W=parseFloat($('#resizable canvas').css('width'));
 	var H=parseFloat($('#resizable canvas').css('height'));
 	var w=parseFloat($('#resizable canvas').attr('width'));
 	var h=parseFloat($('#resizable canvas').attr('height'));
 	var x=parseInt(touchEvent.pageX*(w/W));
-	var y=parseInt(touchEvent.pageY*(h/H));
+	var y=parseInt((touchEvent.pageY-o.top)*(h/H));
 	
 	/*-- Precision cursor --*/
 	var dx=x-Crsr.x0;
@@ -889,7 +887,7 @@ function initSocketConnection() {
 	if(debug) console.log("> initSocketConnection()");
 	
 	// WS connection
-	var host = "ws://" + window.location.host + ":12345/echo";
+	var host = "ws://" + window.location.host + ":8080";//12345/echo";
 	
 	if(debug) console.log("[initSocketConnection] host:",host);
 	
@@ -1141,7 +1139,7 @@ function init()
 	
 	// 1. Add widget div
 	//var div = Siph.settings[0].container;
-	$(document.body).append("<div class='atlasMaker'></div>");
+	$(document.body).append("<div class='atlasMaker' style='position:relative'></div>");
 
 	// 2. Load "atlasMakerTools" html and init atlasMaker
 	$("div.atlasMaker").load("/templates/atlasMakerTools.html",
@@ -1158,21 +1156,6 @@ function init()
 		$(document.body).append("<div id='finger'></div>");
 		$("#finger").css({display:"inline"});
 		updateCursor();
-	}
-}
-function loginChanged()
-{
-	if(debug) console.log(">loginChanged() to",MyLoginWidget.loggedin);
-	if(MyLoginWidget.loggedin)
-	{
-		$(".loginRequired").css('display','inline-block');	// Show all controls required to log in
-		User.username=MyLoginWidget.username;
-		sendUserDataMessage("logged in");	// inform the server
-	}
-	else
-	{
-		$(".loginRequired").css('display','none');	// Hide all controls required to log in
-		sendUserDataMessage("logged out");	// inform the server
 	}
 }
 function initAtlasMaker()
@@ -1229,15 +1212,19 @@ function initAtlasMaker()
 	$("button#prevSlice").button().click(function(){prevSlice()});
 	$("button#nextSlice").button().click(function(){nextSlice()});
 
-	$("div#toolbar").draggable().resizable({resize:function(){
-		$("#log").outerHeight(
-			$(this).height()
-			-$("#controls").outerHeight(true)
-			-$("label#chat").outerHeight(true)
-			-$("#msg").outerHeight(true)
-			-4
-		);
-	}});
+	$("div#toolbar")
+		.draggable({containment:'div.atlasMaker'})
+		.resizable({
+			resize:function() {
+				$("#log").outerHeight(
+					$(this).height()
+					-$("#controls").outerHeight(true)
+					-$("label#chat").outerHeight(true)
+					-$("#msg").outerHeight(true)
+					-4
+				)
+			}
+	});
 	$("div#toolbar").draggable().resizable();
 	$("div#toolbar").blur();
 	
@@ -1267,6 +1254,21 @@ function initAtlasMaker()
 		drawImages();
 	};
 	oReq.send();
+}
+function loginChanged()
+{
+	if(debug) console.log(">loginChanged() to",MyLoginWidget.loggedin);
+	if(MyLoginWidget.loggedin)
+	{
+		$(".loginRequired").css('display','inline-block');	// Show all controls required to log in
+		User.username=MyLoginWidget.username;
+		sendUserDataMessage("logged in");	// inform the server
+	}
+	else
+	{
+		$(".loginRequired").css('display','none');	// Hide all controls required to log in
+		sendUserDataMessage("logged out");	// inform the server
+	}
 }
 
 init();

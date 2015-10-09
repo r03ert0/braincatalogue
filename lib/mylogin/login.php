@@ -29,6 +29,9 @@ if(isset($_GET["action"]))
 		case "remind":
 			user_remind();
 			break;
+		case "update":
+			user_update();
+			break;
 		case "logout":
 			user_logout();
 			break;
@@ -91,6 +94,50 @@ function user_register()
 			echo "Fail";
 	 }
 }
+function user_update()
+{
+	global $connection;
+	
+	$message="";
+	$success="No";
+	if($_SESSION['LoggedIn']==1)
+	{
+		$username = mysqli_real_escape_string($connection,$_GET['username']);
+		$password = md5(mysqli_real_escape_string($connection,$_GET['password']));
+		$email = mysqli_real_escape_string($connection,$_GET['email']);
+
+		 $checkusername = mysqli_query($connection,"SELECT * FROM ".$dblogin.".Users WHERE Username = '".$username."' AND Password = '".$password."'");
+		 
+		 if(mysqli_num_rows($checkusername) == 1)
+		 {
+			$newpassword = $_GET['newpassword'];
+			if(strlen($newpassword)>=8)
+			{
+				$registerquery=mysqli_query($connection,"UPDATE ".$dblogin.".Users SET Password = '"
+					.md5(mysqli_real_escape_string($connection,$newpassword))."' WHERE Username = '".$username."'");
+				$message.="Password updated. ";
+				$success="Yes";
+			}
+			
+			if($email != $_SESSION['EmailAddress'])
+			{
+				$registerquery=mysqli_query($connection,"UPDATE ".$dblogin.".Users SET EmailAdress = '".$email."' WHERE Username = '".$username."'");
+				$_SESSION['EmailAddress'] = $email;
+				$success="Yes";
+				$message.="E-Mail address updated";
+			}
+			
+			if($success=="Yes")
+				echo '{"success":"Yes","message":"'.$message.'"}';
+			else
+				echo '{"success":"Yes","message":"No change"}';
+		 }
+		 else
+			echo '{"success":"No","message":"Incorrect password"}';
+    }
+    else
+		echo '{"success":"No","message":"Not logged in"}';
+}
 function user_remind()
 {
 	global $connection;
@@ -137,6 +184,7 @@ function user_remind()
 		echo "Unavailable";
 	}
 }
+
 function user_logout()
 {
 	$_SESSION = array();

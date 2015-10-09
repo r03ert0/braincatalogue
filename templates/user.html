@@ -3,6 +3,7 @@
 <head>
 	<meta charset="utf-8">
     <title><!--HomeUsername--></title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 	<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'/>
 	<link href='http://fonts.googleapis.com/css?family=Quicksand:400,300,100' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="/lib/jquery-ui.css">
@@ -16,33 +17,43 @@
 
 	<!-- Header -->
 	<header id="header">
-		<div id="myinner">
-			<h1 style="display:inline-block">
-				<a class="menu nodecoration" href="/" target="_top">
-					Brain Catalogue
-				</a>
-			</h1>
-			<div id="menu">
-				<div id="login" class="menu">Login</div>
-				<a class="menu" href="blog">Blog</a>
-				<a class="menu" href="about.html">About</a>
-				<a class="menu" href="http://siphonophore.org/blog/?cat=3&feed=rss2">
-					<img src="/img/feed-icon.svg" width="14px" height="14px"/>
-				</a>
+		<div class="myinner">
+			<div id="title" class="cell">
+				<h1 style="display:inline-block">
+					<a class="menu nodecoration" href="/" target="_top">
+						<span class="bcicon">a</span>  Brain Catalogue
+					</a>
+				</h1>
 			</div>
-		</div>
-	</header><!-- #header-->
+			<div id="menu" class="cell">
+					<span id="MyLogin"></span>
+					<span>
+						<a class="menu" href="blog">Blog</a>
+						<a class="menu" href="about.html">About</a>
+						<a class="menu" href="http://siphonophore.org/blog/?cat=3&feed=rss2"><i class="fa fa-rss"></i></a>
+					</span>
+			</div>
+		</div><!-- .myinner -->
+	</header><!-- #header -->
 
 	<div style="width:600px;margin-left:auto;margin-right:auto;margin-top:2rem">
 		<h2>HOME PAGE OF <b><span id="HomeUsername"></span></b></h2>
-		<!--AccountSettings-->
-	</div>
+			
+			<br />
+			
+			<h2>Account Settings</h2>
+			<div id="settings" style="background-color:#f8f8f8;padding:1rem">
+				<table style="width:100%;">
+					<tr><td><label for="username">User Name   </label></td><td><span id="username" style="width:100%"></span></td></tr>
+					<tr><td><label for="password">E-Mail      </label></td><td><input type="text" name="email" id="email" style="width:100%"/></td></tr>
+					<tr><td><label for="newpassword">New Password</label></td><td><input type="password" name="newpassword" id="newpassword" style="width:100%"/></td></tr>
+					<tr><td><label for="oldpassword">Old Password</label></td><td><input type="password" name="oldpassword" id="oldpassword" style="width:100%"/></td></tr>
+					<tr><td></td><td><input type="button" name="login" id="updateAccount" value="Update my information" /></td></tr>
+					<tr><td></td><td><input type="button" name="delete" id="deleteAccount" value="Delete my account" /></td></tr>
+				</table>
+			</div>
 
-	<script src="/lib/jquery-1.11.0.min.js"></script>
-	<script>
-	var	homeUsername="<!--HomeUsername-->";
-	$("span#HomeUsername").text(homeUsername.toUpperCase());
-	</script>
+	</div>
 
 </div><!-- #wrapper -->
 
@@ -72,10 +83,32 @@
 <script src="/lib/jquery-ui-1.10.4.custom.min.js"></script>
 <script src="/lib/jquery.ui.touch-punch.min.js"></script>
 <script src="/lib/pako/pako.min.js"></script>
+<script src="/lib/mylogin/login.js"></script>
+<script>
+	var username="<!--HomeUsername-->";
+	var useremail="<!--E-Mail-->";
+	MyLoginWidget.init($("#MyLogin"));
+	$("#username").html(username);
+	$("#email").val(useremail);
+	$("#HomeUsername").text(username.toUpperCase());
+	
+	$("#updateAccount").click(function() {
+		
+		var	oldpass=$("#oldpassword").val();
+		var	newpass=$("#newpassword").val();
+		var	email=$("#email").val();
 
-<!-- RT code -->
-<script src="/lib/mylogin/login.js">
-MyLoginWidget.init();
+		MyLoginWidget.updateAccount({
+			username:username,
+			oldpass:oldpass,
+			newpass:newpass,
+			email:email,
+			msg:$("#settings")
+		});
+	});
+
+	$("#deleteAccount").click(function() {
+	});
 </script>
 
 <script>
