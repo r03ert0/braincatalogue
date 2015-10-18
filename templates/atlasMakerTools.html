@@ -2,20 +2,15 @@
 	
 	<!-- Controls -->
 	<div id="controls">
-		<div id="toolbarHeader">
-			<span id="download_mri"></span><br \>
-			<span id="download_atlas"></span>
-		</div>
-
-		<div id="plane">						
-			<label class="tb_label">Stereotaxic plane</label><br/>
-			<input type="radio" name="radio" id="sagittal" checked="checked"><label for="sagittal">Sagittal</label>
-			<input type="radio" name="radio" id="coronal"><label for="coronal">Coronal</label>
-			<input type="radio" name="radio" id="axial"><label for="axial">Axial</label>
+		<div id="plane">
+			<table><tr>
+			<td><input type="radio" name="radio" id="sagittal" checked="checked"><label for="sagittal">Sagittal</label></td>
+			<td><input type="radio" name="radio" id="coronal"><label for="coronal">Coronal</label></td>
+			<td><input type="radio" name="radio" id="axial"><label for="axial">Axial</label></td>
+			</tr></table>
 		</div>
 
 		<div id="sliceTools">
-			<label class="tb_label">Slice selection</label><br/>
 			<div id="sliderTool">
 				<button id="prevSlice">-</button>
 				<div id="sliderContainer">
@@ -24,11 +19,9 @@
 				<button id="nextSlice">+</button>
 			</div>
 		</div>
-		<div id="slice"></div>
 
 		<div class="loginRequired">
 			<div id="paintTools">
-				<label class="tb_label">Paint Tools</label><br/>
 				<span id="tool">						
 					<input type="radio" name="tool" id="paint" checked="checked"><label for="paint">Paint</label>
 					<input type="radio" name="tool" id="erase"><label for="erase">Erase</label>
@@ -38,7 +31,6 @@
 			</div>
 
 			<div id="penSize">						
-				<label class="tb_label">Pen size</label><br/>
 				<input type="radio" name="penSize" id="1" checked="checked"><label for="1">1</label>
 				<input type="radio" name="penSize" id="2"><label for="2">2</label>
 				<input type="radio" name="penSize" id="3"><label for="3">3</label>
@@ -57,8 +49,4 @@
 			<input id="msg" type="text" onkeypress="onkey(event)">
 		</div>
 	</div>
-</div>
-
-<div id="resizable">
-	<canvas id="canvas"></canvas>
 </div>

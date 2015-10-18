@@ -17,7 +17,7 @@ body {
     color:#333;
 }
 h1 {
-	color: black !important;
+	color: #555 !important;
 	font-size:1.5rem;
 }
 h2 {
@@ -38,6 +38,17 @@ a:hover {
 }
 a:visited {
 	color: inherit;
+}
+select {
+	border-color:transparent;
+	font-size: 1rem;
+	font-family:'Droid Serif', serif;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+}
+select:hover {
+	color: #08c;
 }
 
 @font-face {
@@ -71,7 +82,7 @@ a:visited {
 		padding-left:1rem;
 		padding-right:1rem;
 		padding-top:1rem;
-		padding-bottom:2rem;
+		padding-bottom:3rem;
 	}
 	#header #title h1 {
 		font-size:2rem;

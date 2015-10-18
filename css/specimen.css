@@ -31,10 +31,19 @@ img.picture {
 	#stereotaxic {
 		width:100%;
 	}
+	/*
 	#surface {
 		width: 100%;
+		height:100%;
 		padding-bottom: 100%;
 	}
+	*/
+}
+#stereotaxic canvas {
+	/*cursor:none;*/
+}
+#atlasMaker {
+	position: relative;
 }
 #surface canvas {
 	-webkit-background: radial-gradient(circle,#333,black);
@@ -54,5 +63,5 @@ div#acknowledgements h2 {
 	font-family:'Droid Serif', serif;
 	font-size:1rem;
 	line-height: 200%;
-	margin-top:10px;
+	margin-top:2rem;
 }
