@@ -10,6 +10,7 @@
 	<link rel="stylesheet" href="/lib/jquery-ui.css">
 	<link rel="stylesheet" href="/css/common.css" type="text/css" media="screen, projection" />
 	<link rel="stylesheet" href="/css/specimen.css" type="text/css" media="screen, projection" />
+	<link rel="stylesheet" href="/css/atlasMaker+.css"/>
 	<style>
 		.ui-slider {height:2px}
 		.ui-slider-handle {height:10px !important}
@@ -63,7 +64,8 @@
 				<div id="description"></div>
 
 				<!-- 3.1.4 Data -->
-				<div id="data"><!--DATAVIEW--></div>
+				<!--DATAVIEW-->
+				<div id="data"></div>
 				
 				<!-- 3.1.5 Acknowledgments -->
 				<p><div id="acknowledgements"></div>
@@ -95,27 +97,21 @@
 	</div>
 </footer> <!-- footer -->
 
-<!-- External -->
-<script src="/lib/jquery-1.11.0.min.js"></script>
-<script src="/lib/jquery-ui-1.10.4.custom.min.js"></script>
-<script src="/lib/jquery.ui.touch-punch.min.js"></script>
-<script src="/lib/pako/pako.min.js"></script>
+<script>
+var specimen='<!--SPECIMEN-->';
+var AtlasMaker=JSON.parse('<!--ATLAS-->');
+</script>
 
-<!-- RT code -->
-<script src="/lib/mylogin/login.js"></script>
+<script src="/lib/jquery-1.11.0.min.js"></script>
 
 <script>
-
-var root='/data/<!--SPECIMEN-->/';
-var volume;
-
 // load stored description from wikipedia
-jQuery.getJSON(root+'info.txt',function(data)
+$.getJSON('/data/'+specimen+'/info.txt',function(data)
 {
 	jQuery("div#test").append("[R]");
 
 	// Load image
-	jQuery("div#picture").html("<img class='picture' src='"+root+"picture.jpg'/>");
+	jQuery("div#picture").html("<img class='picture' src='/data/"+specimen+"/picture.jpg'/>");
 
 	// Load text
 	var description=data.description.commonName;
@@ -129,11 +125,16 @@ jQuery.getJSON(root+'info.txt',function(data)
 	}
 	jQuery("div#lastUpdated").html(data.description.lastUpdated);
 	
-	if(data.html) {
-		jQuery("#data").load(root+"/"+data.html);
-	}
 });
+</script>
 
+<script src="/lib/jquery-ui-1.10.4.custom.min.js"></script>
+<script src="/lib/jquery.ui.touch-punch.min.js"></script>
+<script src="/lib/pako/pako.min.js"></script>
+<script src="/lib/mylogin/login.js"></script>
+
+<script>
+var volume;
 function loadScript(script) {
 	var def=new $.Deferred();
 	var s = document.createElement("script");
@@ -144,22 +145,111 @@ function loadScript(script) {
 	return def.promise();
 }
 
-if($(".MRI").length) {
-	var s = document.createElement("script");
-	s.src = "/js/myStereotaxic.js";
-	s.onload=function(){
-		$("#slider").slider({slide: changeSlice,min:0,max:100,value:50});
-		$("#radio").buttonset();
-		$('#radio input[type=radio]').change(function(){changeView($(this).attr('id'))})
-		init_stereotaxic("<!--SPECIMEN-->",$("h2.MRI"));
-	}
-	document.body.appendChild(s);
+function enterEditMode() {
+	var black=$("<div id='blackOverlay'>");
+	black.css({position:'fixed',top:0,left:0,width:'100%',height:'100%','z-index':5,'background-color':'black'});
+	$('body').append(black);
+	
+	$("#atlasMaker").removeClass('display-mode');
+	$("#atlasMaker").addClass('edit-mode');
+	$("#atlasMaker").detach().appendTo('body');
+	AtlasMakerWidget.editMode=1;
+	
+	var exit=$("<div>Close</div>");
+	exit.css({position:'absolute',top:'5px',right:'5px',color:'white',fontFamily:'sans-serif',fontSize:'1rem'});
+	exit.click(function(){exit.remove();exitEditMode();});
+	$("#atlasMaker").append(exit);
+
+	$("div#toolbar").draggable({containment:AtlasMakerWidget.container});
+	$("div#toolbar").resizable({
+		resize:function() {
+			$("#log").outerHeight(
+				$(this).height()
+				-$("#controls").outerHeight(true)
+				-$("label#chat").outerHeight(true)
+				-$("#msg").outerHeight(true)
+				-4
+			)
+		}
+	});
+}
+function exitEditMode() {
+	$("#blackOverlay").remove();
+	
+	$("#atlasMaker").removeClass('edit-mode');
+	$("#atlasMaker").addClass('display-mode');
+	$("#atlasMaker").detach().appendTo('#stereotaxic')	;
+	AtlasMakerWidget.editMode=0;
+
+	$("div#toolbar").draggable('destroy');
+	$("div#toolbar").resizable('destroy');
+	$("div#toolbar").css({top:0,left:0});
 }
 
-if($(".Mesh").length) {
+function checkURLExists(url) {
+	console.log('checkurl',url);
+	var def=$.Deferred();
+	$.ajax({
+		type: 'HEAD',
+		url: url,
+		success: function() {def.resolve()},
+		error: function() {def.reject()}
+	});
+	return def.promise();
+}
+function selectAtlas(index) {
+	console.log("> selectAtlas",index);
+	AtlasMakerWidget.configureAtlasMaker(AtlasMaker[index]);
+}
+
+checkURLExists('/data/'+specimen+'/MRI-n4.nii.gz').then(function() {
+	var s = document.createElement("script");
+	s.src = "/js/atlasMaker.js";
+	s.onload=function(){
+		$("#data").append([
+			'<h2 class="MRI"></h2>',
+			'<div id="stereotaxic">',
+			'	<div id="atlasMaker"></div>',
+			'</div>'
+		].join("\n"));
+
+		$("h2.MRI").html("");
+		
+		// MRI download
+		$("h2.MRI").append([
+			"<a class='download' href='/data/'"+specimen+"'/MRI-n4.nii.gz'>",
+			"	<img src='/img/download.svg' style='vertical-align:middle;margin-bottom:5px'/>",
+			"</a>MRI"
+		].join("\n"));
+		
+		// Edit link
+		$("h2.MRI").append([
+			"<a class='download' onclick='enterEditMode();'>",
+			"	<img src='/img/edit.svg' style='vertical-align:middle;margin-bottom:5px'/>",
+			"</a>"
+		].join("\n"));
+		
+		// Atlas select
+		var i,html=[];
+		html.push('<select onchange="selectAtlas(this.value)">');
+		for(i=0;i<AtlasMaker.length;i++)
+			html.push('<option value='+i+'>'+AtlasMaker[i].description+'</option>');
+		html.push('</select>');
+		$("h2.MRI").append(html.join("\n"));
+
+		$("#atlasMaker").addClass('display-mode');
+		
+		AtlasMakerWidget.initAtlasMaker($("#atlasMaker"))
+		.then(function() {
+			AtlasMakerWidget.configureAtlasMaker(AtlasMaker[0]);
+		});
+	}
+	document.body.appendChild(s);
+});
+
+checkURLExists('/data/'+specimen+'/mesh.ply').then(function() {
 	loadScript("/lib/three.min.js")
 	.then(function(){loadScript("/lib/TrackballControls.js")})
-	.then(function(){loadScript("/lib/OrbitControls.js")})
 	.then(function(){loadScript("/lib/PLYLoader.js")})
 	.then(function(){loadScript("/lib/CopyShader.js")})
 	.then(function(){loadScript("/lib/SSAOShader.js")})
@@ -172,12 +262,17 @@ if($(".Mesh").length) {
 		s.src = "/js/myMesh.js";
 		s.onload=function(){
 			console.log("ready to init mesh");
-			init_mesh("/data/<!--SPECIMEN-->/mesh.js",$("h2.Mesh"));
-			animate();
+
+			$("#data").append([
+				'<h2 class="Mesh"></h2>',
+				'<div id="surface"></div>'
+			].join("\n"));
+
+			init_mesh(specimen,$("h2.Mesh"),$("#surface")[0]);
 		}
 		document.body.appendChild(s);
 	});
-}
+});
 
 MyLoginWidget.init($("#MyLogin"));
 

@@ -5,9 +5,11 @@
 	Launch using > node atlasMakerServer.js
 */
 
-var	debug=0;
+var	debug=1;
 
+// websockets library: https://github.com/websockets/ws
 var WebSocketServer=require("ws").Server;
+
 var os=require("os");
 var fs=require("fs");
 var zlib=require("zlib");
@@ -47,6 +49,49 @@ function removeUser(socket) {
 		if(socket==usrsckts[i].socket)
 		{
 			usrsckts.splice(i,1);
+			break;
+		}
+	}
+}
+function numberOfUsersConnectedToAtlas(dirname,atlasName) {
+	var sum=0;
+
+	if(dirname==undefined || atlasName==undefined)
+		return sum;
+		
+	for(i in Users) {
+		if(Users[i]==undefined) {
+			console.log("ERROR: When counting the number of users connected to the atlas, user uid "+i+" was not defined");
+			continue;
+		}
+		if(Users[i].dirname==undefined) {
+			console.log("ERROR: A user uid "+i+" dirname is unknown");
+			continue;
+		}
+		if(Users[i].atlasName==undefined) {
+			console.log("ERROR: A user uid "+i+" atlasName is unknown");
+			continue;
+		}
+		if(Users[i].dirname==dirname && Users[i].atlasName==atlasName)
+			sum++;
+	}
+	sum--;
+	return sum;
+}
+function unloadAtlas(dirname,atlasName) {
+	if(debug)
+		console.log(new Date(), "[unload atlas]",dirname,atlasName);
+		
+	var i;
+	for(i in Atlases)
+	{
+		if(Atlases[i].dirname==dirname
+			&& Atlases[i].name==atlasName)
+		{
+			saveNifti(Atlases[i]);
+			clearInterval(Atlases[i].timer);
+			Atlases.splice(i,1);
+			console.log("free memory",os.freemem());
 			break;
 		}
 	}
@@ -102,7 +147,7 @@ function initSocketConnection() {
 					
 					// do not auto-broadcast
 					if(data.uid==uid) {
-						if(debug) console.log("no broadcast to self");
+						if(debug>1) console.log("no broadcast to self");
 						continue;
 					}
 					
@@ -134,7 +179,7 @@ function initSocketConnection() {
 				var uid=getUserId(this);
 				console.log("User ID "+uid+" is disconnecting");
 				if(Users[uid]==undefined)
-					console.log("User ID "+uid+" is undefined");
+					console.log("User ID "+uid+" is undefined. List of all known Users follows",Users);
 				else
 				if(Users[uid].dirname)
 					console.log("User was connected to atlas "+ Users[uid].dirname+Users[uid].atlasName);
@@ -142,25 +187,7 @@ function initSocketConnection() {
 					console.log("User was not connected to any atlas");					
 				
 				// count how many users remain connected to the atlas after user leaves
-				var sum=0;
-				for(i in Users) {
-					if(Users[uid]==undefined) {
-						console.log("ERROR: When counting the number of users connected to the atlas, user uid "+uid+" was not defined");
-						continue;
-					}
-					if(Users[i].dirname==undefined ||Users[uid].dirname==undefined) {
-						console.log("ERROR: A user's dirname is unknown");
-						continue;
-					}
-					if(Users[i].atlasName==undefined || Users[uid].atlasName==undefined) {
-						console.log("ERROR: A user's atlasName is unknown");
-						continue;
-					}
-					if(Users[i].dirname==Users[uid].dirname
-						&& Users[i].atlasName==Users[uid].atlasName)
-						sum++;
-				}
-				sum--;
+				sum=numberOfUsersConnectedToAtlas(Users[uid].dirname,Users[uid].atlasName);
 				if(sum)
 					console.log("There remain "+sum+" users connected to that atlas");
 				else
@@ -168,18 +195,7 @@ function initSocketConnection() {
 					console.log("No user connected to atlas "
 								+ Users[uid].dirname
 								+ Users[uid].atlasName+": unloading it");
-					for(i in Atlases)
-					{
-						if(Atlases[i].dirname==Users[uid].dirname
-							&& Atlases[i].name==Users[uid].atlasName)
-						{
-							saveNifti(Atlases[i]);
-							clearInterval(Atlases[i].timer);
-							Atlases.splice(i,1);
-							console.log("free memory",os.freemem());
-							break;
-						}
-					}
+					unloadAtlas(Users[uid].dirname,Users[uid].atlasName);
 				}
 				
 				// remove the user from the list
@@ -219,16 +235,36 @@ function receivePaintMessage(data) {
 }
 function receiveUserDataMessage(data,user_socket)
 {
-	if(debug) console.log("[receiveUserDataMessage]");
+	if(debug>1) console.log("[receiveUserDataMessage]");
 
 	var uid=data.uid;
 	var user=data.user;
-	var	i,atlasLoadedFlag,firstConnectionFlag;
+	var	i,atlasLoadedFlag,firstConnectionFlag,switchingAtlasFlag;
 	
 	firstConnectionFlag=(Users[uid]==undefined);
 
 	// 1. Check if the atlas the user is requesting has not been loaded
 	atlasLoadedFlag=false;
+	
+	// Check if user is switching atlas, and unload unused atlases
+	switchingAtlasFlag=false;
+	if(Users[uid]) {
+		if((Users[uid].atlasName!=user.atlasName)||(Users[uid].dirname!=user.dirname)) {
+			// User is switching atlas.
+			switchingAtlasFlag=true;
+			
+			// check whether the old atlas has to be unloaded
+			var sum;
+			sum=numberOfUsersConnectedToAtlas(Users[uid].dirname,Users[uid].atlasName);
+			
+			console.log(sum,"users connected to atlas",Users[uid].dirname,",",Users[uid].atlasName);
+			
+			if(sum==0) {
+				unloadAtlas(Users[uid].dirname,Users[uid].atlasName);
+			}
+		}
+	}
+
 	for(i=0;i<Atlases.length;i++)
 		if(Atlases[i].dirname==user.dirname && Atlases[i].name==user.atlasName)
 		{
@@ -241,7 +277,7 @@ function receiveUserDataMessage(data,user_socket)
 	// 2. Send the atlas to the user (load it if required)
 	if(atlasLoadedFlag)
 	{
-		if(firstConnectionFlag)
+		if(firstConnectionFlag || switchingAtlasFlag)
 		{
 			// send the new user our data
 			sendAtlasToUser(Atlases[i].data,user_socket);
@@ -414,7 +450,7 @@ gawk 'BEGIN{s="5C 01 ...";split(s,a," ");for(i=1;i<=352;i++)printf"%s,",strtonum
 			62,0,0,0,128,164,112,125,194,0,0,0,0,0,0,0,0,195,245,168,62,195,245,40,194,0,0,0,0,0,0,0,0,0,
 			0,0,0,0,0,0,0,110,43,49,0,0,0,0,0]);
 		try {
-			atlas.hdr.writeUInt16LE(datatype,72,2); // datatype 2: unsigned char (8 bits/voxel)
+			atlas.hdr.writeUInt16LE(datatype,72,2);		// datatype 2: unsigned char (8 bits/voxel)
 			atlas.hdr.writeUInt16LE(atlas.dim[0],42,2); // datatype 2: unsigned char (8 bits/voxel)
 			atlas.hdr.writeUInt16LE(atlas.dim[1],44,2); // datatype 2: unsigned char (8 bits/voxel)
 			atlas.hdr.writeUInt16LE(atlas.dim[2],46,2); // datatype 2: unsigned char (8 bits/voxel)
@@ -635,6 +671,8 @@ function paintxy(u,c,x,y,user,undoLayer)
 	}
 	
 	var coord={"x":x,"y":y,"z":user.slice};
+	
+	console.log("paint cmd:",c);
 	
 	switch(c)
 	{

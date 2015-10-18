@@ -18,6 +18,16 @@ if(isset($_POST["action"]))
 	}
 }
 
+if(isset($_GET["action"]))
+{
+	switch($_GET["action"])
+	{
+		case "drawNiiSlice":
+			drawNiiSlice($_GET);
+			break;
+	}
+}
+
 function braincatalogue($args)
 {
 	if($args[1]=="blog")
@@ -122,78 +132,27 @@ function braincatalogue($args)
 				header('HTTP/1.1 200 OK');
 				header("Status: 200 OK");
 			
-				//$info=json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/info.txt"));
-
 				$html = file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/specimen.html");
-
-				$A="<table style='width:100%;'>";
-				
-				if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/MRI-n4.nii.gz"))
-				{
-				// Configure stereotaxic viewer
-				//-----------------------------
-				$A.=<<<EOF
-					<tr>
-					<td colspan=3 style='text-align:left'>
-						<h2 class="MRI"></h2>
-					</td>
-					</tr>
-					<tr>
-						<td>
-						<table id="stereotaxic">
-							<tr>
-							<td>
-								<div id="resizable" style="width:100%">
-									<canvas id="brainCanvas" style="width:100%;height:100%"></canvas>
-								</div>
-							</td>
-							</tr>
-							<tr>
-							<td>
-								<div id="slider" style="width:100%;margin:5px 0 10px 0;" oninput="javascript:changeSlice()">
-								</div>
-								<div id="radio">						
-									<input type="radio" id="sagittal" name="radio" checked="checked"><label for="sagittal">Sagittal</label>
-									<input type="radio" id="coronal" name="radio"><label for="coronal">Coronal</label>
-									<input type="radio" id="axial" name="radio"><label for="axial">Axial</label>
-								</div>
-							</td>
-							</tr>
-						</table>
-						</td>
-					</tr>
-EOF;
-				}
-				if(file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/mesh.ply"))
-				{
-				// Configure mesh view
-				//-----------------------------
-				$A.=<<<EOF
-					<tr>
-						<td colspan=3>
-							<h1>&nbsp;</h1>
-						</td>
-					</tr>
-					<tr>
-						<td colspan=3 style='text-align:left'>
-							<h2 class="Mesh"></h2>
-						</td>
-					</tr>
-					<tr>
-						<td colspan=3>
-							<div id="surface"></div>
-						</td>
-					</tr>
-EOF;
-				}
-				$A.="</table>";
-	
-				$tmp=str_replace("<!--DATAVIEW-->",$A,$html);
-				$html=$tmp;
 
 				// Configure specimen
 				//--------------------
 				$tmp=str_replace("<!--SPECIMEN-->",$specimen,$html);
+				$html=$tmp;
+
+				// Configure atlases
+				//--------------------
+				$info=json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/info.txt"));
+				$atlases=[];
+				for($a=0;$a<count($info->mri->atlas);$a++)
+				{
+					$atlas=[];
+					$atlas["name"]=$specimen;
+					$atlas["url"]="/data/".$specimen."/info.txt";
+					$atlas["atlasName"]=$info->mri->atlas[$a]->name;
+					$atlas["description"]=$info->mri->atlas[$a]->description;
+					$atlases[]=$atlas;
+				}
+				$tmp=str_replace("<!--ATLAS-->",json_encode($atlases),$html);
 				$html=$tmp;
 
 				print $html;
@@ -417,5 +376,13 @@ function user_update($username) {
 	}
 	
 	print $html;
+}
+
+function drawNiiSlice($args) {
+	header('Content-Type: image/jpeg');
+	passthru("/usr/local/bin/node ../js/drawNiiSlice.js "
+		."../".$args["nii-file"]." "
+		.$args["view"]." "
+		.$args["slice-index"],$err);
 }
 ?>

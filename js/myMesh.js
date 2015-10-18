@@ -7,19 +7,23 @@ var	composer;
 var	depthMaterial;
 var	depthTarget;
 
-function init_mesh(specimen,progress)
+function init_mesh(specimen,progress,elem)
 {
+	console.log('init_mesh',specimen,progress,elem);
+	
 	var	width, height;
 
-	container = document.getElementById('surface');
+	container = elem;
 	width=container.clientWidth;
-	height=container.clientHeight;
+	height=width;//container.clientHeight;
 	console.log(width,height);
 	
 	camera = new THREE.PerspectiveCamera(25,width/height,10,1000 );
 	camera.position.z = 200;
 	tb = new THREE.TrackballControls(camera,container);
 	tb.autoRotate=true;
+	tb.noZoom=true;
+	tb.noPan=true;
 	tb.addEventListener( 'change', render );
 
 	scene = new THREE.Scene();
@@ -27,9 +31,9 @@ function init_mesh(specimen,progress)
 	/* ------------------------
 	    Load mesh (ply format)
 	   ------------------------ */
-	var path="data/"+specimen;
+	var path="/data/"+specimen+'/mesh.ply';
 	var oReq = new XMLHttpRequest();
-	oReq.open("GET", "/data/"+name+"/mesh.ply", true);
+	oReq.open("GET", path, true);
 	oReq.addEventListener("progress", function(e){progress.html("Loading Surface ("+parseInt(100*e.loaded/e.total)+"%)")}, false);
 	//oReq.addEventListener("progress", function(e){$("#loadProgress").html(parseInt(100*e.loaded/e.total)+"%")}, false);
 	oReq.responseType="text";
@@ -42,7 +46,8 @@ function init_mesh(specimen,progress)
 		var	mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({color:0xffffff}));
 		mesh.name = specimen;
 		scene.add(mesh);
-		progress.html("<a class='download' href='/data/"+name+"/mesh.ply'><img src='/img/download.svg' style='vertical-align:middle;margin-bottom:5px'/></a>Surface");
+		progress.html("<a class='download' href='/data/"+specimen+"/mesh.ply'><img src='/img/download.svg' style='vertical-align:middle;margin-bottom:5px'/></a>Surface");
+		animate();
 	};
 	oReq.send();
 	progress.html("<span id='loader'><div class='dot'></div></span> Loading Surface...");
@@ -99,9 +104,14 @@ function webglAvailable() {
     } 
 }
 function onWindowResize() {
-	camera.aspect = container.clientWidth/container.clientHeight;
+
+	var width=container.clientWidth;
+	var height=width; //container.clientHeight;
+	container.clientHeight=width;
+
+	camera.aspect = width/height;
 	camera.updateProjectionMatrix();
-	renderer.setSize( container.clientWidth,container.clientHeight );
+	renderer.setSize( width,height );
 	tb.handleResize();
 }
 function render() {
