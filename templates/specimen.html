@@ -106,9 +106,10 @@ var AtlasMaker=JSON.parse('<!--ATLAS-->');
 
 <script>
 // load stored description from wikipedia
+var dim;
 $.getJSON('/data/'+specimen+'/info.txt',function(data)
 {
-	jQuery("div#test").append("[R]");
+	console.log("Object read from info.txt",data);
 
 	// Load image
 	jQuery("div#picture").html("<img class='picture' src='/data/"+specimen+"/picture.jpg'/>");
@@ -124,6 +125,8 @@ $.getJSON('/data/'+specimen+'/info.txt',function(data)
 		jQuery("div#acknowledgements").append(data.description.acknowledgements);
 	}
 	jQuery("div#lastUpdated").html(data.description.lastUpdated);
+	
+	dim=parseInt(data.mri.dim);
 	
 });
 </script>
