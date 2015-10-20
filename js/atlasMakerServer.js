@@ -514,8 +514,13 @@ gawk 'BEGIN{s="5C 01 ...";split(s,a," ");for(i=1;i<=352;i++)printf"%s,",strtonum
 }
 function saveNifti(atlas)
 {
-	if(atlas && atlas.dim)
+	if(atlas && atlas.dim )
 	{
+		if(atlas.data==undefined) {
+			console.log("ERROR: [saveNifti] atlas is still in Atlas array, but it has not data");
+			return;
+		}
+		
 		var i,sum=0;
 		for(i=0;i<atlas.dim[0]*atlas.dim[1]*atlas.dim[2];i++)
 			sum+=atlas.data[i];
@@ -543,8 +548,6 @@ function saveNifti(atlas)
 			});
 		});
 	}
-	else
-		console.log("nope");
 }
 //==========
 // Database
