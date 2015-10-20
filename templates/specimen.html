@@ -206,39 +206,26 @@ checkURLExists('/data/'+specimen+'/MRI-n4.nii.gz').then(function() {
 	var s = document.createElement("script");
 	s.src = "/js/atlasMaker.js";
 	s.onload=function(){
-		$("#data").append([
-			'<h2 class="MRI"></h2>',
-			'<div id="stereotaxic">',
-			'	<div id="atlasMaker"></div>',
-			'</div>'
-		].join("\n"));
+		$("#data").append('<div id="stereotaxic"></div>');
 
-		$("h2.MRI").html("");
+		// Add MRI download link
+		$("#stereotaxic").append("<a class='download_MRI download' href='/data/"+specimen+"/MRI-n4.nii.gz'></a>");
+		AtlasMakerWidget.progress=$("#stereotaxic").find(".download_MRI");
 		
-		// MRI download
-		$("h2.MRI").append([
-			"<a class='download' href='/data/'"+specimen+"'/MRI-n4.nii.gz'>",
-			"	<img src='/img/download.svg' style='vertical-align:middle;margin-bottom:5px'/>",
-			"</a>MRI"
-		].join("\n"));
-		
-		// Edit link
-		$("h2.MRI").append([
-			"<a class='download' onclick='enterEditMode();'>",
-			"	<img src='/img/edit.svg' style='vertical-align:middle;margin-bottom:5px'/>",
-			"</a>"
-		].join("\n"));
-		
-		// Atlas select
-		var i,html=[];
-		html.push('<select onchange="selectAtlas(this.value)">');
+		// Add Atlas edit and selection links
+		$("#stereotaxic").append("<span class='edit_Atlas download'></span>");
+		var i,html=[
+			"<img src='/img/edit.svg' onclick='enterEditMode()' style='vertical-align:middle'/>",
+			"<select style='margin-left:-8px;' onchange='selectAtlas(this.value)'>"
+		];
 		for(i=0;i<AtlasMaker.length;i++)
-			html.push('<option value='+i+'>'+AtlasMaker[i].description+'</option>');
+			html.push('	<option value='+i+'>'+AtlasMaker[i].description+'</option>');
 		html.push('</select>');
-		$("h2.MRI").append(html.join("\n"));
-
-		$("#atlasMaker").addClass('display-mode');
+		$("#stereotaxic").find(".edit_Atlas").append(html.join("\n"));
 		
+		// Add AtlasMaker
+		$("#stereotaxic").append('<div id="atlasMaker"></div>');
+		$("#atlasMaker").addClass('display-mode');
 		AtlasMakerWidget.initAtlasMaker($("#atlasMaker"))
 		.then(function() {
 			AtlasMakerWidget.configureAtlasMaker(AtlasMaker[0]);

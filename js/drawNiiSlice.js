@@ -1,4 +1,5 @@
 /*
+	drawNiiSlice.js opens a nii file and writes to stdout a specific slice
 	Arguments are:
 	1: nii file
 	2: view, either sag, cor or axi

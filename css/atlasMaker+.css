@@ -57,13 +57,25 @@ td {
 .display-mode #sliceTools {
     margin-top:5px;
 }
-.display-mode #plane {
-	width: 200px;
-	display: inline-block;
+@media all and (min-width: 40em) {
+	.display-mode #plane {
+		width: 200px;
+		display: inline-block;
+	}
+	.display-mode #sliceTools {
+		width: calc( 100% - 220px );
+		display: inline-block;
+	}
 }
-.display-mode #sliceTools {
-	width: calc( 100% - 220px );
-	display: inline-block;
+@media not all and (min-width: 40em) {
+	.display-mode #plane {
+		width: 100%;
+		display: block;
+	}
+	.display-mode #sliceTools {
+		width: 100%;
+		display: block;
+	}
 }
 .loginRequired {
 	display:none;

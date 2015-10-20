@@ -6,8 +6,10 @@
 a:hover {
 	text-decoration: none;
 }
-a.download {
-	text-decoration:	none;
+.download {
+	text-decoration: none;
+	margin-right:1rem;
+	cursor:pointer;
 }
 img.picture {
 	width:100%;
