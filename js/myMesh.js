@@ -118,7 +118,8 @@ function render() {
 	scene.overrideMaterial = depthMaterial;
 	renderer.render(scene,camera,depthTarget);
 	scene.overrideMaterial = null;
-	composer.render();
+	if(composer)
+		composer.render();
 }
 function animate(){
 	requestAnimationFrame(animate);
