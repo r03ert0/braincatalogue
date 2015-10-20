@@ -87,6 +87,7 @@ var AtlasMakerWidget = {
 		{
 			me.configureBrainImage();
 			me.configureAtlasImage();
+			me.resizeWindow();
 		}
 		me.drawImages();
 	},
@@ -156,14 +157,12 @@ var AtlasMakerWidget = {
 		me.sendUserDataMessage("toggle fill");
 	},
 	resizeWindow: function() {
+		/*
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> resizeWindow()");
 	
-		/*
 		var	wW=window.innerWidth;
 		var	wH=window.innerHeight;
-		*/
-		return;
 
 		var wH=me.container.height();
 		var wW=me.container.width();
@@ -175,6 +174,7 @@ var AtlasMakerWidget = {
 			$('#resizable').css('width',wH*bAspect).css('height',wH);
 		else
 			$('#resizable').css('width',wW).css('height',wW/bAspect);
+		*/
 	},
 	loadNifti: function() {
 		var me=AtlasMakerWidget;
@@ -182,9 +182,8 @@ var AtlasMakerWidget = {
 	
 		var def=$.Deferred();
 		var oReq = new XMLHttpRequest();
-		var	progress=me.container.find("span#download_mri");
 		oReq.open("GET", me.User.dirname+"/"+me.User.mri, true);
-		oReq.addEventListener("progress", function(e){progress.html("Loading "+me.User.specimenName+" ("+parseInt(100*e.loaded/e.total)+"%)")}, false);
+		oReq.addEventListener("progress", function(e){console.log(e.loaded,me.progress);me.progress.html(parseInt(100*e.loaded/e.total)+"% Loaded")}, false);
 		oReq.responseType = "arraybuffer";
 		oReq.onload = function(oEvent)
 		{
@@ -223,8 +222,9 @@ var AtlasMakerWidget = {
 			
 			me.configureBrainImage();
 			me.configureAtlasImage();
+			me.resizeWindow();
 			me.initCursor();
-			progress.html("<a class='download_mri' href='"+me.User.dirname+me.User.mri+"'><img src='/img/download.svg' style='vertical-align:middle'/></a>"+me.User.specimenName);
+			me.progress.html("<img src='/img/download.svg' style='vertical-align:middle'/>MRI");
 		
 			def.resolve();		
 		};
@@ -290,8 +290,6 @@ var AtlasMakerWidget = {
 		me.brain_offcn.width=me.brain_W;
 		me.brain_offcn.height=me.brain_H;
 		me.brain_px=me.brain_offtx.getImageData(0,0,me.brain_offcn.width,me.brain_offcn.height);
-
-		me.resizeWindow();
 		
 	//	var W=parseFloat($('#resizable').css('width'));
 	//	$('#resizable').css('height', (brain_H*brain_Hdim)*W/(brain_W*brain_Wdim) );
@@ -364,10 +362,15 @@ var AtlasMakerWidget = {
 				me.context.clearRect(0,0,me.context.canvas.width,me.canvas.height);
 				me.displayInformation();
 
-				me.flagLoadingImg=false;
-				var W=$('body').width();
 				var	w=this.width;
 				var	h=this.height;
+				console.log("image size: ",w,",",h);
+				if(me.canvas.width!=w || me.canvas.height!=h) {
+					me.canvas.width=w;
+					me.canvas.height=h;
+				}
+
+				me.flagLoadingImg=false;
 				me.nearestNeighbour(me.context);
 				me.context.drawImage(this,0,0);//,0,0,W,h*W/w);
 			};

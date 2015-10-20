@@ -46,7 +46,7 @@ function init_mesh(specimen,progress,elem)
 		var	mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({color:0xffffff}));
 		mesh.name = specimen;
 		scene.add(mesh);
-		progress.html("<a class='download' href='/data/"+specimen+"/mesh.ply'><img src='/img/download.svg' style='vertical-align:middle;margin-bottom:5px'/></a>Surface");
+		progress.html("<a class='download' href='/data/"+specimen+"/mesh.ply'><img src='/img/download.svg' style='vertical-align:middle;margin-bottom:5px'/>Surface</a>");
 		animate();
 	};
 	oReq.send();
