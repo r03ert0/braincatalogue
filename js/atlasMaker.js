@@ -183,7 +183,7 @@ var AtlasMakerWidget = {
 		var def=$.Deferred();
 		var oReq = new XMLHttpRequest();
 		oReq.open("GET", me.User.dirname+"/"+me.User.mri, true);
-		oReq.addEventListener("progress", function(e){console.log(e.loaded,me.progress);me.progress.html(parseInt(100*e.loaded/e.total)+"% Loaded")}, false);
+		oReq.addEventListener("progress", function(e){me.progress.html(parseInt(100*e.loaded/e.total)+"% Loaded")}, false);
 		oReq.responseType = "arraybuffer";
 		oReq.onload = function(oEvent)
 		{
