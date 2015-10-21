@@ -5,7 +5,7 @@
 	Launch using > node atlasMakerServer.js
 */
 
-var	debug=1;
+var	debug=2;
 
 // websockets library: https://github.com/websockets/ws
 var WebSocketServer=require("ws").Server;
@@ -16,7 +16,6 @@ var zlib=require("zlib");
 var req=require('request');
 
 var db_url=fs.readFileSync("db_url.txt","utf8");
-console.log(db_url);
 var	Atlases=[];
 var	Users=[];
 var	usrsckts=[];
@@ -118,7 +117,7 @@ function initSocketConnection() {
 			s.on('message',function(msg)
 			{
 				if(debug>=2) console.log("[connection: message]");
-				if(debug>=2) console.log(msg);
+				if(debug>=2) console.log("msg:",msg);
 				
 				var uid=getUserId(this);
 				var	data=JSON.parse(msg);
@@ -275,6 +274,7 @@ function receiveUserDataMessage(data,user_socket)
 	
 	
 	// 2. Send the atlas to the user (load it if required)
+	console.log("atlasLoadedFlag",atlasLoadedFlag);
 	if(atlasLoadedFlag)
 	{
 		if(firstConnectionFlag || switchingAtlasFlag)
@@ -652,7 +652,7 @@ function undo(user) {
 	    // The actual undo having place:
 	    vol[i]-=val;
 	    
-	    if(debug>=2) console.log(i%user.dim[0],parseInt(i/user.dim[0])%user.dim[1],parseInt(i/user.dim[0]/user.dim[1])%user.dim[2]);
+	    if(debug>=2) console.log("undo:",i%user.dim[0],parseInt(i/user.dim[0])%user.dim[1],parseInt(i/user.dim[0]/user.dim[1])%user.dim[2]);
 	}
 	msg={"data":arr};
 	broadcastPaintVolumeMessage(msg,user);

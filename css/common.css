@@ -259,16 +259,22 @@ div#extra-menu {
 	font-size: 1rem;
 	line-height: 150%;
 }
-@media all and (min-width: 40em) {
-	#content {
-		margin: 0 50px;
-		padding: 0 0 0 230px;
-	}
-}
-@media not all and (min-width: 40em) {
+@media all and (max-width: 532px) {
 	#content {
 		margin: 0 5px;
 		padding: 0 0 0 0px;
+	}
+}
+@media all and (min-width: 533px) and (max-width: 847px) {
+	#content {
+		margin: 0 30px;
+		padding: 0px;
+	}
+}
+@media all and (min-width: 848px) {
+	#content {
+		margin: 0 50px;
+		padding: 0 0 0 230px;
 	}
 }
 
@@ -282,17 +288,22 @@ div#extra-menu {
 #sideLeft {
 	width: 200px;
 }
-@media all and (min-width: 40em) {
+@media all and (max-width: 532px) {
+	#sideLeft {
+		margin-left: calc(50% - 100px);
+	}
+}
+@media all and (min-width: 533px) and (max-width: 847px) {
+	#sideLeft {
+		float: left;
+		margin-left: 0px;
+		padding-right:20px;
+	}
+}
+@media all and (min-width: 848px) {
 	#sideLeft {
 		float: left;
 		margin-left: -230px;
-	}
-}
-@media not all and (min-width: 40em) {
-	#sideLeft {
-		margin-left: calc(50% - 100px);
-/*		padding-right:20px;
-*/
 	}
 }
 
