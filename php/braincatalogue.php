@@ -142,7 +142,7 @@ function braincatalogue($args)
 				$html=$tmp;
 
 				// Configure atlases
-				//--------------------
+				//------------------
 				$info=json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/info.txt"));
 				$tmp=str_replace("<!--INFO-->",mysqli_real_escape_string($connection,json_encode($info)),$html);
 				$html=$tmp;
