@@ -1,11 +1,3 @@
-html,body {
-	margin:0;
-	padding:0;
-	background-color:black;
-	font-family: sans-serif;
-    font-size:14px;
-    color:white;
-}
 canvas {
 	image-rendering: optimizeSpeed;             /* Older versions of FF          */
 	image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
@@ -13,7 +5,6 @@ canvas {
 	image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
 	image-rendering: pixelated;                 /* Awesome future-browsers       */
 	-ms-interpolation-mode: nearest-neighbor;   /* IE                            */
-	cursor:none;
 }
 .ui-button-text {
    font-size:12px !important;
@@ -22,33 +13,114 @@ td {
 	text-align: center;
 	vertical-align: top;
 }
-#login a {
-	color: white;
+
+/*
+-----------------
+	AtlasMaker
+-----------------
+*/
+#atlasMaker.edit-mode {
+	position:fixed;
+	top:0px;
+	left:0px;
+	width:100%;
+	height:100%;
+	z-index:10;
+}
+#atlasMaker #resizable {
+	position:relative;
+	background-color:black;
+}
+#atlasMaker #info {
+	position: absolute;
+	bottom:5px;
+	right:5px;
+	color:white;
+	font-family:sans-serif;
+	z-index:11;
 }
 
-/* Toolbar */
+/*
+---------------
+	Toolbar
+---------------
+*/
 #toolbar {
-	width: 220px;
-	padding: 2px;
-	display: inline-block;
-    top: 5px;
-    left: 5px;
-    position: absolute;
-    background-color: #bbb;
-    color:black;
     overflow: hidden;
-}
-.tb_label {
-    cursor: default;
+	cursor: default;
+	z-index:11;
 }
 
-#plane,
-#sliceTools,
-#paintTools,
-#penSize,
-#chatTools {
+.display-mode #toolbar {
+	width:100%;
+}
+.display-mode #sliceTools {
     margin-top:5px;
 }
+@media all and (min-width: 532px) {
+	.display-mode #plane {
+		width: 200px;
+		display: inline-block;
+	}
+	.display-mode #sliceTools {
+		width: calc( 100% - 220px );
+		display: inline-block;
+	}
+}
+@media not all and (min-width: 532px) {
+	.display-mode #plane {
+		width: 100%;
+		display: block;
+	}
+	.display-mode #sliceTools {
+		width: 100%;
+		display: block;
+	}
+}
+.loginRequired {
+	display:none;
+}
+.loggedIn .edit-mode .loginRequired {
+	display:inline-block;
+}
+.display-mode #chatTools {
+    display:none;
+}
+
+.edit-mode #toolbar {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+	width: 230px;
+	padding: 2px;
+	display: block;
+    background-color:rgba(255,255,255,0.5);
+}
+.edit-mode #plane,
+.edit-mode #sliceTools,
+.edit-mode #paintTools,
+.edit-mode #penSize,
+.edit-mode #chatTools {
+    margin-top:5px;
+}
+.edit-mode #plane {
+	width: 100%;
+	display: block;
+}
+.edit-mode #sliceTools {
+	width: 100%;
+	display: block;
+}
+.edit-mode #chatTools {
+    display:inline;
+}
+
+
+/*
+.tb_label {
+}
+*/
+
 
 #sliderTool {
 	display:table-row;
@@ -64,13 +136,10 @@ td {
 	display:table-cell;
 	width:100%;
 }
-#slice {
-    margin:0px auto;
-    width: 30px;
-}
 #sliceTools {
     width: 100%;
 }
+
 input#paint,
 input#erase,
 input#fill,
@@ -78,6 +147,7 @@ button#undo {
     width: 50px;
     height: 26px;
 }
+
 #log {
     width: auto;
     margin: 0 0;
@@ -90,9 +160,7 @@ button#undo {
     width: 100%;
     border: 1px solid black;
 }
-#resizable {
-    width:100%;
-}
+
 #canvas {
     width:100%;
     height:100%;
@@ -113,6 +181,8 @@ button#undo {
 	top:200;
 	left:200;
 	border:thin solid white;
+	color:red;
+	z-index:1000;
 }
 #finger {
 	position:absolute;

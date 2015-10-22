@@ -6,8 +6,7 @@
     <title>Brain Catalogue</title>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 	<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
-	<link href='http://fonts.googleapis.com/css?family=Roboto:400,300,100' rel='stylesheet' type='text/css'>
-	<link href='http://fonts.googleapis.com/css?family=Quicksand:400,300,100' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=Quicksand' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="css/common.css" type="text/css" media="screen, projection" />
 	<link rel="stylesheet" href="css/info.css" type="text/css" media="screen, projection" />
 </head>
@@ -68,42 +67,8 @@
 
 <script src="lib/jquery-1.11.0.min.js"></script>
 <script>
-    var req;
-    if (window.XMLHttpRequest)
-        req = new XMLHttpRequest();	// code for IE7+, Firefox, Chrome, Opera, Safari
-    else
-        req = new ActiveXObject("Microsoft.XMLHTTP"); // code for IE6, IE5
-	req.onreadystatechange = function() {
-		if (req.readyState == XMLHttpRequest.DONE ) {
-			if(req.status == 200) {
-				var data=JSON.parse(req.responseText);
-				var i,el,name,file;
-				for(i=0;i<data.length;i++) {
-				  name=data[i].name;
-				  file=data[i].file;
-				  el=['<div class="square">',
-					  '<a class="gallery" alt="'+name+'" href="/'+file+'">',
-					  '  <div class="crop">',
-					  '    <div class="picture"><img src="data/'+file+'/picture.jpg"/></div>',
-					  '    <div class="description-background"></div>',
-					  '    <div class="description-name"><h3>'+name+'</h3></div>',
-					  '  </div>',
-					  '</a></div>'].join('');
-				  $("#specimens").append(el);
-				}
-				onWindowResize();
-			}
-			else {
-				console.log("ERROR:",req.status);
-			}
-		}
-	}
-    req.open("GET", "php/getSpecimens.php", true);
-    req.send();
-</script>
+	var specimens=JSON.parse("<!--SPECIMENS-->");
 
-<script>
-	window.addEventListener( 'resize', onWindowResize, false );
 	function onWindowResize( event ) {
 		var w0=$(window).innerWidth();
 		var w1=200;//$(".square").width();
@@ -113,6 +78,22 @@
 		$(".crop").width(w2);
 		$(".crop").height(w2);
 	}
+
+	for(i=0;i<specimens.length;i++) {
+	  name=specimens[i].name;
+	  file=specimens[i].file;
+	  el=['<div class="square">',
+		  '<a class="gallery" alt="'+name+'" href="/'+file+'">',
+		  '  <div class="crop">',
+		  '    <div class="picture"><img src="data/'+file+'/picture.jpg"/></div>',
+		  '    <div class="description-background"></div>',
+		  '    <div class="description-name"><h3>'+name+'</h3></div>',
+		  '  </div>',
+		  '</a></div>'].join('');
+	  $("#specimens").append(el);
+	}
+	onWindowResize();
+	window.addEventListener( 'resize', onWindowResize, false );
 </script>
 
 <script src="/lib/mylogin/login.js"></script>

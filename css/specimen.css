@@ -63,6 +63,7 @@ div#name h1 {
 div#data h2,
 div#acknowledgements h2 {
 	font-family:'Droid Serif', serif;
+	font-weight:400;
 	font-size:1rem;
 	line-height: 200%;
 	margin-top:2rem;

@@ -7,8 +7,7 @@
 }
 a.gallery {
 	color:dimgrey;
-	font-family: 'Roboto', sans-serif;
-	font-weight:100;
+	font-family: 'Quicksand', sans-serif;
 	text-decoration:none;
 }
 .crop {
@@ -58,8 +57,7 @@ a.gallery {
 	display:table;
 }
 .description-name h3 {
-	font-family: 'Roboto', sans-serif;
-	font-weight:100;
+	font-family: 'Quicksand', sans-serif;
 	color:black;
 	display:table-cell;
     vertical-align:middle;
