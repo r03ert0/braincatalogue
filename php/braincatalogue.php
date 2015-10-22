@@ -30,8 +30,6 @@ if(isset($_GET["action"]))
 
 function braincatalogue($args)
 {
-	global $connection;
-	
 	if($args[1]=="blog")
 	{
 		$html=file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/blog.html");
@@ -144,7 +142,17 @@ function braincatalogue($args)
 				// Configure atlases
 				//--------------------
 				$info=json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/info.txt"));
-				$tmp=str_replace("<!--INFO-->",mysqli_real_escape_string($connection,json_encode($info)),$html);
+				$atlases=[];
+				for($a=0;$a<count($info->mri->atlas);$a++)
+				{
+					$atlas=[];
+					$atlas["name"]=$specimen;
+					$atlas["url"]="/data/".$specimen."/info.txt";
+					$atlas["atlasName"]=$info->mri->atlas[$a]->name;
+					$atlas["description"]=$info->mri->atlas[$a]->description;
+					$atlases[]=$atlas;
+				}
+				$tmp=str_replace("<!--ATLAS-->",json_encode($atlases),$html);
 				$html=$tmp;
 
 				print $html;

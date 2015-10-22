@@ -57,7 +57,7 @@ td {
 .display-mode #sliceTools {
     margin-top:5px;
 }
-@media all and (min-width: 532px) {
+@media all and (min-width: 40em) {
 	.display-mode #plane {
 		width: 200px;
 		display: inline-block;
@@ -67,7 +67,7 @@ td {
 		display: inline-block;
 	}
 }
-@media not all and (min-width: 532px) {
+@media not all and (min-width: 40em) {
 	.display-mode #plane {
 		width: 100%;
 		display: block;
