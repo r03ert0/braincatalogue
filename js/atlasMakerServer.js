@@ -274,7 +274,6 @@ function receiveUserDataMessage(data,user_socket)
 	
 	
 	// 2. Send the atlas to the user (load it if required)
-	console.log("atlasLoadedFlag",atlasLoadedFlag);
 	if(atlasLoadedFlag)
 	{
 		if(firstConnectionFlag || switchingAtlasFlag)
@@ -676,9 +675,7 @@ function paintxy(u,c,x,y,user,undoLayer)
 	}
 	
 	var coord={"x":x,"y":y,"z":user.slice};
-	
-	console.log("paint cmd:",c);
-	
+		
 	switch(c)
 	{
 		case 'me':
