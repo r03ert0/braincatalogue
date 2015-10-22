@@ -76,7 +76,7 @@ select:hover {
 #header * {
 	vertical-align:middle;
 }
-@media all and (min-width: 40em) {
+@media all and (min-width: 532px) {
 	#header {
 		width:calc(100% - 2rem);
 		padding-left:1rem;
@@ -98,7 +98,7 @@ select:hover {
 		padding:0.2rem;
 	}
 }
-@media not all and (min-width: 40em) {
+@media not all and (min-width: 532px) {
 	#header {
 		width:calc(100% - 1rem);
 		padding-top:0.5rem;
@@ -119,7 +119,7 @@ select:hover {
 
 /* Title (Left)
 -----------------------------------------------------------------------------*/
-@media all and (min-width: 40em) {
+@media all and (min-width: 532px) {
 	#title {
 		height:2.5rem;
 		text-align:left;
@@ -128,7 +128,7 @@ select:hover {
 		text-align:left;
 	}
 }
-@media not all and (min-width: 40em) {
+@media not all and (min-width: 532px) {
 	#title {
 		height:2rem;
 		text-align:center;
@@ -164,12 +164,12 @@ a.menu, .menu a {
 .menu:visited, .menu :visited {
 	color: inherit;
 }
-@media all and (min-width: 40em) {
+@media all and (min-width: 532px) {
 	#menu {
 		text-align:right;
 	}
 }
-@media not all and (min-width: 40em) {
+@media not all and (min-width: 532px) {
 	#menu {
 		text-align:center;
 		border-top:thin solid grey;
