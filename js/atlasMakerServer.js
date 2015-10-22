@@ -5,7 +5,7 @@
 	Launch using > node atlasMakerServer.js
 */
 
-var	debug=2;
+var	debug=1;
 
 // websockets library: https://github.com/websockets/ws
 var WebSocketServer=require("ws").Server;
