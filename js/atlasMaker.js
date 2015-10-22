@@ -277,7 +277,7 @@ var AtlasMakerWidget = {
 	},
 	configureBrainImage: function() {
 		var me=AtlasMakerWidget;
-		if(me.debug) console.log("> configureBrainImage()");
+		if(me.debug==0) console.log("> configureBrainImage()");
 	
 		// init query image
 		switch(me.User.view)
@@ -927,8 +927,8 @@ var AtlasMakerWidget = {
 	},
 	initSocketConnection: function() {
 		var me=AtlasMakerWidget;
-		if(me.debug) console.log("> initSocketConnection()");
-		var def=$.Deferred();
+		if(me.debug)
+			console.log("> initSocketConnection()");
 	
 		// WS connection
 		var host = "ws://" + window.location.host + ":8080";
@@ -938,16 +938,11 @@ var AtlasMakerWidget = {
 		try {
 			me.socket = me.createSocket(host);
 			me.socket.onopen = function(msg) {
-				if(me.debug) console.log("[initSocketConnection] onopen",msg);
 				$("#chat").text("Chat (1 connected)");
 				me.flagConnected=1;
-				def.resolve();
 			};
 			me.socket.onmessage = function(msg) {
-
-				if(me.debug) console.log("[initSocketConnection] onmessage",msg);
-
-				// Message: atlas data initialisation
+				// Message: label data initialisation
 				if(msg.data instanceof Blob) {
 					if(this.debug) console.log("received atlas (data blob)",msg.data.size,"bytes long");
 					var fileReader = new FileReader();
@@ -1011,8 +1006,6 @@ var AtlasMakerWidget = {
 		catch (ex) {
 			$("#chat").text("Chat (not connected - connection error)");
 		}
-		
-		return def.promise();
 	},
 	sendUserDataMessage: function(description) {
 		var me=AtlasMakerWidget;
@@ -1242,7 +1235,7 @@ var AtlasMakerWidget = {
 		var isTouchArr=["iPad","iPod"];
 		var curDevice=navigator.userAgent.split(/[(;]/)[1];
 		if($.inArray(curDevice,isTouchArr)>=0) {
-			me.container.append("<div id='finger'></div>");
+			$(document.body).append("<div id='finger'></div>");
 			$("#finger").css({display:"inline"});
 			me.updateCursor();
 		}								
@@ -1298,18 +1291,17 @@ var AtlasMakerWidget = {
 		});
 		
 		// Init web socket connection
-		me.initSocketConnection()
-		.then(me.sendUserDataMessage);
+		me.initSocketConnection();
 		
 		return def.promise();
 	},
-	configureAtlasMaker: function (info,index) {
+	configureAtlasMaker: function (obj) {
 		var me=AtlasMakerWidget;
 		var def=$.Deferred();
 		if(me.debug)
 			console.log("configureAtlasMaker");
 		
-		me.configureMRI(info,index)
+		me.configureMRI(obj)
 		.then(function() {
 			me.sendUserDataMessage();
 			def.resolve();
@@ -1317,26 +1309,34 @@ var AtlasMakerWidget = {
 
 		return def.promise();
 	},
-	configureMRI: function(info,index) {
+	configureMRI: function(obj) {
 		var me=AtlasMakerWidget;
 		var def=$.Deferred();
 		
 		console.log("> initMRI()");
 				
 		// Get data from AtlasMaker object
-		me.name=info.name;
-		me.url=info.url;
-		me.atlasName=info.mri.atlas[index].name;
+		me.name=obj.name;
+		me.url=obj.url;
+		me.atlasName=obj.atlasName;
 
 		// get local file path from url
-		me.User.dirname=me.url; // TEMPORARY
-		me.User.mri=info.mri.brain;
-		me.User.specimenName=info.name;
-		me.User.atlasName=info.mri.atlas[index].name;
-		me.loadNifti().then(function() {
-			me.drawImages();
-			def.resolve();
-		});
+		me.User.dirname=me.url.replace(/^http:\/\/[^\/]*/,'').replace(/[^\/]*$/,'');
+		var oReq = new XMLHttpRequest();
+		oReq.open("GET", me.url, true);
+		oReq.responseType = "string";
+		oReq.onload = function(oEvent) {
+			console.log("loaded info file");
+			var specimen=JSON.parse(this.response);
+			me.User.mri=specimen.mri.brain;
+			me.User.specimenName=specimen.name;
+			me.User.atlasName=me.atlasName;
+			me.loadNifti().then(function() {
+				me.drawImages();
+				def.resolve();
+			});
+		};
+		oReq.send();
 		
 		return def.promise();
 	},

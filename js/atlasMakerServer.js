@@ -336,8 +336,6 @@ function sendPreviousUserDataMessage(new_uid) {
 				break;
 			}
 		}
-		if(debug) console.log("[sendPreviousUserDataMessage] check if socket already exists:",found);
-		
 		if(found) {
 			for(i in websocket.clients) {
 				if(websocket.clients[i]==new_socket)
