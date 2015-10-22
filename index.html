@@ -66,30 +66,44 @@
 	</div>
 </footer> <!-- footer -->
 
-<script src="lib/jquery-1.11.0.min.js"></script>
-<script src="/lib/mylogin/login.js"></script>
 <script>
-	$.getJSON('php/getSpecimens.php',function(data)
-	{
-		var i,el,name,file;
-		for(i=0;i<data.length;i++) {
-          name=data[i].name;
-          file=data[i].file;
-          el=['<div class="square">',
-              '<a class="gallery" alt="'+name+'" href="/'+file+'">',
-              '  <div class="crop">',
-              '    <div class="picture"><img src="data/'+file+'/picture.jpg"/></div>',
-              '    <div class="description-background"></div>',
-              '    <div class="description-name"><h3>'+name+'</h3></div>',
-              '  </div>',
-              '</a></div>'].join('');
-          $("#specimens").append(el);
+    var req;
+    if (window.XMLHttpRequest)
+        req = new XMLHttpRequest();	// code for IE7+, Firefox, Chrome, Opera, Safari
+    else
+        req = new ActiveXObject("Microsoft.XMLHTTP"); // code for IE6, IE5
+	req.onreadystatechange = function() {
+		if (req.readyState == XMLHttpRequest.DONE ) {
+			if(req.status == 200) {
+				var data=JSON.parse(req.responseText);
+				var i,el,name,file;
+				for(i=0;i<data.length;i++) {
+				  name=data[i].name;
+				  file=data[i].file;
+				  el=['<div class="square">',
+					  '<a class="gallery" alt="'+name+'" href="/'+file+'">',
+					  '  <div class="crop">',
+					  '    <div class="picture"><img src="data/'+file+'/picture.jpg"/></div>',
+					  '    <div class="description-background"></div>',
+					  '    <div class="description-name"><h3>'+name+'</h3></div>',
+					  '  </div>',
+					  '</a></div>'].join('');
+				  $("#specimens").append(el);
+				}
+				onWindowResize();
+			}
+			else {
+				console.log("ERROR:",req.status);
+			}
 		}
-		onWindowResize();
-	});
+	}
+    req.open("GET", "php/getSpecimens.php", true);
+    req.send();
+</script>
 
+<script src="lib/jquery-1.11.0.min.js"></script>
+<script>
 	window.addEventListener( 'resize', onWindowResize, false );
-
 	function onWindowResize( event ) {
 		var w0=$(window).innerWidth();
 		var w1=200;//$(".square").width();
@@ -99,11 +113,14 @@
 		$(".crop").width(w2);
 		$(".crop").height(w2);
 	}
+</script>
 
+<script src="/lib/mylogin/login.js"></script>
+<script>
 	MyLoginWidget.init($("#MyLogin"));
 </script>
-<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
 
+<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
