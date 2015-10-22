@@ -28,10 +28,49 @@ if(isset($_GET["action"]))
 	}
 }
 
+function returnimages($dirname="../data")
+{
+	global $connection;
+	$files = array();
+	$curdir=0;
+	if($handle = opendir($dirname))
+	{
+		while(false !== ($file = readdir($handle)))
+		{	
+			if($file{0}!=".") // Do not list hidden files
+			{
+				if(!file_exists($_SERVER['DOCUMENT_ROOT']."/data/".$file."/info.txt"))
+					continue;
+			
+				$info=json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT']."/data/".$file."/info.txt"));
+
+				if(property_exists($info,'display'))
+					if($info->display==false)
+						continue;
+				$name=str_replace("_"," ",$file);
+				$obj["name"]=$name;
+				$obj["file"]=$file;
+				$files[]=$obj;
+			}
+		}
+	}
+	closedir($handle);
+	return mysqli_real_escape_string($connection,json_encode($files));
+}
+
 function braincatalogue($args)
 {
 	global $connection;
 	
+	if(count($args)==0 || $args[1]=="index.html" || $args[1]=="index.htm")
+	{
+		$html=file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/home.html");
+		$specimen=returnimages($_SERVER['DOCUMENT_ROOT']."/data");
+		$tmp=str_replace("<!--SPECIMENS-->",$specimen,$html);
+		$html=$tmp;
+		print $html;
+	}
+	else
 	if($args[1]=="blog")
 	{
 		$html=file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/blog.html");
