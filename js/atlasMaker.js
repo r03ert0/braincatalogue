@@ -544,7 +544,7 @@ var AtlasMakerWidget = {
 			me.Crsr.y+=dy;
 			$("#cursor").css({left:me.Crsr.x*(W/w),top:me.Crsr.y*(H/h),width:me.User.penSize*(W/w),height:me.User.penSize*(H/h)});
 			if(me.Crsr.state=="draw")
-				move(me.Crsr.x,me.Crsr.y);
+				me.move(me.Crsr.x,me.Crsr.y);
 		}
 		me.Crsr.fx+=dx;
 		me.Crsr.fy+=dy;
