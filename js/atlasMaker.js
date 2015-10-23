@@ -1320,6 +1320,7 @@ var AtlasMakerWidget = {
 		// configure toolbar slider
 		$("#slider").slider("option","max",info.mri.dim[0]);
 		$("#slider").slider("option","value",parseInt(info.mri.dim[0]/2));
+		me.drawImages();
 
 		
 		me.configureMRI(info,index)
