@@ -2,7 +2,7 @@ var AtlasMakerWidget = {
 	//========================================================================================
 	// Globals
 	//========================================================================================
-	debug:			0,
+	debug:			1,
 	container:		null,	// Element where atlasMaker lives
 	brain_offcn:	null,
 	brain_offtx:	null,
@@ -339,7 +339,7 @@ var AtlasMakerWidget = {
 		if(me.debug>1) console.log("> drawImages()");
 	
 		// draw brain
-		if(me.brain) {
+		if(0) {//me.brain) {
 			me.context.clearRect(0,0,me.context.canvas.width,me.canvas.height);
 			me.displayInformation();
 
@@ -351,6 +351,7 @@ var AtlasMakerWidget = {
 		}
 		else if(me.flagLoadingImg==false) {
 			me.flagLoadingImg=true;
+			var slice=me.User.slice;
 			var img = new Image();
 			img.src=[
 				"/php/braincatalogue.php?",
@@ -366,7 +367,7 @@ var AtlasMakerWidget = {
 
 				var	w=this.width;
 				var	h=this.height;
-				console.log("image size: ",w,",",h);
+				//console.log("image size: ",w,",",h);
 				if(me.canvas.width!=w || me.canvas.height!=h) {
 					me.canvas.width=w;
 					me.canvas.height=h;
@@ -375,6 +376,9 @@ var AtlasMakerWidget = {
 				me.flagLoadingImg=false;
 				me.nearestNeighbour(me.context);
 				me.context.drawImage(this,0,0);//,0,0,W,h*W/w);
+				
+				if(slice!=me.User.slice)
+					me.drawImages();
 			};
 		}
 	},
@@ -1317,12 +1321,6 @@ var AtlasMakerWidget = {
 		if(me.debug)
 			console.log("configureAtlasMaker");
 		
-		// configure toolbar slider
-		$("#slider").slider("option","max",info.mri.dim[0]);
-		$("#slider").slider("option","value",parseInt(info.mri.dim[0]/2));
-		me.drawImages();
-
-		
 		me.configureMRI(info,index)
 		.then(function() {
 			me.sendUserDataMessage();
@@ -1347,6 +1345,13 @@ var AtlasMakerWidget = {
 		me.User.mri=info.mri.brain;
 		me.User.specimenName=info.name;
 		me.User.atlasName=info.mri.atlas[index].name;
+
+		// configure toolbar slider
+		me.User.slice=parseInt(info.mri.dim[0]/2);
+		$("#slider").slider("option","max",info.mri.dim[0]);
+		$("#slider").slider("option","value",me.User.slice);
+		me.drawImages();
+
 		me.loadNifti().then(function() {
 			me.drawImages();
 			def.resolve();
