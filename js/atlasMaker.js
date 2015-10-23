@@ -1317,6 +1317,11 @@ var AtlasMakerWidget = {
 		if(me.debug)
 			console.log("configureAtlasMaker");
 		
+		// configure toolbar slider
+		$("#slider").slider("option","max",info.mri.dim[0]);
+		$("#slider").slider("option","value",parseInt(info.mri.dim[0]/2));
+
+		
 		me.configureMRI(info,index)
 		.then(function() {
 			me.sendUserDataMessage();
