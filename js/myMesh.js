@@ -33,13 +33,13 @@ function init_mesh(specimen,progress,elem)
 	   ------------------------ */
 	var path="/data/"+specimen+'/mesh.ply';
 	var oReq = new XMLHttpRequest();
-	oReq.open("GET", path, true);
 	oReq.addEventListener("progress", function(e){
-		if(e.total>0)
+		if(e.lengthComputable)
 			progress.html(parseInt(100*e.loaded/e.total)+"% Loaded");
 		else
-			progress.html("Loading Surface");
+			progress.html("Loading Surface...");
 	}, false);
+	oReq.open("GET", path, true);
 	//oReq.addEventListener("progress", function(e){$("#loadProgress").html(parseInt(100*e.loaded/e.total)+"%")}, false);
 	oReq.responseType="text";
 	oReq.onload = function(oEvent)
