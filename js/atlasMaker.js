@@ -339,7 +339,7 @@ var AtlasMakerWidget = {
 		if(me.debug>1) console.log("> drawImages()");
 	
 		// draw brain
-		if(0) {//me.brain) {
+		if(me.brain) {
 			me.context.clearRect(0,0,me.context.canvas.width,me.canvas.height);
 			me.displayInformation();
 
