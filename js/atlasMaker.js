@@ -2,7 +2,7 @@ var AtlasMakerWidget = {
 	//========================================================================================
 	// Globals
 	//========================================================================================
-	debug:			1,
+	debug:			0,
 	container:		null,	// Element where atlasMaker lives
 	brain_offcn:	null,
 	brain_offtx:	null,
@@ -90,6 +90,8 @@ var AtlasMakerWidget = {
 			me.resizeWindow();
 		}
 		me.drawImages();
+		
+		me.initCursor();
 	},
 	changeTool: function(theTool) {
 		var me=AtlasMakerWidget;
@@ -463,18 +465,16 @@ var AtlasMakerWidget = {
 		var w=parseFloat($('#resizable canvas').attr('width'));
 		var h=parseFloat($('#resizable canvas').attr('height'));
 		var o=$('#resizable canvas').offset();
-		var x1=parseInt(e.pageX*(w/W));
-		var y1=parseInt(e.pageY*(h/H));
-		var x2=parseInt((e.pageX-o.left)*(w/W));
-		var y2=parseInt((e.pageY-o.top)*(h/H));
+		var x=parseInt((e.pageX-o.left)*(w/W));
+		var y=parseInt((e.pageY-o.top)*(h/H));
 	
 		$("#cursor").css({
-			left:(x2*(W/w))+'px',
-			top:(y2*(H/h))+'px',
+			left:(x*(W/w))+'px',
+			top:(y*(H/h))+'px',
 			width:me.User.penSize*(W/w),
 			height:me.User.penSize*(H/h)
 		});
-		me.move(x2,y2);
+		me.move(x,y);
 	},
 	mouseup: function(e) {
 		var me=AtlasMakerWidget;
@@ -488,30 +488,34 @@ var AtlasMakerWidget = {
 	
 		e.preventDefault();
 
-		var o=$('#resizable canvas').offset();
-		var	touchEvent=e.originalEvent.changedTouches[0];
 		var W=parseFloat($('#resizable canvas').css('width'));
 		var H=parseFloat($('#resizable canvas').css('height'));
 		var w=parseFloat($('#resizable canvas').attr('width'));
 		var h=parseFloat($('#resizable canvas').attr('height'));
+		var o=$('#resizable canvas').offset();
+		var	touchEvent=e.originalEvent.changedTouches[0];
 		var x=parseInt((touchEvent.pageX-o.left)*(w/W));
 		var y=parseInt((touchEvent.pageY-o.top)*(h/H));
 	
 		/*-- Precision cursor --*/
-		$("#finger").css("display","inline");
+		//$("#finger").css("display","inline");
 		me.Crsr.x0=x;
 		me.Crsr.cachedX=x;
 		me.Crsr.y0=y;
 		me.Crsr.cachedY=y;
+		me.Crsr.fx=$("#finger").offset().left;
+		me.Crsr.fy=$("#finger").offset().top;
 		me.Crsr.touchStarted=true;
 		setTimeout(function() {
 			if( me.Crsr.cachedX == me.Crsr.x0 && me.Crsr.cachedY==me.Crsr.y0 && !me.Crsr.touchStarted) {
+				// short tap: change mode
 				me.Crsr.state=(me.Crsr.state=="move")?"draw":"move";
 				me.updateCursor();
 			}
 		},200);
 		setTimeout(function() {
 			if (me.Crsr.cachedX==me.Crsr.x0 && me.Crsr.cachedY==me.Crsr.y0 && me.Crsr.touchStarted) {
+				// long tap: change to configure mode
 				me.Crsr.prevState=me.Crsr.state;
 				me.Crsr.state="configure";
 				me.updateCursor();
@@ -524,15 +528,18 @@ var AtlasMakerWidget = {
 	touchmove: function(e) {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> touchmove()");
+		
+		if(me.Crsr.touchStarted==false) {
+			console.log("WARNING TO MYSELF: touch can move without having started");
+		}
 	
 		e.preventDefault();
-
-		var o=$('#resizable canvas').offset();
-		var	touchEvent=e.originalEvent.changedTouches[0];
 		var W=parseFloat($('#resizable canvas').css('width'));
 		var H=parseFloat($('#resizable canvas').css('height'));
 		var w=parseFloat($('#resizable canvas').attr('width'));
 		var h=parseFloat($('#resizable canvas').attr('height'));
+		var o=$('#resizable canvas').offset();
+		var	touchEvent=e.originalEvent.changedTouches[0];
 		var x=parseInt((touchEvent.pageX-o.left)*(w/W));
 		var y=parseInt((touchEvent.pageY-o.top)*(h/H));
 	
@@ -546,9 +553,10 @@ var AtlasMakerWidget = {
 			if(me.Crsr.state=="draw")
 				me.move(me.Crsr.x,me.Crsr.y);
 		}
-		me.Crsr.fx+=dx;
-		me.Crsr.fy+=dy;
-		$("#finger").css({left:me.Crsr.fx*(W/w)+"px",top:me.Crsr.fy*(H/h)+"px"});
+		me.Crsr.fx+=dx*(W/w);
+		me.Crsr.fy+=dy*(H/h);
+		$("#finger").offset({left:me.Crsr.fx,top:me.Crsr.fy});
+		
 		me.Crsr.x0=x;
 		me.Crsr.y0=y;
 	},
@@ -574,10 +582,10 @@ var AtlasMakerWidget = {
 		var h=parseFloat($('#resizable canvas').attr('height'));
 		me.Crsr.x=parseInt(w/2);
 		me.Crsr.y=parseInt(h/2);
-		me.Crsr.fx=parseInt(w/2);
-		me.Crsr.fy=parseInt(h/2);
+		me.Crsr.fx=parseInt(w/2)*(W/w);
+		me.Crsr.fy=parseInt(h/2)*(H/h);
 		$("#cursor").css({left:(me.Crsr.x*(W/w))+"px",top:(me.Crsr.y*(H/h))+"px",width:me.User.penSize*(W/w),height:me.User.penSize*(H/h)});
-		$("#finger").css({left:(me.Crsr.fx*(W/w))+"px",top:(me.Crsr.fy*(H/h))+"px"});
+		$("#finger").css({left:me.Crsr.fx+"px",top:me.Crsr.fy+"px"});
 	},
 	updateCursor: function() {
 		var me=AtlasMakerWidget;
@@ -1243,7 +1251,7 @@ var AtlasMakerWidget = {
 		var curDevice=navigator.userAgent.split(/[(;]/)[1];
 		if($.inArray(curDevice,isTouchArr)>=0) {
 			me.container.append("<div id='finger'></div>");
-			$("#finger").css({display:"inline"});
+			$("#finger").addClass("touchDevice");
 			me.updateCursor();
 		}								
 
