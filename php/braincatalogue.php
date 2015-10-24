@@ -68,6 +68,9 @@ function braincatalogue($args)
 		$specimen=returnimages($_SERVER['DOCUMENT_ROOT']."/data");
 		$tmp=str_replace("<!--SPECIMENS-->",$specimen,$html);
 		$html=$tmp;
+
+		header('HTTP/1.1 200 OK');
+		header("Status: 200 OK");
 		print $html;
 	}
 	else
