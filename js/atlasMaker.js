@@ -87,7 +87,7 @@ var AtlasMakerWidget = {
 		{
 			me.configureBrainImage();
 			me.configureAtlasImage();
-			me.resizeWindow();
+			//me.resizeWindow();
 		}
 		me.drawImages();
 		
@@ -158,8 +158,8 @@ var AtlasMakerWidget = {
 		me.User.doFill=!me.User.doFill;
 		me.sendUserDataMessage("toggle fill");
 	},
+	/*
 	resizeWindow: function() {
-		/*
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> resizeWindow()");
 	
@@ -176,8 +176,8 @@ var AtlasMakerWidget = {
 			$('#resizable').css('width',wH*bAspect).css('height',wH);
 		else
 			$('#resizable').css('width',wW).css('height',wW/bAspect);
-		*/
 	},
+	*/
 	loadNifti: function() {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> loadNifti()");
