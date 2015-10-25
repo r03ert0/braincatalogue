@@ -224,7 +224,7 @@ var AtlasMakerWidget = {
 			
 			me.configureBrainImage();
 			me.configureAtlasImage();
-			me.resizeWindow();
+			// DELETE: me.resizeWindow();
 			me.initCursor();
 			me.progress.html("<img src='/img/download.svg' style='vertical-align:middle'/>MRI");
 		
