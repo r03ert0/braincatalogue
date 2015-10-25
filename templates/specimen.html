@@ -132,20 +132,19 @@ function loadScript(script) {
 	return def.promise();
 }
 function enterEditMode() {
+	// add black overlay
 	var black=$("<div id='blackOverlay'>");
 	black.css({position:'fixed',top:0,left:0,width:'100%',height:'100%','z-index':5,'background-color':'black'});
 	$('body').append(black);
 	
+	// configure display mode
 	$("#atlasMaker").removeClass('display-mode');
 	$("#atlasMaker").addClass('edit-mode');
 	$("#atlasMaker").detach().appendTo('body');
 	AtlasMakerWidget.editMode=1;
+	AtlasMakerWidget.resizeWindow();
 	
-	var exit=$("<div>Close</div>");
-	exit.css({position:'absolute',top:'5px',right:'5px',color:'white',fontFamily:'sans-serif',fontSize:'1rem'});
-	exit.click(function(){exit.remove();exitEditMode();});
-	$("#atlasMaker").append(exit);
-
+	// configure toolbar for edit mode
 	$("div#toolbar").draggable({containment:AtlasMakerWidget.container});
 	$("div#toolbar").resizable({
 		resize:function() {
@@ -158,15 +157,25 @@ function enterEditMode() {
 			)
 		}
 	});
+
+	// add close button
+	var exit=$("<div>Close</div>");
+	exit.css({position:'absolute',top:'5px',right:'5px',color:'white',fontFamily:'sans-serif',fontSize:'1rem'});
+	exit.click(function(){exit.remove();exitEditMode();});
+	$("#atlasMaker").append(exit);
 }
 function exitEditMode() {
+	// remove black overlay
 	$("#blackOverlay").remove();
 	
+	// go back to display mode
 	$("#atlasMaker").removeClass('edit-mode');
 	$("#atlasMaker").addClass('display-mode');
 	$("#atlasMaker").detach().appendTo('#stereotaxic')	;
 	AtlasMakerWidget.editMode=0;
+	AtlasMakerWidget.resizeWindow();
 
+	// configure toolbar for display mode
 	$("div#toolbar").draggable('destroy');
 	$("div#toolbar").resizable('destroy');
 	$("div#toolbar").css({top:0,left:0});

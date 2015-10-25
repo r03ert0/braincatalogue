@@ -87,7 +87,7 @@ var AtlasMakerWidget = {
 		{
 			me.configureBrainImage();
 			me.configureAtlasImage();
-			//me.resizeWindow();
+			me.resizeWindow();
 		}
 		me.drawImages();
 		
@@ -158,18 +158,12 @@ var AtlasMakerWidget = {
 		me.User.doFill=!me.User.doFill;
 		me.sendUserDataMessage("toggle fill");
 	},
-	/*
 	resizeWindow: function() {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> resizeWindow()");
-	
-		var	wW=window.innerWidth;
-		var	wH=window.innerHeight;
 
 		var wH=me.container.height();
-		var wW=me.container.width();
-	
-	
+		var wW=me.container.width();	
 		var	wAspect=wW/wH;
 		var	bAspect=me.brain_W/me.brain_H;
 		if(wAspect>bAspect)
@@ -177,7 +171,6 @@ var AtlasMakerWidget = {
 		else
 			$('#resizable').css('width',wW).css('height',wW/bAspect);
 	},
-	*/
 	loadNifti: function() {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> loadNifti()");
@@ -224,7 +217,7 @@ var AtlasMakerWidget = {
 			
 			me.configureBrainImage();
 			me.configureAtlasImage();
-			// DELETE: me.resizeWindow();
+			me.resizeWindow();
 			me.initCursor();
 			me.progress.html("<img src='/img/download.svg' style='vertical-align:middle'/>MRI");
 		
@@ -360,6 +353,7 @@ var AtlasMakerWidget = {
 				"view="+me.User.view+"&",
 				"slice-index="+me.User.slice
 			].join("");
+			console.log(img.src);
 	
 			img.onload = function(){
 				me.context.clearRect(0,0,me.context.canvas.width,me.canvas.height);
@@ -450,11 +444,11 @@ var AtlasMakerWidget = {
 	
 		e.preventDefault();
 
-		var W=parseFloat($('#resizable canvas').css('width'));
-		var H=parseFloat($('#resizable canvas').css('height'));
-		var w=parseFloat($('#resizable canvas').attr('width'));
-		var h=parseFloat($('#resizable canvas').attr('height'));
-		var o=$('#resizable canvas').offset();
+		var W=parseFloat($('#atlasMaker canvas').css('width'));
+		var H=parseFloat($('#atlasMaker canvas').css('height'));
+		var w=parseFloat($('#atlasMaker canvas').attr('width'));
+		var h=parseFloat($('#atlasMaker canvas').attr('height'));
+		var o=$('#atlasMaker canvas').offset();
 		var x=parseInt((e.pageX-o.left)*(w/W));
 		var y=parseInt((e.pageY-o.top)*(h/H));
 		me.down(x,y);
@@ -464,11 +458,11 @@ var AtlasMakerWidget = {
 		if(me.debug==2) console.log("> mousemove()");
 	
 		e.preventDefault();
-		var W=parseFloat($('#resizable canvas').css('width'));
-		var H=parseFloat($('#resizable canvas').css('height'));
-		var w=parseFloat($('#resizable canvas').attr('width'));
-		var h=parseFloat($('#resizable canvas').attr('height'));
-		var o=$('#resizable canvas').offset();
+		var W=parseFloat($('#atlasMaker canvas').css('width'));
+		var H=parseFloat($('#atlasMaker canvas').css('height'));
+		var w=parseFloat($('#atlasMaker canvas').attr('width'));
+		var h=parseFloat($('#atlasMaker canvas').attr('height'));
+		var o=$('#atlasMaker canvas').offset();
 		var x=parseInt((e.pageX-o.left)*(w/W));
 		var y=parseInt((e.pageY-o.top)*(h/H));
 	
@@ -492,11 +486,11 @@ var AtlasMakerWidget = {
 	
 		e.preventDefault();
 
-		var W=parseFloat($('#resizable canvas').css('width'));
-		var H=parseFloat($('#resizable canvas').css('height'));
-		var w=parseFloat($('#resizable canvas').attr('width'));
-		var h=parseFloat($('#resizable canvas').attr('height'));
-		var o=$('#resizable canvas').offset();
+		var W=parseFloat($('#atlasMaker canvas').css('width'));
+		var H=parseFloat($('#atlasMaker canvas').css('height'));
+		var w=parseFloat($('#atlasMaker canvas').attr('width'));
+		var h=parseFloat($('#atlasMaker canvas').attr('height'));
+		var o=$('#atlasMaker canvas').offset();
 		var	touchEvent=e.originalEvent.changedTouches[0];
 		var x=parseInt((touchEvent.pageX-o.left)*(w/W));
 		var y=parseInt((touchEvent.pageY-o.top)*(h/H));
@@ -538,11 +532,11 @@ var AtlasMakerWidget = {
 		}
 	
 		e.preventDefault();
-		var W=parseFloat($('#resizable canvas').css('width'));
-		var H=parseFloat($('#resizable canvas').css('height'));
-		var w=parseFloat($('#resizable canvas').attr('width'));
-		var h=parseFloat($('#resizable canvas').attr('height'));
-		var o=$('#resizable canvas').offset();
+		var W=parseFloat($('#atlasMaker canvas').css('width'));
+		var H=parseFloat($('#atlasMaker canvas').css('height'));
+		var w=parseFloat($('#atlasMaker canvas').attr('width'));
+		var h=parseFloat($('#atlasMaker canvas').attr('height'));
+		var o=$('#atlasMaker canvas').offset();
 		var	touchEvent=e.originalEvent.changedTouches[0];
 		var x=parseInt((touchEvent.pageX-o.left)*(w/W));
 		var y=parseInt((touchEvent.pageY-o.top)*(h/H));
@@ -580,10 +574,10 @@ var AtlasMakerWidget = {
 	},
 	initCursor: function() {
 		var me=AtlasMakerWidget;
-		var W=parseFloat($('#resizable canvas').css('width'));
-		var H=parseFloat($('#resizable canvas').css('height'));
-		var w=parseFloat($('#resizable canvas').attr('width'));
-		var h=parseFloat($('#resizable canvas').attr('height'));
+		var W=parseFloat($('#atlasMaker canvas').css('width'));
+		var H=parseFloat($('#atlasMaker canvas').css('height'));
+		var w=parseFloat($('#atlasMaker canvas').attr('width'));
+		var h=parseFloat($('#atlasMaker canvas').attr('height'));
 		me.Crsr.x=parseInt(w/2);
 		me.Crsr.y=parseInt(h/2);
 		me.Crsr.fx=parseInt(w/2)*(W/w);
