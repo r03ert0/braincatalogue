@@ -160,7 +160,8 @@ var AtlasMakerWidget = {
 	},
 	resizeWindow: function() {
 		var me=AtlasMakerWidget;
-		if(me.debug) console.log("> resizeWindow()");
+		if(me.debug>1)
+			console.log("> resizeWindow()");
 
 		var wH=me.container.height();
 		var wW=me.container.width();	
@@ -171,13 +172,22 @@ var AtlasMakerWidget = {
 			// In edit mode width or height can be fixed to 100%
 			// depending on the slice and container aspect ratio
 			if(wAspect>bAspect)
-				$('#resizable').css('width',(100*bAspect/wAspect)+'%').css('height','100%');
+				$('#resizable').css({width:(100*bAspect/wAspect)+'%',height:'100%'});
 			else
-				$('#resizable').css('width','100%').css('height',(100*wAspect/bAspect)+'%');
+				$('#resizable').css({width:'100%',height:(100*wAspect/bAspect)+'%'});
 		} else {
 			// In display mode slice width is always fixed to 100%
-			$('#resizable').css('width','100%').css('height',(100*wAspect/bAspect)+'%');
-		}			
+			$('#resizable').css({width:'100%',height:(100*wAspect/bAspect)+'%'});
+			
+			// Slice height cannot be larger than window's inner height:
+			var sliceH=me.container.height();
+			var windowH=window.innerHeight;
+			if(sliceH>windowH) {
+				var f=windowH/sliceH;
+				$('#resizable').css({width:(f*100)+'%',height:f*(100*wAspect/bAspect)+'%'});
+			}
+			
+		}
 	},
 	loadNifti: function() {
 		var me=AtlasMakerWidget;
@@ -934,10 +944,15 @@ var AtlasMakerWidget = {
 	createSocket: function(host) {
 		if(this.debug) console.log("> createSocket()");
 	
-		if (window.WebSocket)
-			return new WebSocket(host);
-		else if (window.MozWebSocket)
-			return new MozWebSocket(host);
+		var ws;
+
+		if (window.WebSocket) {
+			ws=new WebSocket(host);
+		} else if (window.MozWebSocket) {
+			ws=new MozWebSocket(host);
+		}
+
+		return ws;
 	},
 	initSocketConnection: function() {
 		var me=AtlasMakerWidget;
@@ -945,7 +960,7 @@ var AtlasMakerWidget = {
 		var def=$.Deferred();
 	
 		// WS connection
-		var host = "ws://" + window.location.host + ":8080";
+		var host = "ws://" + window.location.host + ":8080/";
 	
 		if(me.debug) console.log("[initSocketConnection] host:",host);
 	
