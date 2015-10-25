@@ -210,7 +210,6 @@ if(info.mri.brain) {
 	var s = document.createElement("script");
 	s.src = "/js/atlasMaker.js";
 	s.onload=function(){
-		$("#data").append('<div id="stereotaxic"></div>');
 		AtlasMakerWidget.initAtlasMaker($("#atlasMaker"))
 		.then(function() {
 			AtlasMakerWidget.configureAtlasMaker(info,0);
