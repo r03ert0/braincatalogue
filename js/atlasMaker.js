@@ -166,10 +166,18 @@ var AtlasMakerWidget = {
 		var wW=me.container.width();	
 		var	wAspect=wW/wH;
 		var	bAspect=me.brain_W/me.brain_H;
-		if(wAspect>bAspect)
-			$('#resizable').css('width',wH*bAspect).css('height',wH);
-		else
-			$('#resizable').css('width',wW).css('height',wW/bAspect);
+		
+		if(me.editMode==1) {
+			// In edit mode width or height can be fixed to 100%
+			// depending on the slice and container aspect ratio
+			if(wAspect>bAspect)
+				$('#resizable').css('width',(100*bAspect/wAspect)+'%').css('height','100%');
+			else
+				$('#resizable').css('width','100%').css('height',(100*wAspect/bAspect)+'%');
+		} else {
+			// In display mode slice width is always fixed to 100%
+			$('#resizable').css('width','100%').css('height',(100*wAspect/bAspect)+'%');
+		}			
 	},
 	loadNifti: function() {
 		var me=AtlasMakerWidget;
