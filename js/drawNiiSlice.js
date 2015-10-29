@@ -110,6 +110,6 @@ function drawSlice(brain) {
 	  width: brain_W,
 	  height: brain_H
 	};
-	var jpegImageData = jpeg.encode(rawImageData, 50);
+	var jpegImageData = jpeg.encode(rawImageData, 80);
 	process.stdout.write(jpegImageData.data);
 }
