@@ -36,9 +36,9 @@ var AtlasMakerWidget = {
 	atlas_offcn:	null,
 	atlas_offtx:	null,	
 	atlas_px:		null,
-	name:			null,//=AtlasMaker[0].name;
-	url:			null,//=AtlasMaker[0].url;
-	atlasName:		null,//=AtlasMaker[0].atlasName;
+	name:			null,
+	url:			null,
+	atlasFilename:	null,
 	socket:			null,
 	flagConnected:	0,
 	flagLoadingImg: false,
@@ -286,7 +286,7 @@ var AtlasMakerWidget = {
 		var niigzBlob = new Blob([deflate.result]);
 	
 		$("a#download_atlas").attr("href",window.URL.createObjectURL(niigzBlob));
-		$("a#download_atlas").attr("download",me.User.specimenName+".nii.gz");
+		$("a#download_atlas").attr("download",me.User.atlasFilename);
 	},
 	configureBrainImage: function() {
 		var me=AtlasMakerWidget;
@@ -985,14 +985,14 @@ var AtlasMakerWidget = {
 						inflate.push(new Uint8Array(this.result),true);
 						var layer=new Object();
 						layer.data=inflate.result;
-						layer.name=me.atlasName;
+						layer.name=me.atlasFilename;
 						layer.dim=me.brain_dim;
 						
 						me.atlas=layer;
 
 						me.drawImages();
 						var	link=me.container.find("span#download_atlas");
-						link.html("<a class='download' href='"+me.User.dirname+me.User.atlasName+".nii.gz'><img src='/img/download.svg' style='vertical-align:middle'/></a>"+layer.name);
+						link.html("<a class='download' href='"+me.User.dirname+me.User.atlasFilename+"'><img src='/img/download.svg' style='vertical-align:middle'/></a>"+layer.name);
 					};
 					fileReader.readAsArrayBuffer(msg.data);
 					return;
@@ -1067,7 +1067,7 @@ var AtlasMakerWidget = {
 	
 		if(me.Collab[u]==undefined) {
 			try {
-				var	msg="<b>"+data.user.username+"</b> entered atlas "+data.user.specimenName+"/"+data.user.atlasName+"<br />"
+				var	msg="<b>"+data.user.username+"</b> entered atlas "+data.user.specimenName+"/"+data.user.atlasFilename+"<br />"
 				$("#log").append(msg);
 				$("#log").scrollTop($("#log")[0].scrollHeight);
 			} catch (e) {
@@ -1181,7 +1181,7 @@ var AtlasMakerWidget = {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> receiveDisconnectMessage()");
 		var u=parseInt(data.uid);	// user
-		var	msg="<b>"+me.Collab[u].username+"</b> left atlas "+me.Collab[u].specimenName+"/"+me.Collab[u].atlasName+"<br />"
+		var	msg="<b>"+me.Collab[u].username+"</b> left atlas "+me.Collab[u].specimenName+"/"+me.Collab[u].atlasFilename+"<br />"
 		me.Collab.splice(u,1);
 		var	nusers=1+me.Collab.filter(function(value) { return value !== undefined }).length;
 		$("#chat").text("Chat ("+nusers+" connected)");
@@ -1355,13 +1355,13 @@ var AtlasMakerWidget = {
 		// Get data from AtlasMaker object
 		me.name=info.name;
 		me.url=info.url;
-		me.atlasName=info.mri.atlas[index].name;
+		me.atlasFilename=info.mri.atlas[index].filename;
 
 		// get local file path from url
 		me.User.dirname=me.url; // TEMPORARY
 		me.User.mri=info.mri.brain;
 		me.User.specimenName=info.name;
-		me.User.atlasName=info.mri.atlas[index].name;
+		me.User.atlasFilename=info.mri.atlas[index].filename;
 
 		// configure toolbar slider
 		me.User.slice=parseInt(info.mri.dim[0]/2);

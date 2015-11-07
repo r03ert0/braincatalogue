@@ -1,0 +1,112 @@
+<html>
+<head>
+<title>Wsnii</title>
+<style>
+img {
+	width:100%;
+	position:absolute;
+	top:0;
+	left:0;
+	z-index:-1;
+}
+</style>
+</head>
+<body>
+<button onclick="myView('sag')">Sagittal</button>
+<button onclick="myView('cor')">Coronal</button>
+<button onclick="myView('axi')">Axial</button>
+<input id="slice" type="range" oninput="drawSlice()"></input>
+
+<img id="image"/>					
+
+<script>
+	var socket;
+	var clickCount=0;
+	var flagLoading=0;
+	var view='sag';
+	var slice=0.5;
+	initSocketConnection();
+	function createSocket(host) {
+		var ws;
+		if (window.WebSocket) {
+			ws=new WebSocket(host);
+		} else if (window.MozWebSocket) {
+			ws=new MozWebSocket(host);
+		}
+		return ws;
+	}
+	function myClick() {
+		var msg={type:"echo",msg:"click "+clickCount++};
+		sendMessage(msg);
+	}
+	function myClack() {
+		var msg={type:"chat",msg:"warac"};
+		sendMessage(msg);
+	}
+	function drawSlice() {
+		if(flagLoading)
+			return;
+		var mySlice=parseFloat(document.getElementById("slice").value)/100.0;
+		var msg={type:"slice",view:view,slice:mySlice};
+		slice=mySlice;
+		sendMessage(msg);
+		flagLoading=true;
+	}
+	function myView(theView) {
+		var mySlice=parseFloat(document.getElementById("slice").value)/100.0;
+		view=theView;
+		var msg={type:"slice",view:view,slice:mySlice};
+		sendMessage(msg);
+		flagLoading=true;
+	}
+	function initSocketConnection() {
+		var host = "ws://" + window.location.host + ":8080/";
+		try {
+			socket = createSocket(host);
+			socket.onopen = function(msg) {
+				console.log("[initSocketConnection] onopen",msg);
+			};
+			socket.onmessage = function(msg) {
+				if(msg.data instanceof Blob) {
+					var urlCreator = window.URL || window.webkitURL;
+					var imageUrl = urlCreator.createObjectURL(msg.data);
+					document.getElementById("image").src = imageUrl;
+					flagLoading=false;
+					var mySlice=parseFloat(document.getElementById("slice").value)/100.0;
+					if(mySlice!=slice)
+						drawSlice();
+					
+				} else {
+					var	data=JSON.parse(msg.data);
+					switch(data.type)
+					{
+						case "chat":
+							receiveChatMessage(data);
+							break;
+						case "result":
+							if(data.msg=="File loaded")
+								drawSlice();
+							break;
+					}
+				}
+			};
+			socket.onclose = function(msg) {
+			};
+		}
+		catch (ex) {
+			console.log("Chat (not connected - connection error)");
+		}
+	}
+	function sendMessage(msg) {
+		try {
+			socket.send(JSON.stringify(msg));
+		} catch (ex) {
+			console.log("ERROR: Unable to sendUserDataMessage",ex);
+		}
+	}
+	function receiveMessage(msg) {
+		console.log(msg);
+	}
+</script>
+</body>
+</html>

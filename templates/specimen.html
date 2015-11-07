@@ -200,7 +200,7 @@ if(info.mri.brain) {
 		"<select style='margin-left:-8px;' onchange='selectAtlas(this.value)'>"
 	];
 	for(i=0;i<info.mri.atlas.length;i++)
-		html.push('	<option value='+i+'>'+info.mri.atlas[i].description+'</option>');
+		html.push('	<option value='+i+'>'+info.mri.atlas[i].name+'</option>');
 	html.push('</select>');
 	$("#stereotaxic").find(".edit_Atlas").append(html.join("\n"));
 	

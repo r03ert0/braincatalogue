@@ -415,7 +415,7 @@ function user_update($username) {
 function drawNiiSlice($args) {
 	header('Content-Type: image/jpeg');
 	passthru("/usr/local/bin/node ../js/drawNiiSlice.js "
-		."../".$args["nii-file"]." "
+		.$_SERVER['DOCUMENT_ROOT'].$args["nii-file"]." "
 		.$args["view"]." "
 		.$args["slice-index"],$err);
 }
