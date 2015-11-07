@@ -52,10 +52,10 @@ function removeUser(socket) {
 		}
 	}
 }
-function numberOfUsersConnectedToAtlas(dirname,atlasName) {
+function numberOfUsersConnectedToAtlas(dirname,atlasFilename) {
 	var sum=0;
 
-	if(dirname==undefined || atlasName==undefined)
+	if(dirname==undefined || atlasFilename==undefined)
 		return sum;
 		
 	for(i in Users) {
@@ -67,25 +67,25 @@ function numberOfUsersConnectedToAtlas(dirname,atlasName) {
 			console.log("ERROR: A user uid "+i+" dirname is unknown");
 			continue;
 		}
-		if(Users[i].atlasName==undefined) {
-			console.log("ERROR: A user uid "+i+" atlasName is unknown");
+		if(Users[i].atlasFilename==undefined) {
+			console.log("ERROR: A user uid "+i+" atlasFilename is unknown");
 			continue;
 		}
-		if(Users[i].dirname==dirname && Users[i].atlasName==atlasName)
+		if(Users[i].dirname==dirname && Users[i].atlasFilename==atlasFilename)
 			sum++;
 	}
 	sum--;
 	return sum;
 }
-function unloadAtlas(dirname,atlasName) {
+function unloadAtlas(dirname,atlasFilename) {
 	if(debug)
-		console.log(new Date(), "[unload atlas]",dirname,atlasName);
+		console.log(new Date(), "[unload atlas]",dirname,atlasFilename);
 		
 	var i;
 	for(i in Atlases)
 	{
 		if(Atlases[i].dirname==dirname
-			&& Atlases[i].name==atlasName)
+			&& Atlases[i].name==atlasFilename)
 		{
 			saveNifti(Atlases[i]);
 			clearInterval(Atlases[i].timer);
@@ -107,6 +107,7 @@ function initSocketConnection() {
 		websocket.on("connection",function(s)
 		{
 			console.log("[connection open]");
+			console.log("remote_address",s.upgradeReq.connection.remoteAddress);
 			var	usr={"uid":uidcounter++,"socket":s};
 			usrsckts.push(usr);
 			console.log("User id "+usr.uid+" connected, total: "+usrsckts.length+" users");
@@ -158,7 +159,7 @@ function initSocketConnection() {
 					}
 					
 					if( Users[uid].iAtlas!=Users[data.uid].iAtlas && data.type!="chat" && data.type!="intro" ) {
-						if(debug) console.log("no broadcast to user "+Users[uid].username+"/"+Users[uid].specimenName+"/"+Users[uid].atlasName);
+						if(debug) console.log("no broadcast to user "+Users[uid].username+"/"+Users[uid].specimenName+"/"+Users[uid].atlasFilename);
 						continue;
 					}
 					
@@ -181,20 +182,20 @@ function initSocketConnection() {
 					console.log("User ID "+uid+" is undefined. List of all known Users follows",Users);
 				else
 				if(Users[uid].dirname)
-					console.log("User was connected to atlas "+ Users[uid].dirname+Users[uid].atlasName);
+					console.log("User was connected to atlas "+ Users[uid].dirname+Users[uid].atlasFilename);
 				else
 					console.log("User was not connected to any atlas");					
 				
 				// count how many users remain connected to the atlas after user leaves
-				sum=numberOfUsersConnectedToAtlas(Users[uid].dirname,Users[uid].atlasName);
+				sum=numberOfUsersConnectedToAtlas(Users[uid].dirname,Users[uid].atlasFilename);
 				if(sum)
 					console.log("There remain "+sum+" users connected to that atlas");
 				else
 				{
 					console.log("No user connected to atlas "
 								+ Users[uid].dirname
-								+ Users[uid].atlasName+": unloading it");
-					unloadAtlas(Users[uid].dirname,Users[uid].atlasName);
+								+ Users[uid].atlasFilename+": unloading it");
+					unloadAtlas(Users[uid].dirname,Users[uid].atlasFilename);
 				}
 				
 				// remove the user from the list
@@ -248,24 +249,24 @@ function receiveUserDataMessage(data,user_socket)
 	// Check if user is switching atlas, and unload unused atlases
 	switchingAtlasFlag=false;
 	if(Users[uid]) {
-		if((Users[uid].atlasName!=user.atlasName)||(Users[uid].dirname!=user.dirname)) {
+		if((Users[uid].atlasFilename!=user.atlasFilename)||(Users[uid].dirname!=user.dirname)) {
 			// User is switching atlas.
 			switchingAtlasFlag=true;
 			
 			// check whether the old atlas has to be unloaded
 			var sum;
-			sum=numberOfUsersConnectedToAtlas(Users[uid].dirname,Users[uid].atlasName);
+			sum=numberOfUsersConnectedToAtlas(Users[uid].dirname,Users[uid].atlasFilename);
 			
-			console.log(sum,"users connected to atlas",Users[uid].dirname,",",Users[uid].atlasName);
+			console.log(sum,"users connected to atlas",Users[uid].dirname,",",Users[uid].atlasFilename);
 			
 			if(sum==0) {
-				unloadAtlas(Users[uid].dirname,Users[uid].atlasName);
+				unloadAtlas(Users[uid].dirname,Users[uid].atlasFilename);
 			}
 		}
 	}
 
 	for(i=0;i<Atlases.length;i++)
-		if(Atlases[i].dirname==user.dirname && Atlases[i].name==user.atlasName)
+		if(Atlases[i].dirname==user.dirname && Atlases[i].name==user.atlasFilename)
 		{
 			atlasLoadedFlag=true;
 			break;
@@ -310,9 +311,9 @@ function receiveUserDataMessage(data,user_socket)
 	{
 		var sum=0;
 		for(i in Users)
-			if(Users[i].dirname==user.dirname && Users[i].atlasName==user.atlasName)
+			if(Users[i].dirname==user.dirname && Users[i].atlasFilename==user.atlasFilename)
 				sum++;
-		console.log(sum+" user"+((sum==1)?" is":"s are")+" connected to the atlas "+user.dirname+user.atlasName);
+		console.log(sum+" user"+((sum==1)?" is":"s are")+" connected to the atlas "+user.dirname+user.atlasFilename);
 	}	
 }
 
@@ -409,7 +410,7 @@ function addAtlas(user,callback) {
 	if(debug) console.log("[add atlas]");
 
 	var atlas={
-		name:user.atlasName,
+		name:user.atlasFilename,
 		specimen:user.specimenName,
 		dirname:user.dirname,
 		dim:user.dim
@@ -426,7 +427,7 @@ function loadNifti(atlas,username,callback)
 {
 	// Load nifty label
 	
-	var path=localdir+"/"+atlas.dirname+atlas.name+".nii.gz";
+	var path=localdir+"/"+atlas.dirname+atlas.name;
 	var datatype=2;
 	var	vox_offset=352;
 	
@@ -542,8 +543,8 @@ function saveNifti(atlas)
 		atlas.data.copy(nii,voxel_offset);
 		zlib.gzip(nii,function(err,niigz) {
 			var	ms=+new Date;
-			var path1=localdir+atlas.dirname+atlas.name+".nii.gz";
-			var	path2=localdir+atlas.dirname+ms+"_"+atlas.name+".nii.gz";
+			var path1=localdir+atlas.dirname+atlas.name;
+			var	path2=localdir+atlas.dirname+ms+"_"+atlas.name;
 			fs.rename(path1,path2,function(){
 				fs.writeFile(path1,niigz);
 			});
@@ -577,7 +578,7 @@ function logToDatabase(key,value,username)
 */
 
 function pushUndoLayer(user) {
-	if(debug) console.log("[pushUndoLayer] for user "+user.username+" "+user.specimenName+" "+user.atlasName);
+	if(debug) console.log("[pushUndoLayer] for user "+user.username+" "+user.specimenName+" "+user.atlasFilename);
 		
 	var undoLayer={"user":user,"actions":[]};
 	UndoStack.push(undoLayer);
@@ -596,7 +597,7 @@ function getCurrentUndoLayer(user) {
 		if(undoLayer==undefined)
 			break;
 		if( undoLayer.user.username==user.username &&
-			undoLayer.user.atlasName==user.atlasName &&
+			undoLayer.user.atlasFilename==user.atlasFilename &&
 			undoLayer.user.specimenName==user.specimenName) {
 			found=true;
 			break;
@@ -605,7 +606,7 @@ function getCurrentUndoLayer(user) {
 	if(!found) {
 		// There was no undoLayer for this user. This may be the
 		// first user's action. Create an appropriate undoLayer for it.
-		console.log("No previous undo layer for "+user.username+", "+user.atlasName+", "+user.specimenName+": Create and push one");
+		console.log("No previous undo layer for "+user.username+", "+user.atlasFilename+", "+user.specimenName+": Create and push one");
 		undoLayer=pushUndoLayer(user);
 	}	
 	return undoLayer;
@@ -621,18 +622,18 @@ function undo(user) {
 		if(undoLayer==undefined)
 			break;
 		if( undoLayer.user.username==user.username &&
-			undoLayer.user.atlasName==user.atlasName &&
+			undoLayer.user.atlasFilename==user.atlasFilename &&
 			undoLayer.user.specimenName==user.specimenName &&
 			undoLayer.actions.length>0) {
 			found=true;
 			UndoStack.splice(i,1); // remove layer from UndoStack
-			if(debug) console.log("found undo layer for "+user.username+", "+user.specimenName+", "+user.atlasName+", with "+undoLayer.actions.length+" actions");
+			if(debug) console.log("found undo layer for "+user.username+", "+user.specimenName+", "+user.atlasFilename+", with "+undoLayer.actions.length+" actions");
 			break;
 		}
 	}
 	if(!found) {
 		// There was no undoLayer for this user.
-		if(debug) console.log("No undo layers for user "+user.username+" in "+user.specimenName+", "+user.atlasName);
+		if(debug) console.log("No undo layers for user "+user.username+" in "+user.specimenName+", "+user.atlasFilename);
 		return;
 	}
 	
@@ -843,7 +844,7 @@ function fill(x,y,z,val,user,undoLayer)
 		.dirname:	string, atlas file directory, for example, /data/Gorilla/
 		.username:	string, for example, roberto
 		.specimenName: string, for example, Crab-eating_macaque
-		.atlasName:	string, atlas name, for example, Cerebellum
+		.atlasFilename:	string, atlas filename, for example, Cerebellum.nii.gz
 		.iAtlas:	index of atlas in Atlases[]
 		.dim:		array, size of the mri the user is editing, for example, [160,224,160]
 
