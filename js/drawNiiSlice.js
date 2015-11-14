@@ -29,7 +29,7 @@ loadNifti();
 
 function loadNifti() {
 	if(!fs.existsSync(path)) {
-		console.log("ERROR: File does not exist");
+		console.log("ERROR: File does not exist at path "+path);
 		return;
 	} else {
 		var niigz;
