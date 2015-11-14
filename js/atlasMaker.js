@@ -1374,10 +1374,11 @@ var AtlasMakerWidget = {
 				me.drawImages();
 				def.resolve();
 			});
-			return def.promise();
+		} else {
+			def.resolve();
 		}
 		
-		return;
+		return def.promise();
 	},
 	loginChanged: function() {
 		var me=AtlasMakerWidget;
