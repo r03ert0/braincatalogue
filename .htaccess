@@ -1,4 +1,10 @@
-Header add Cache-Control "max-age=600"
+<IfModule mod_headers.c>
+	Header add Cache-Control "max-age=600"
+	<FilesMatch "\.(jpg|jpeg|png|gif)$">
+		Header set Cache-Control "max-age=2419200, public"
+	</FilesMatch>
+</IfModule>
+
 Options -Indexes
 ErrorDocument 403 /404.php
 ErrorDocument 404 /404.php
