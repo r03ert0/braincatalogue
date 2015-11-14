@@ -22,6 +22,9 @@ if(isset($_GET["action"]))
 {
 	switch($_GET["action"])
 	{
+		case "updateInfo":
+			wikiUpdate($_GET["species"]);
+			break;
 		case "drawNiiSlice":
 			drawNiiSlice($_GET);
 			break;
@@ -206,6 +209,8 @@ function wikiUpdate($specimen)
 	info.txt file. Update the 'lastUpdated' field as well.
 */
 {
+	global $connection;
+	
 	// Get the wikipedia page
 	$ch = curl_init();
 	curl_setopt($ch,CURLOPT_URL,"http://en.wikipedia.org/w/api.php");
@@ -214,18 +219,21 @@ function wikiUpdate($specimen)
 	curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
 	$output=curl_exec($ch);
 	curl_close($ch);
-
+		
 	// Parse the json file and get the html code
-	$o=json_decode($output);
+	$o=json_decode($output);	
 	$html=$o->parse->text->{'*'};
+	
 	$dom = new domDocument;
-	$dom->loadHTML($html);
+	libxml_use_internal_errors(true);
+	$dom->loadHTML('<?xml encoding="utf-8" ?>' . $html); // This ensures that loadHTML interprets the string as utf-8 and not iso-8859-1
+	libxml_use_internal_errors(false);
 	$ps = $dom->getElementsByTagName('p');
-
+		
 	// Extract the initial text (at least 700 characters)
 	$wiki=array();
 	$strlen=0;
-	$i=1;
+	$i=0;
 	do
 	{
 		$x=$ps->item($i);
@@ -255,23 +263,73 @@ function wikiUpdate($specimen)
 		}
 		$i++;
 	}
-	while($strlen<700);
+	while($strlen<2000);
 
 	$str="";
 	foreach($wiki as $w)
-		$str.=$dom->saveXML($w);
+		$str.=$dom->saveHTML($w);
+
+	date_default_timezone_set('Europe/Paris');
+	$date=new DateTime();
+
+	$domx = new DOMXPath($dom);
+	$binomial=$domx->query("//span[@class='binomial']/i")->item(0)->nodeValue;
+
+	$info = array(
+		'description' => array(
+			'description'=>$str.'<a href="https://en.wikipedia.org/wiki/'.$specimen.'">More on Wikipedia</a>',
+			'acknowledgements'=>'', 
+			'commonName' => $specimen,
+			'lastUpdated' => "last updated: ".$date->format('d F Y'),
+			'scientificName' => $binomial
+		),	
+		'url' => '/data/'.$specimen.'/',
+		'mesh' => 'mesh.ply',
+		'mri' => array(
+			'atlas' => array(
+				array('name'=>'Telencephalon','description'=>'Telencephalon','filename'=>'Telencephalon.nii.gz')
+			),
+			'brain' => 'MRI-n4.nii.gz',
+			'dim' => array(200,280,160)
+		),
+		'name'=>$specimen,
+		'picture'=>array(
+			'file'=>'picture.jpg',
+			'width'=>200,
+			'height'=>200,
+			'name'=>$specimen.' ('.$binomial.')'
+		)
+    );
+	header('Content-type: text/html; charset=UTF-8');
+	print "<html><body><xmp style='white-space:pre-wrap'>";
+	print json_encode($info,JSON_PRETTY_PRINT);
+	print "</xmp></body></html>";
+	
+	
+	//$str = iconv("UTF-8", "ISO-8859-1//IGNORE", $str);
+	//header('Content-type: text/html; charset=ISO-8859-1');
+	//echo "<META http-equiv='Content-Type' content='text/html; charset=UTF-8'>";
+	//echo "<META http-equiv='Content-Type' content='text/html; charset=iso-8859-1'>";
+	//echo htmlspecialchars_decode($str, ENT_QUOTES);
+	//echo mb_convert_encoding($str,"HTML-ENTITIES","UTF-8");
+	//echo html_entity_decode($str);
 
 	// Get the info.txt file corresponding to the $specimen
+	/*
 	$info=json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/info.txt"));
 	
 	$info->description->description=$str;
+	
 	date_default_timezone_set('Europe/Paris');
 	$date=new DateTime();
 	$info->description->lastUpdated="last updated: ".$date->format('d F Y');
 	
-	file_put_contents($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/info.txt",json_encode($info,JSON_PRETTY_PRINT));
+	//file_put_contents($_SERVER['DOCUMENT_ROOT']."/data/".$specimen."/info.txt",json_encode($info,JSON_PRETTY_PRINT));
+	
 	
 	echo "Description updated for ".$specimen."<br>";
+	print json_encode($info,JSON_PRETTY_PRINT);
+	*/
 }
 
 function wikiUpdateAll()

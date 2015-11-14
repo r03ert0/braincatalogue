@@ -398,7 +398,7 @@ var AtlasMakerWidget = {
 		var me=AtlasMakerWidget;
 		if(me.debug>1) console.log("> drawBrainImage()");
 	
-		if(me.brain==0)
+		if(me.brain===0)
 			return;
 
 		ys=yc=ya=me.User.slice;
@@ -1369,12 +1369,15 @@ var AtlasMakerWidget = {
 		$("#slider").slider("option","value",me.User.slice);
 		me.drawImages();
 
-		me.loadNifti().then(function() {
-			me.drawImages();
-			def.resolve();
-		});
+		if(me.brain===0) {
+			me.loadNifti().then(function() {
+				me.drawImages();
+				def.resolve();
+			});
+			return def.promise();
+		}
 		
-		return def.promise();
+		return;
 	},
 	loginChanged: function() {
 		var me=AtlasMakerWidget;

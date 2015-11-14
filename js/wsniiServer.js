@@ -5,7 +5,7 @@ var req=require('request');
 var jpeg=require('jpeg-js'); // jpeg-js library: https://github.com/eugeneware/jpeg-js
 
 var	debug=1;
-var WebSocketServer=require("ws").Server;
+var WebSocketServer=require("ws").Server; // https://github.com/websockets/ws
 var websocket;
 
 var brain={};

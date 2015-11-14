@@ -7,8 +7,7 @@
 
 var	debug=1;
 
-// websockets library: https://github.com/websockets/ws
-var WebSocketServer=require("ws").Server;
+var WebSocketServer=require("ws").Server; //https://github.com/websockets/ws
 
 var os=require("os");
 var fs=require("fs");
