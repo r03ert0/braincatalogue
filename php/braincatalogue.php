@@ -31,7 +31,7 @@ if(isset($_GET["action"]))
 	}
 }
 
-function returnimages($dirname="../data")
+function returnimages($dirname="../data",$showall=false)
 {
 	global $connection;
 	$files = array();
@@ -48,7 +48,7 @@ function returnimages($dirname="../data")
 				$info=json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT']."/data/".$file."/info.txt"));
 
 				if(property_exists($info,'display'))
-					if($info->display==false)
+					if($info->display==false && $showall==false)
 						continue;
 				$name=str_replace("_"," ",$file);
 				$obj["name"]=$name;
@@ -65,10 +65,13 @@ function braincatalogue($args)
 {
 	global $connection;
 	
-	if(count($args)==0 || $args[1]=="index.html" || $args[1]=="index.htm")
+	if(count($args)==0 || $args[1]=="index.html" || $args[1]=="index.htm" || $args[1]=="please")
 	{
 		$html=file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/home.html");
-		$specimen=returnimages($_SERVER['DOCUMENT_ROOT']."/data");
+		if(isset($args[1]) && $args[1]=="please")
+			$specimen=returnimages($_SERVER['DOCUMENT_ROOT']."/data",true);
+		else
+			$specimen=returnimages($_SERVER['DOCUMENT_ROOT']."/data",false);
 		$tmp=str_replace("<!--SPECIMENS-->",$specimen,$html);
 		$html=$tmp;
 
@@ -211,7 +214,7 @@ function wikiUpdate($specimen)
 {
 	global $connection;
 	
-	// Get the wikipedia page
+	// Get the english wikipedia page for the specimen
 	$ch = curl_init();
 	curl_setopt($ch,CURLOPT_URL,"http://en.wikipedia.org/w/api.php");
 	curl_setopt($ch,CURLOPT_POST,1);
