@@ -16,7 +16,7 @@ var jpeg=require('jpeg-js');
 
 //console.log(process.argv);
 
-var	path=/*__dirname+"/"+*/process.argv[2];
+var	path=process.argv[2];
 var view=process.argv[3];
 var slice=parseInt(process.argv[4]);
 //var result=process.argv[5];
