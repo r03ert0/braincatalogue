@@ -367,7 +367,7 @@ var AtlasMakerWidget = {
 			img.src=[
 				"/php/braincatalogue.php?",
 				"action=drawNiiSlice&",
-				"nii-file="+me.User.dirname+"MRI-n4.nii.gz&",
+				"nii-file="+me.User.dirname+me.User.mri+"&",
 				"view="+me.User.view+"&",
 				"slice-index="+me.User.slice
 			].join("");
