@@ -121,7 +121,7 @@ var MyMeshViewer = {
 
 		me.camera.aspect = width/height;
 		me.camera.updateProjectionMatrix();
-		rme.enderer.setSize( width,height );
+		me.enderer.setSize( width,height );
 		me.tb.handleResize();
 	},
 	render: function () {
