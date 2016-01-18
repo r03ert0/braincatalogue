@@ -166,7 +166,7 @@ var AtlasMakerWidget = {
 		var wH=me.container.height();
 		var wW=me.container.width();	
 		var	wAspect=wW/wH;
-		var	bAspect=me.brain_W/me.brain_H;
+		var	bAspect=me.brain_W*me.brain_Wdim/(me.brain_H*me.brain_Hdim);
 		
 		if(me.editMode==1) {
 			// In edit mode width or height can be fixed to 100%
@@ -196,6 +196,7 @@ var AtlasMakerWidget = {
 		var def=$.Deferred();
 		var oReq = new XMLHttpRequest();
 		oReq.open("GET", me.User.dirname+"/"+me.User.mri, true);
+		console.log(me.User.dirname+"/"+me.User.mri);
 		oReq.addEventListener("progress", function(e){me.progress.html(parseInt(100*e.loaded/e.total)+"% Loaded")}, false);
 		oReq.responseType = "arraybuffer";
 		oReq.onload = function(oEvent)
@@ -236,6 +237,8 @@ var AtlasMakerWidget = {
 			me.configureBrainImage();
 			me.configureAtlasImage();
 			me.resizeWindow();
+			me.drawImages();
+
 			me.initCursor();
 			me.progress.html("<img src='/img/download.svg' style='vertical-align:middle'/>MRI");
 		
@@ -299,7 +302,7 @@ var AtlasMakerWidget = {
 			case 'axi':	me.brain_W=me.brain_dim[0]/*LR*/; me.brain_H=me.brain_dim[1]/*PA*/; me.brain_D=me.brain_dim[2]; me.brain_Wdim=me.brain_pixdim[0]; me.brain_Hdim=me.brain_pixdim[1]; break; // axial
 		}
 		me.canvas.width=me.brain_W;
-		me.canvas.height=me.brain_H;
+		me.canvas.height=me.brain_H*me.brain_Hdim/me.brain_Wdim;
 		me.brain_offcn.width=me.brain_W;
 		me.brain_offcn.height=me.brain_H;
 		me.brain_px=me.brain_offtx.getImageData(0,0,me.brain_offcn.width,me.brain_offcn.height);
@@ -351,7 +354,7 @@ var AtlasMakerWidget = {
 	
 		// draw brain
 		if(me.brain) {
-			me.context.clearRect(0,0,me.context.canvas.width,me.canvas.height);
+			me.context.clearRect(0,0,me.canvas.width,me.canvas.height);
 			me.displayInformation();
 
 			me.drawBrainImage();
@@ -421,7 +424,7 @@ var AtlasMakerWidget = {
 		me.brain_offtx.putImageData(me.brain_px, 0, 0);
 
 		me.nearestNeighbour(me.context);
-		me.context.drawImage(me.brain_offcn,0,0,me.brain_W,me.brain_H);
+		me.context.drawImage(me.brain_offcn,0,0,me.brain_W,me.brain_H*me.brain_Hdim/me.brain_Wdim);
 	},
 	drawAtlasImage: function() {
 		var me=AtlasMakerWidget;
@@ -454,7 +457,7 @@ var AtlasMakerWidget = {
 		me.atlas_offtx.putImageData(me.atlas_px, 0, 0);
 
 		me.nearestNeighbour(me.context);
-		me.context.drawImage(me.atlas_offcn,0,0,me.brain_W,me.brain_H);
+		me.context.drawImage(me.atlas_offcn,0,0,me.brain_W,me.brain_H*me.brain_Hdim/me.brain_Wdim);
 	},
 	mousedown: function(e) {
 		var me=AtlasMakerWidget;
