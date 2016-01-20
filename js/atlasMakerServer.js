@@ -57,7 +57,7 @@ function removeUser(socket) {
 	for(var i in usrsckts) {
 		if(socket==usrsckts[i].socket)
 		{
-			usrsckts.splice(i,1);
+			delete usrsckts[i];
 			break;
 		}
 	}
@@ -159,7 +159,7 @@ function initSocketConnection() {
 		{
 			console.log("[connection open]");
 			console.log("remote_address",s.upgradeReq.connection.remoteAddress);
-			var	usr={"uid":uidcounter++,"socket":s};
+			var	usr={"uid":"u"+uidcounter++,"socket":s};
 			usrsckts.push(usr);
 			console.log("User id "+usr.uid+" connected, total: "+usrsckts.length+" users");
 			
@@ -267,16 +267,15 @@ function initSocketConnection() {
 				}
 				
 				// remove the user from the list
-				Users.splice(uid,1);
+				delete Users[uid];
 				removeUser(this);
 				
 				// send user disconnect message to remaining users
 				sendDisconnectMessage(uid);
 				
 				// display the total number of connected users
-				var	nusers=Users.filter(function(value){
-					return value !== undefined
-				}).length;
+				var	nusers=0;
+				for(var i in Users) nusers++;
 				if(debug) console.log("user",uid,"closed connection");
 				if(debug) console.log(nusers+" connected");
 			});
