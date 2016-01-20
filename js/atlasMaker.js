@@ -243,7 +243,7 @@ var AtlasMakerWidget = {
 		
 			def.resolve();		
 		};
-		//oReq.send();
+		oReq.send();
 		me.progress=$("a.download_MRI");
 		me.progress.html("Loading...");
 	
@@ -1021,7 +1021,6 @@ var AtlasMakerWidget = {
 									me.displayInformation();
 
 									me.nearestNeighbour(me.context);
-									me.context.drawImage(this,0,0);
 									me.context.drawImage(this,0,0,me.brain_W,me.brain_H*me.brain_Hdim/me.brain_Wdim);
 
 									me.context.globalAlpha = 0.8;
