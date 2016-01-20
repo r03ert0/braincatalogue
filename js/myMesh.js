@@ -43,7 +43,6 @@ var MyMeshViewer = {
 				progress.html("Loading Surface...");
 		}, false);
 		oReq.open("GET", path, true);
-		//oReq.addEventListener("progress", function(e){$("#loadProgress").html(parseInt(100*e.loaded/e.total)+"%")}, false);
 		oReq.responseType="text";
 		oReq.onload = function(oEvent)
 		{
@@ -121,7 +120,7 @@ var MyMeshViewer = {
 
 		me.camera.aspect = width/height;
 		me.camera.updateProjectionMatrix();
-		me.enderer.setSize( width,height );
+		me.renderer.setSize( width,height );
 		me.tb.handleResize();
 	},
 	render: function () {

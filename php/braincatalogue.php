@@ -240,7 +240,7 @@ function wikiUpdate($specimen)
 	do
 	{
 		$x=$ps->item($i);
-
+		
 		// delete links, sups and spans
 		$delist=array();
 		$links=$x->getElementsByTagName('a');
@@ -276,7 +276,9 @@ function wikiUpdate($specimen)
 	$date=new DateTime();
 
 	$domx = new DOMXPath($dom);
+	$scientific_name;
 	$binomial=$domx->query("//span[@class='binomial']/i")->item(0)->nodeValue;
+	$trinomial=$domx->query("//span[@class='trinomial']/i")->item(0)->nodeValue;
 
 	$info = array(
 		'description' => array(
@@ -293,7 +295,8 @@ function wikiUpdate($specimen)
 				array('name'=>'Telencephalon','description'=>'Telencephalon','filename'=>'Telencephalon.nii.gz')
 			),
 			'brain' => 'MRI-n4.nii.gz',
-			'dim' => array(200,280,160)
+			'dim' => array(200,280,160),
+			'pixdim' => array(1,1,1)
 		),
 		'name'=>$specimen,
 		'picture'=>array(

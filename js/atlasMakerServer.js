@@ -13,13 +13,18 @@ var os=require("os");
 var fs=require("fs");
 var zlib=require("zlib");
 var req=require('request');
+var jpeg=require('jpeg-js'); // jpeg-js library: https://github.com/eugeneware/jpeg-js
 
 var db_url=fs.readFileSync("db_url.txt","utf8");
 var	Atlases=[];
+var Brains=[];
 var	Users=[];
 var	usrsckts=[];
 var	localdir=__dirname+"/../";
 var	uidcounter=1;
+
+var niiTag=bufferTag("nii",8);
+var jpgTag=bufferTag("jpg",8);
 
 var websocket;
 
@@ -31,6 +36,12 @@ setInterval(function(){console.log(new Date())},60*60*1000); // time mark every 
 console.log("free memory",os.freemem());
 
 initSocketConnection();
+
+function bufferTag(str,sz) {
+	var buf=new Buffer(sz).fill(32);
+	buf.write(str);
+	return buf;
+}
 
 //========================================================================================
 // Web socket
@@ -51,6 +62,47 @@ function removeUser(socket) {
 		}
 	}
 }
+function numberOfUsersConnectedToMRI(dirname,mri) {
+	var sum=0;
+
+	if(dirname==undefined || mri==undefined)
+		return sum;
+		
+	for(i in Users) {
+		if(Users[i]==undefined) {
+			console.log("ERROR: When counting the number of users connected to MRI, user uid "+i+" was not defined");
+			continue;
+		}
+		if(Users[i].dirname==undefined) {
+			console.log("ERROR: A user uid "+i+" dirname is unknown");
+			continue;
+		}
+		if(Users[i].mri==undefined) {
+			console.log("ERROR: A user uid "+i+" MRI is unknown");
+			continue;
+		}
+		if(Users[i].dirname==dirname && Users[i].mri==mri)
+			sum++;
+	}
+	sum--;
+	return sum;
+}
+function unloadMRI(dirname,mri) {
+	if(debug)
+		console.log(new Date(), "[unload MRI]",dirname,mri);
+		
+	var i;
+	for(i in Brains)
+	{
+		if(Brains[i].path==dirname+mri)
+		{
+			Brains.splice(i,1);
+			console.log("free memory",os.freemem());
+			break;
+		}
+	}
+}
+
 function numberOfUsersConnectedToAtlas(dirname,atlasFilename) {
 	var sum=0;
 
@@ -132,6 +184,9 @@ function initSocketConnection() {
 					case "paint":
 						receivePaintMessage(data);
 						break;
+					case "requestSlice":
+						receiveRequestSliceMessage(data,this);
+						break;
 					case "echo":
 						console.log("ECHO: '"+data.msg+"' from user "+data.username);
 						break;
@@ -180,11 +235,25 @@ function initSocketConnection() {
 				if(Users[uid]==undefined)
 					console.log("User ID "+uid+" is undefined. List of all known Users follows",Users);
 				else
-				if(Users[uid].dirname)
+				if(Users[uid].dirname) {
+					console.log("User was connected to MRI "+ Users[uid].dirname+Users[uid].mri);
 					console.log("User was connected to atlas "+ Users[uid].dirname+Users[uid].atlasFilename);
+				}
 				else
-					console.log("User was not connected to any atlas");					
+					console.log("WARNING: dirname was not defined");
 				
+				// count how many users remain connected to the MRI after user leaves
+				sum=numberOfUsersConnectedToMRI(Users[uid].dirname,Users[uid].mri);
+				if(sum)
+					console.log("There remain "+sum+" users connected to that MRI");
+				else
+				{
+					console.log("No user connected to MRI "
+								+ Users[uid].dirname
+								+ Users[uid].mri+": unloading it");
+					unloadMRI(Users[uid].dirname,Users[uid].mri);
+				}
+
 				// count how many users remain connected to the atlas after user leaves
 				sum=numberOfUsersConnectedToAtlas(Users[uid].dirname,Users[uid].atlasFilename);
 				if(sum)
@@ -232,6 +301,50 @@ function receivePaintMessage(data) {
 	// console.log("PaintMessage u",user,"user",user);
 	paintxy(uid,c,x,y,user,undoLayer);
 }
+function receiveRequestSliceMessage(data,user_socket) {
+	if(debug>=2) console.log("[receiveRequestSliceMessage]");
+
+	var uid=data.uid;		// user id
+	var	user=Users[uid];	// user data
+	var brainPath=user.dirname+user.mri;
+	var view=user.view;		// user view
+	var slice=user.slice;	// user slice
+	
+	var brain=getBrainAtPath(brainPath,function(data){
+		sendSliceToUser(data,view,slice,user_socket);
+	});
+
+	if(brain)
+		sendSliceToUser(brain,view,slice,user_socket);
+}
+function getBrainAtPath(brainPath,callback) {
+	var i;
+	for(i=0;i<Brains.length;i++)
+		if(Brains[i].path==brainPath)
+			return Brains[i].data;
+			
+	loadBrainNifti(brainPath,function(data){
+		var brain={path:brainPath,data:data};
+		Brains.push(brain);
+		callback(data);
+	});
+		
+	return null;
+}
+function sendSliceToUser(brain,view,slice,user_socket)
+{
+	if(debug>1) console.log("[sendSliceToUser]");
+	
+	try {
+		var jpegImageData=drawSlice(brain,view,slice);
+		var length=jpegImageData.data.length+jpgTag.length;
+		var bin=Buffer.concat([jpegImageData.data,jpgTag],length);
+		user_socket.send(bin, {binary: true,mask:false});
+	} catch(e) {
+		console.log(new Date(),"ERROR: Cannot send slice to user");
+	}
+}
+
 function receiveUserDataMessage(data,user_socket)
 {
 	if(debug>1) console.log("[receiveUserDataMessage]");
@@ -245,7 +358,7 @@ function receiveUserDataMessage(data,user_socket)
 	// 1. Check if the atlas the user is requesting has not been loaded
 	atlasLoadedFlag=false;
 	
-	// Check if user is switching atlas, and unload unused atlases
+	// check if user is switching atlas, and unload unused atlases
 	switchingAtlasFlag=false;
 	if(Users[uid]) {
 		if((Users[uid].atlasFilename!=user.atlasFilename)||(Users[uid].dirname!=user.dirname)) {
@@ -361,7 +474,7 @@ function sendAtlasToUser(atlasdata,user_socket)
 	
 	zlib.gzip(atlasdata,function(err,atlasdatagz) {
 		try {
-			user_socket.send(atlasdatagz, {binary: true, mask: false});
+			user_socket.send(Buffer.concat([atlasdatagz,niiTag]), {binary: true, mask: false});
 		} catch(e) {
 			console.log(new Date(),"ERROR: Cannot send atlas data to user");
 		}
@@ -417,12 +530,12 @@ function addAtlas(user,callback) {
 
 	console.log("User requests atlas "+atlas.name+" from "+atlas.dirname);
 	
-	loadNifti(atlas,user.username,callback);	
+	loadAtlasNifti(atlas,user.username,callback);	
 	Atlases.push(atlas);
 	
 	atlas.timer=setInterval(function(){saveNifti(atlas)},60*60*1000); // 60 minutes
 }
-function loadNifti(atlas,username,callback)
+function loadAtlasNifti(atlas,username,callback)
 {
 	// Load nifty label
 	
@@ -819,6 +932,101 @@ function fill(x,y,z,val,user,undoLayer)
 		}
 	}
 }
+/*
+	Serve brain slices
+*/
+function loadBrainNifti(path,callback) {
+	path="../"+path;
+	if(!fs.existsSync(path)) {
+		console.log("ERROR: File does not exist:",path);
+		return;
+	} else {
+		var niigz;
+		try {
+			niigz=fs.readFileSync(path);
+			zlib.gunzip(niigz,function(err,nii) {
+				var datatype=2;
+				var	vox_offset=352;
+				var	sizeof_hdr=nii.readUInt32LE(0);
+				var	dimensions=nii.readUInt16LE(40);
+				var brain={};
+				brain.hdr=nii.slice(0,vox_offset);
+				brain.dim=[];
+				brain.dim[0]=nii.readUInt16LE(42);
+				brain.dim[1]=nii.readUInt16LE(44);
+				brain.dim[2]=nii.readUInt16LE(46);
+				datatype=nii.readUInt16LE(72);
+				brain.pixdim=[];
+				brain.pixdim[0]=nii.readFloatLE(80);
+				brain.pixdim[1]=nii.readFloatLE(84);
+				brain.pixdim[2]=nii.readFloatLE(88);
+				vox_offset=nii.readFloatLE(108);
+				brain.data=nii.slice(vox_offset);
+				var i,sum=0;
+				for(i=0;i<brain.dim[0]*brain.dim[1]*brain.dim[2];i++)
+					sum+=brain.data[i];
+				brain.sum=sum;
+			
+				console.log("nii file loaded",sum);
+				callback(brain);
+			});
+		} catch(e) {
+			console.log(new Date(),"ERROR: Cannot read brain data");
+		}
+	}
+	return null;
+}
+
+function drawSlice(brain,view,slice) {
+	var x,y,i,j;
+	var brain_W, brain_H;
+	var ys,ya,yc;
+	
+	switch(view)
+	{	case 'sag':	brain_W=brain.dim[1]; brain_H=brain.dim[2]; brain_D=brain.dim[0]; break; // sagital
+		case 'cor':	brain_W=brain.dim[0]; brain_H=brain.dim[2]; brain_D=brain.dim[1]; break; // coronal
+		case 'axi':	brain_W=brain.dim[0]; brain_H=brain.dim[1]; brain_D=brain.dim[2]; break; // axial
+	}
+	
+	var frameData = new Buffer(brain_W * brain_H * 4);
+
+	j=0;
+	switch(view)
+	{	case 'sag':ys=slice; break;
+		case 'cor':yc=slice; break;
+		case 'axi':ya=slice; break;
+	}
+	/*
+	switch(view)
+	{	case 'sag':ys=parseInt(brain.dim[0]*slice); break;
+		case 'cor':yc=parseInt(brain.dim[1]*slice); break;
+		case 'axi':ya=parseInt(brain.dim[2]*slice); break;
+	}
+	*/
+	//ys=yc=ya=slice;
+	for(y=0;y<brain_H;y++)
+	for(x=0;x<brain_W;x++)
+	{
+		switch(view)
+		{	case 'sag':i= y*brain.dim[1]*brain.dim[0]+ x*brain.dim[0]+ys; break;
+			case 'cor':i= y*brain.dim[1]*brain.dim[0]+yc*brain.dim[0]+x; break;
+			case 'axi':i=ya*brain.dim[1]*brain.dim[0]+ y*brain.dim[0]+x; break;
+		}
+	  frameData[4*j+0] = brain.data[i]; // red
+	  frameData[4*j+1] = brain.data[i]; // green
+	  frameData[4*j+2] = brain.data[i]; // blue
+	  frameData[4*j+3] = 0xFF; // alpha - ignored in JPEGs
+	  j++;
+	}
+
+	var rawImageData = {
+	  data: frameData,
+	  width: brain_W,
+	  height: brain_H
+	};
+	return jpeg.encode(rawImageData,90);
+}
+
 
 /*
 	atlas
