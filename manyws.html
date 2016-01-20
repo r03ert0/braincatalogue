@@ -1,0 +1,99 @@
+<html>
+<head>
+<title>ManyWS</title>
+</head>
+<body>
+
+<div>
+<p>Socket 1</p>
+<button onclick="sendmsg(1)">Send msg</button>
+<button onclick="ping(1)">Ping</button>
+</div>
+
+<div>
+<p>Socket 2</p>
+<button onclick="sendmsg(2)">Send msg</button>
+<button onclick="ping(2)">Ping</button>
+<div id="log"></div>
+</div>
+
+<script>
+	var port1=1234,port2=4321;
+	var socket1,socket2;
+	var clickCount=0;
+
+	socket1=initSocketConnection(port1);
+	socket2=initSocketConnection(port2);
+	
+	function initSocketConnection(port) {
+		var host = "ws://" + window.location.host + ":"+port+"/";
+		var socket;
+		try {
+			socket = createSocket(host);
+			socket.onopen = function(msg) {
+				console.log("[initSocketConnection] onopen",msg);
+			};
+			socket.onmessage = function(msg) {
+				var	data=JSON.parse(msg.data);
+				switch(data.type)
+				{
+					case "chat":
+						receiveMessage(data);
+						break;
+				}
+			};
+			socket.onclose = function(msg) {
+			};
+			return socket;
+		}
+		catch (ex) {
+			console.log("Chat (not connected - connection error)");
+		}
+	}
+	function createSocket(host) {
+		var ws;
+		if (window.WebSocket) {
+			ws=new WebSocket(host);
+		} else if (window.MozWebSocket) {
+			ws=new MozWebSocket(host);
+		}
+		return ws;
+	}
+	function sendMessage(socket,msg) {
+		try {
+			socket.send(JSON.stringify(msg));
+		} catch (ex) {
+			console.log("ERROR: Unable to sendUserDataMessage",ex);
+		}
+	}
+	function receiveMessage(msg) {
+		console.log(msg);
+		document.getElementById("log").innerHTML+=msg.msg+"</br>";
+	}
+
+	function sendmsg(i) {
+		var msg={type:"echo",msg:"click "+clickCount++};
+		
+		switch(i) {
+			case 1:
+				sendMessage(socket1,msg);
+				break;
+			case 2:
+				sendMessage(socket2,msg);
+				break;
+		}
+	}
+	function ping(i) {
+		var msg={type:"chat",msg:"ping!"};
+		switch(i) {
+			case 1:
+				sendMessage(socket1,msg);
+				break;
+			case 2:
+				sendMessage(socket2,msg);
+				break;
+		}
+	}
+</script>
+</body>
+</html>

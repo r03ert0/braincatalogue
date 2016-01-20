@@ -41,7 +41,7 @@ var AtlasMakerWidget = {
 	atlasFilename:	null,
 	socket:			null,
 	flagConnected:	0,
-	flagLoadingImg: false,
+	flagLoadingImg: {loading:false},
 	msg:			null,
 	msg0:			"",
 	prevData:		0,
@@ -83,15 +83,14 @@ var AtlasMakerWidget = {
 		}
 		me.sendUserDataMessage("change view");
 	
-		if(me.brain)
-		{
-			me.configureBrainImage();
-			me.configureAtlasImage();
-			me.resizeWindow();
-		}
+		me.configureBrainImage();
+		me.configureAtlasImage();
+		me.resizeWindow();
+
 		me.drawImages();
 		
 		me.initCursor();
+
 	},
 	changeTool: function(theTool) {
 		var me=AtlasMakerWidget;
@@ -244,7 +243,9 @@ var AtlasMakerWidget = {
 		
 			def.resolve();		
 		};
-		oReq.send();
+		//oReq.send();
+		me.progress=$("a.download_MRI");
+		me.progress.html("Loading...");
 	
 		return def.promise();
 	},
@@ -363,8 +364,10 @@ var AtlasMakerWidget = {
 			me.drawAtlasImage();
 			$("#slice").html(me.User.slice);
 		}
-		else if(me.flagLoadingImg==false) {
-			me.flagLoadingImg=true;
+		else {
+			me.sendRequestSliceMessage();
+
+			/*
 			var slice=me.User.slice;
 			var img = new Image();
 			img.src=[
@@ -388,13 +391,14 @@ var AtlasMakerWidget = {
 					me.canvas.height=h;
 				}
 
-				me.flagLoadingImg=false;
+				me.flagLoadingImg.loading=false;
 				me.nearestNeighbour(me.context);
 				me.context.drawImage(this,0,0);//,0,0,W,h*W/w);
 				
 				if(slice!=me.User.slice)
 					me.drawImages();
 			};
+			*/
 		}
 	},
 	drawBrainImage: function() {
@@ -977,25 +981,65 @@ var AtlasMakerWidget = {
 			};
 			me.socket.onmessage = function(msg) {
 
-				if(me.debug) console.log("[initSocketConnection] onmessage",msg);
+				if(me.debug>1) console.log("[initSocketConnection] onmessage",msg);
 
 				// Message: atlas data initialisation
 				if(msg.data instanceof Blob) {
-					if(this.debug) console.log("received atlas (data blob)",msg.data.size,"bytes long");
+					if(this.debug) console.log("received binary blob",msg.data.size,"bytes long");
 					var fileReader = new FileReader();
 					fileReader.onload = function() {
-						var	inflate=new pako.Inflate();
-						inflate.push(new Uint8Array(this.result),true);
-						var layer=new Object();
-						layer.data=inflate.result;
-						layer.name=me.atlasFilename;
-						layer.dim=me.brain_dim;
+						var data=new Uint8Array(this.result);
+						var sz=data.length;
+						var ext=String.fromCharCode(data[sz-8],data[sz-7],data[sz-6]);
 						
-						me.atlas=layer;
+						switch(ext) {
+							case "nii": {
+								var	inflate=new pako.Inflate();
+								inflate.push(data,true);
+								var layer=new Object();
+								layer.data=inflate.result;
+								layer.name=me.atlasFilename;
+								layer.dim=me.brain_dim;
+						
+								me.atlas=layer;
 
-						me.drawImages();
-						var	link=me.container.find("span#download_atlas");
-						link.html("<a class='download' href='"+me.User.dirname+me.User.atlasFilename+"'><img src='/img/download.svg' style='vertical-align:middle'/></a>"+layer.name);
+								me.configureBrainImage();
+								me.configureAtlasImage();
+								me.resizeWindow();
+
+								me.drawImages();
+								var	link=me.container.find("span#download_atlas");
+								link.html("<a class='download' href='"+me.User.dirname+me.User.atlasFilename+"'><img src='/img/download.svg' style='vertical-align:middle'/></a>"+layer.name);
+								break;
+							}
+							case "jpg": {
+								var urlCreator = window.URL || window.webkitURL;
+								var imageUrl = urlCreator.createObjectURL(msg.data);
+								var img = new Image();
+								img.onload=function(){
+									me.context.clearRect(0,0,me.context.canvas.width,me.canvas.height);
+									me.displayInformation();
+
+									me.nearestNeighbour(me.context);
+									me.context.drawImage(this,0,0);
+									me.context.drawImage(this,0,0,me.brain_W,me.brain_H*me.brain_Hdim/me.brain_Wdim);
+
+									me.context.globalAlpha = 0.8;
+									me.context.globalCompositeOperation = "lighter";
+									me.drawAtlasImage();
+									$("#slice").html(me.User.slice);
+									
+									me.flagLoadingImg.loading=false;
+
+									if(me.flagLoadingImg.view!=me.User.view ||me.flagLoadingImg.slice!=me.User.slice) {
+										me.sendRequestSliceMessage();
+									}
+								}
+								img.src=imageUrl;
+								
+								break;
+							}
+						}
 					};
 					fileReader.readAsArrayBuffer(msg.data);
 					return;
@@ -1178,6 +1222,23 @@ var AtlasMakerWidget = {
 			me.socket.send(JSON.stringify({type:"paint",data:{c:"u"}}));
 		} catch (ex) {
 			console.log("ERROR: Unable to sendUndoMessage",ex);
+		}
+	},
+	sendRequestSliceMessage: function() {
+		var me=AtlasMakerWidget;
+		if(me.debug>1) console.log("> sendRequestSliceMessage()");
+		if(me.flagConnected==0)
+			return;
+		if(me.flagLoadingImg.loading==true)
+			return;
+		try {
+			me.socket.send(JSON.stringify({type:"requestSlice"}));
+			me.flagLoadingImg.loading=true;
+			me.flagLoadingImg.view=me.User.view;
+			me.flagLoadingImg.slice=me.User.slice;
+
+		} catch (ex) {
+			console.log("ERROR: Unable to sendRequestSliceMessage",ex);
 		}
 	},
 	receiveDisconnectMessage: function(data) {
@@ -1365,6 +1426,13 @@ var AtlasMakerWidget = {
 		me.User.mri=info.mri.brain;
 		me.User.specimenName=info.name;
 		me.User.atlasFilename=info.mri.atlas[index].filename;
+		
+		// get volume dimensions
+		me.brain_dim=info.mri.dim;
+		if(info.mri.pixdim)
+			me.brain_pixdim=info.mri.pixdim;
+		else
+			me.brain_pixdim=[1,1,1];
 
 		// configure toolbar slider
 		me.User.slice=parseInt(info.mri.dim[0]/2);

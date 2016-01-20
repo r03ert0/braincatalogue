@@ -178,7 +178,7 @@ function exitEditMode() {
 	// configure toolbar for display mode
 	$("div#toolbar").draggable('destroy');
 	$("div#toolbar").resizable('destroy');
-	$("div#toolbar").css({top:0,left:0});
+	$("div#toolbar").removeAttr("style");
 }
 function selectAtlas(index) {
 	console.log("> selectAtlas",index);

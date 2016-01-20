@@ -11,7 +11,6 @@ var websocket;
 var brain={};
 var datatype=2;
 var	vox_offset=352;
-
 var jpegImageData;
 
 initSocketConnection();
