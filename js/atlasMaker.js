@@ -194,6 +194,7 @@ var AtlasMakerWidget = {
 	
 		var def=$.Deferred();
 		var oReq = new XMLHttpRequest();
+		me.progress=$("a.download_MRI");
 		oReq.open("GET", me.User.dirname+"/"+me.User.mri, true);
 		console.log(me.User.dirname+"/"+me.User.mri);
 		oReq.addEventListener("progress", function(e){me.progress.html(parseInt(100*e.loaded/e.total)+"% Loaded")}, false);
@@ -243,10 +244,15 @@ var AtlasMakerWidget = {
 		
 			def.resolve();		
 		};
-		oReq.send();
-		me.progress=$("a.download_MRI");
-		me.progress.html("Loading...");
-	
+
+
+		if(0) {// disable MRI loading, keep slice streaming
+			oReq.send();
+			me.progress.html("Loading...");
+		} else {
+			me.progress.html("<img src='/img/download.svg' style='vertical-align:middle'/>MRI");
+		}
+		
 		return def.promise();
 	},
 	saveNifti: function() {
