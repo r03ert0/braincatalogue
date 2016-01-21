@@ -358,10 +358,10 @@ var AtlasMakerWidget = {
 			me.context.clearRect(0,0,me.canvas.width,me.canvas.height);
 			me.displayInformation();
 
-			me.drawBrainImage();
+			me.drawBrainImage(me.User.view,me.User.slice);
 			me.context.globalAlpha = 0.8;
 			me.context.globalCompositeOperation = "lighter";
-			me.drawAtlasImage();
+			me.drawAtlasImage(me.User.view,me.User.slice);
 			$("#slice").html(me.User.slice);
 		}
 		else {
@@ -401,18 +401,18 @@ var AtlasMakerWidget = {
 			*/
 		}
 	},
-	drawBrainImage: function() {
+	drawBrainImage: function(view,slice) {
 		var me=AtlasMakerWidget;
 		if(me.debug>1) console.log("> drawBrainImage()");
 	
 		if(me.brain===0)
 			return;
 
-		ys=yc=ya=me.User.slice;
+		ys=yc=ya=slice;
 		for(y=0;y<me.brain_H;y++)
 		for(x=0;x<me.brain_W;x++)
 		{
-			switch(me.User.view)
+			switch(view)
 			{	case 'sag':i= y*me.brain_dim[1]/*PA*/*me.brain_dim[0]/*LR*/+ x*me.brain_dim[0]/*LR*/+ys; break;
 				case 'cor':i= y*me.brain_dim[1]/*PA*/*me.brain_dim[0]/*LR*/+yc*me.brain_dim[0]/*LR*/+x; break;
 				case 'axi':i=ya*me.brain_dim[1]/*PA*/*me.brain_dim[0]/*LR*/+ y*me.brain_dim[0]/*LR*/+x; break;
@@ -430,7 +430,7 @@ var AtlasMakerWidget = {
 		me.nearestNeighbour(me.context);
 		me.context.drawImage(me.brain_offcn,0,0,me.brain_W,me.brain_H*me.brain_Hdim/me.brain_Wdim);
 	},
-	drawAtlasImage: function() {
+	drawAtlasImage: function(view,slice) {
 		var me=AtlasMakerWidget;
 		if(me.debug>1) console.log("> drawAtlasImage()");
 	
@@ -442,11 +442,11 @@ var AtlasMakerWidget = {
 		var	dim=layer.dim;
 		var	val;
 
-		ys=yc=ya=me.User.slice;
+		ys=yc=ya=slice;
 		for(y=0;y<me.brain_H;y++)
 		for(x=0;x<me.brain_W;x++)
 		{
-			switch(me.User.view)
+			switch(view)
 			{	case 'sag':i= y*dim[1]/*PA*/*dim[0]/*LR*/+ x*dim[0]/*LR*/+ys; break;
 				case 'cor':i= y*dim[1]/*PA*/*dim[0]/*LR*/+yc*dim[0]/*LR*/+x; break;
 				case 'axi':i=ya*dim[1]/*PA*/*dim[0]/*LR*/+ y*dim[0]/*LR*/+x; break;
@@ -1025,7 +1025,7 @@ var AtlasMakerWidget = {
 
 									me.context.globalAlpha = 0.8;
 									me.context.globalCompositeOperation = "lighter";
-									me.drawAtlasImage();
+									me.drawAtlasImage(me.flagLoadingImg.view,me.flagLoadingImg.slice);
 									$("#slice").html(me.User.slice);
 									
 									me.flagLoadingImg.loading=false;
