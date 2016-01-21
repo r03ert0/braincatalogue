@@ -2,7 +2,7 @@ var AtlasMakerWidget = {
 	//========================================================================================
 	// Globals
 	//========================================================================================
-	debug:			1,
+	debug:			0,
 	container:		null,	// Element where atlasMaker lives
 	brain_offcn:	null,
 	brain_offtx:	null,
@@ -191,69 +191,67 @@ var AtlasMakerWidget = {
 	loadNifti: function() {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> loadNifti()");
-	
 		var def=$.Deferred();
-		var oReq = new XMLHttpRequest();
-		me.progress=$("a.download_MRI");
-		oReq.open("GET", me.User.dirname+"/"+me.User.mri, true);
-		console.log(me.User.dirname+"/"+me.User.mri);
-		oReq.addEventListener("progress", function(e){me.progress.html(parseInt(100*e.loaded/e.total)+"% Loaded")}, false);
-		oReq.responseType = "arraybuffer";
-		oReq.onload = function(oEvent)
-		{
-			var	inflate=new pako.Inflate();
-			inflate.push(new Uint8Array(this.response),true);
-			var data=inflate.result.buffer;
-			var	dv=new DataView(data);
-			var	sizeof_hdr=dv.getInt32(0,true);
-			var	dimensions=dv.getInt16(40,true);
-			me.brain_dim[0]=dv.getInt16(42,true);
-			me.brain_dim[1]=dv.getInt16(44,true);
-			me.brain_dim[2]=dv.getInt16(46,true);
-			me.brain_datatype=dv.getInt16(72,true);
-			me.brain_pixdim[0]=dv.getFloat32(80,true);
-			me.brain_pixdim[1]=dv.getFloat32(84,true);
-			me.brain_pixdim[2]=dv.getFloat32(88,true);
-			var	vox_offset=dv.getFloat32(108,true);
-
-			switch(me.brain_datatype)
-			{
-				case 8:
-					me.brain=new Uint8Array(data,vox_offset);
-					break;
-				case 16:
-					me.brain=new Int16Array(data,vox_offset);
-					break;
-				case 32:
-					me.brain=new Float32Array(data,vox_offset);
-					break;
-			}
-
-			console.log("dim",me.brain_dim[0],me.brain_dim[1],me.brain_dim[2]);
-			console.log("datatype",me.brain_datatype);
-			console.log("pixdim",me.brain_pixdim[0],me.brain_pixdim[1],me.brain_pixdim[2]);
-			console.log("vox_offset",vox_offset);
-			
-			me.configureBrainImage();
-			me.configureAtlasImage();
-			me.resizeWindow();
-			me.drawImages();
-
-			me.initCursor();
-			me.progress.html("<img src='/img/download.svg' style='vertical-align:middle'/>MRI");
-		
-			def.resolve();		
-		};
-
-
+	
 		if(0) {// disable MRI loading, keep slice streaming
+			var oReq = new XMLHttpRequest();
+			oReq.open("GET", me.User.dirname+"/"+me.User.mri, true);
+			console.log(me.User.dirname+"/"+me.User.mri);
+			oReq.addEventListener("progress", function(e){me.progress.html(parseInt(100*e.loaded/e.total)+"% Loaded")}, false);
+			oReq.responseType = "arraybuffer";
+			oReq.onload = function(oEvent)
+			{
+				var	inflate=new pako.Inflate();
+				inflate.push(new Uint8Array(this.response),true);
+				var data=inflate.result.buffer;
+				var	dv=new DataView(data);
+				var	sizeof_hdr=dv.getInt32(0,true);
+				var	dimensions=dv.getInt16(40,true);
+				me.brain_dim[0]=dv.getInt16(42,true);
+				me.brain_dim[1]=dv.getInt16(44,true);
+				me.brain_dim[2]=dv.getInt16(46,true);
+				me.brain_datatype=dv.getInt16(72,true);
+				me.brain_pixdim[0]=dv.getFloat32(80,true);
+				me.brain_pixdim[1]=dv.getFloat32(84,true);
+				me.brain_pixdim[2]=dv.getFloat32(88,true);
+				var	vox_offset=dv.getFloat32(108,true);
+
+				switch(me.brain_datatype)
+				{
+					case 8:
+						me.brain=new Uint8Array(data,vox_offset);
+						break;
+					case 16:
+						me.brain=new Int16Array(data,vox_offset);
+						break;
+					case 32:
+						me.brain=new Float32Array(data,vox_offset);
+						break;
+				}
+
+				console.log("dim",me.brain_dim[0],me.brain_dim[1],me.brain_dim[2]);
+				console.log("datatype",me.brain_datatype);
+				console.log("pixdim",me.brain_pixdim[0],me.brain_pixdim[1],me.brain_pixdim[2]);
+				console.log("vox_offset",vox_offset);
+			
+				me.configureBrainImage();
+				me.configureAtlasImage();
+				me.resizeWindow();
+				me.drawImages();
+
+				me.initCursor();
+				me.progress.html("<img src='/img/download.svg' style='vertical-align:middle'/>MRI");
+		
+				def.resolve();		
+			};
 			oReq.send();
 			me.progress.html("Loading...");
+			return def.promise();
 		} else {
-			me.progress.html("<img src='/img/download.svg' style='vertical-align:middle'/>MRI");
+			//me.progress.html("<img src='/img/download.svg' style='vertical-align:middle'/>MRI");
+			return def.resolve();		
 		}
 		
-		return def.promise();
 	},
 	saveNifti: function() {
 		var me=AtlasMakerWidget;
@@ -976,11 +974,27 @@ var AtlasMakerWidget = {
 		var host = "ws://" + window.location.host + ":8080/";
 	
 		if(me.debug) console.log("[initSocketConnection] host:",host);
+		
+		me.progress.html("Connecting...");
+		
+		/* work in progress: animate the connection :)
+			
+		setInterval(function(){
+			if(me.progress.text()=="MRI")
+				clearInterval(this);
+			else {
+				var i=me.progress.text().length;
+				if(i<13) me.progress.append(".");
+				else me.progress.html("Connecting");
+			}
+		},200);
+		*/
 	
 		try {
 			me.socket = me.createSocket(host);
 			me.socket.onopen = function(msg) {
 				if(me.debug) console.log("[initSocketConnection] onopen",msg);
+				me.progress.html("<img src='/img/download.svg' style='vertical-align:middle'/>MRI");
 				$("#chat").text("Chat (1 connected)");
 				me.flagConnected=1;
 				def.resolve();
@@ -1395,6 +1409,9 @@ var AtlasMakerWidget = {
 			def.resolve();
 		});
 		
+		// get pointer to progress div
+		me.progress=$("a.download_MRI");
+		
 		// Init web socket connection
 		me.initSocketConnection()
 		.then(me.sendUserDataMessage);
@@ -1432,6 +1449,8 @@ var AtlasMakerWidget = {
 		me.User.specimenName=info.name;
 		me.User.atlasFilename=info.mri.atlas[index].filename;
 		
+		me.flagLoadingImg={loading:false};
+		
 		// get volume dimensions
 		me.brain_dim=info.mri.dim;
 		if(info.mri.pixdim)
@@ -1451,6 +1470,7 @@ var AtlasMakerWidget = {
 				def.resolve();
 			});
 		} else {
+			me.drawImages();
 			def.resolve();
 		}
 		
