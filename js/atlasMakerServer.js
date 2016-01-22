@@ -55,8 +55,7 @@ function getUserId(socket) {
 }
 function removeUser(socket) {
 	for(var i in usrsckts) {
-		if(socket==usrsckts[i].socket)
-		{
+		if(socket==usrsckts[i].socket) {
 			delete usrsckts[i];
 			break;
 		}
@@ -92,10 +91,8 @@ function unloadMRI(dirname,mri) {
 		console.log(new Date(), "[unload MRI]",dirname,mri);
 		
 	var i;
-	for(i in Brains)
-	{
-		if(Brains[i].path==dirname+mri)
-		{
+	for(i in Brains) {
+		if(Brains[i].path==dirname+mri) {
 			Brains.splice(i,1);
 			console.log("free memory",os.freemem());
 			break;
@@ -133,11 +130,8 @@ function unloadAtlas(dirname,atlasFilename) {
 		console.log(new Date(), "[unload atlas]",dirname,atlasFilename);
 		
 	var i;
-	for(i in Atlases)
-	{
-		if(Atlases[i].dirname==dirname
-			&& Atlases[i].name==atlasFilename)
-		{
+	for(i in Atlases) {
+		if(Atlases[i].dirname==dirname && Atlases[i].name==atlasFilename) {
 			saveNifti(Atlases[i]);
 			clearInterval(Atlases[i].timer);
 			Atlases.splice(i,1);
@@ -152,11 +146,9 @@ function initSocketConnection() {
 	
 	if(debug) console.log(new Date(),"[initSocketConnection] host:",host);
 	
-	try
-	{
+	try {
 		websocket = new WebSocketServer({port:8080});
-		websocket.on("connection",function(s)
-		{
+		websocket.on("connection",function(s) {
 			console.log("[connection open]");
 			console.log("remote_address",s.upgradeReq.connection.remoteAddress);
 			var	usr={"uid":"u"+uidcounter++,"socket":s};
@@ -166,18 +158,15 @@ function initSocketConnection() {
 			// send data from previous users
 			sendPreviousUserDataMessage(usr.uid);
 			
-			s.on('message',function(msg)
-			{
-				if(debug>=2) console.log("[connection: message]");
-				if(debug>=2) console.log("msg:",msg);
+			s.on('message',function(msg) {
+				if(debug>=2) console.log("[connection: message]",msg);
 				
 				var uid=getUserId(this);
 				var	data=JSON.parse(msg);
 				data.uid=uid;
 				
 				// integrate paint messages
-				switch(data.type)
-				{
+				switch(data.type) {
 					case "intro":
 						receiveUserDataMessage(data,this);
 						break;
@@ -194,8 +183,7 @@ function initSocketConnection() {
 
 				// broadcast
 				var n=0;
-				for(var i in websocket.clients)
-				{
+				for(var i in websocket.clients) {
 					// i-th user
 					var uid=getUserId(websocket.clients[i]);
 					
@@ -223,8 +211,7 @@ function initSocketConnection() {
 				if(debug>=2) console.log("broadcasted to",n,"users");
 			});
 			
-			s.on('close',function(msg)
-			{
+			s.on('close',function(msg) {
 				console.log(new Date(),"[connection: close]");
 				console.log("usrsckts length",usrsckts.length);
 				for(var i in usrsckts)
@@ -246,8 +233,7 @@ function initSocketConnection() {
 				sum=numberOfUsersConnectedToMRI(Users[uid].dirname,Users[uid].mri);
 				if(sum)
 					console.log("There remain "+sum+" users connected to that MRI");
-				else
-				{
+				else {
 					console.log("No user connected to MRI "
 								+ Users[uid].dirname
 								+ Users[uid].mri+": unloading it");
@@ -258,8 +244,7 @@ function initSocketConnection() {
 				sum=numberOfUsersConnectedToAtlas(Users[uid].dirname,Users[uid].atlasFilename);
 				if(sum)
 					console.log("There remain "+sum+" users connected to that atlas");
-				else
-				{
+				else {
 					console.log("No user connected to atlas "
 								+ Users[uid].dirname
 								+ Users[uid].atlasFilename+": unloading it");
@@ -280,9 +265,7 @@ function initSocketConnection() {
 				if(debug) console.log(nusers+" connected");
 			});
 		});
-	}
-	catch (ex)
-	{
+	} catch (ex) {
 		console.log(new Date(),"ERROR: Unable to create a server",ex);
 	}
 }
@@ -377,8 +360,7 @@ function receiveUserDataMessage(data,user_socket)
 	}
 
 	for(i=0;i<Atlases.length;i++)
-		if(Atlases[i].dirname==user.dirname && Atlases[i].name==user.atlasFilename)
-		{
+		if(Atlases[i].dirname==user.dirname && Atlases[i].name==user.atlasFilename) {
 			atlasLoadedFlag=true;
 			break;
 		}
@@ -386,16 +368,12 @@ function receiveUserDataMessage(data,user_socket)
 	
 	
 	// 2. Send the atlas to the user (load it if required)
-	if(atlasLoadedFlag)
-	{
-		if(firstConnectionFlag || switchingAtlasFlag)
-		{
+	if(atlasLoadedFlag) {
+		if(firstConnectionFlag || switchingAtlasFlag) {
 			// send the new user our data
 			sendAtlasToUser(Atlases[i].data,user_socket);
 		}
-	}
-	else
-	{
+	} else {
 		// The atlas requested has not been loaded before:
 		// Load the atlas s/he's requesting
 		addAtlas(user,function(atlas){sendAtlasToUser(atlas,user_socket)});
@@ -404,8 +382,7 @@ function receiveUserDataMessage(data,user_socket)
 	// 3. Update user data
 	// If the user didn't have a name (wasn't logged in), but now has one,
 	// display the name in the log
-	if(user.hasOwnProperty('username'))
-	{
+	if(user.hasOwnProperty('username')) {
 		if(Users[uid]==undefined)
 			console.log("No User yet for id "+uid);
 		else
@@ -418,8 +395,7 @@ function receiveUserDataMessage(data,user_socket)
 	Users[uid]=user;
 
 	// 4. Update number of users connected to atlas
-	if(firstConnectionFlag)
-	{
+	if(firstConnectionFlag) {
 		var sum=0;
 		for(i in Users)
 			if(Users[i].dirname==user.dirname && Users[i].atlasFilename==user.atlasFilename)
@@ -627,8 +603,7 @@ gawk 'BEGIN{s="5C 01 ...";split(s,a," ");for(i=1;i<=352;i++)printf"%s,",strtonum
 }
 function saveNifti(atlas)
 {
-	if(atlas && atlas.dim )
-	{
+	if(atlas && atlas.dim ) {
 		if(atlas.data==undefined) {
 			console.log("ERROR: [saveNifti] atlas is still in Atlas array, but it has not data");
 			return;
@@ -637,8 +612,7 @@ function saveNifti(atlas)
 		var i,sum=0;
 		for(i=0;i<atlas.dim[0]*atlas.dim[1]*atlas.dim[2];i++)
 			sum+=atlas.data[i];
-		if(sum==atlas.sum)
-		{
+		if(sum==atlas.sum) {
 			console.log("Atlas",atlas.specimen,atlas.name,
 						"no change, no save, freemem",os.freemem());
 			return;
@@ -788,8 +762,7 @@ function paintxy(u,c,x,y,user,undoLayer)
 	
 	var coord={"x":x,"y":y,"z":user.slice};
 		
-	switch(c)
-	{
+	switch(c) {
 		case 'me':
 		case 'mf':
 			if(user.x0<0) {
@@ -825,8 +798,8 @@ function paintVoxel(mx,my,mz,user,vol,val,undoLayer) {
 	var	dim=Atlases[user.iAtlas].dim;
 	var	x,y,z;
 	var	i=-1;
-	switch(myView)
-	{	case 'sag':	x=mz; y=mx; z=my;break; // sagital
+	switch(myView) {
+		case 'sag':	x=mz; y=mx; z=my;break; // sagital
 		case 'cor':	x=mx; y=mz; z=my;break; // coronal
 		case 'axi':	x=mx; y=my; z=mz;break; // axial
 	}	
@@ -843,8 +816,8 @@ function sliceXYZ2index(mx,my,mz,user)
 	var	dim=Atlases[user.iAtlas].dim;
 	var	x,y,z;
 	var	i=-1;
-	switch(myView)
-	{	case 'sag':	x=mz; y=mx; z=my;break; // sagital
+	switch(myView) {
+		case 'sag':	x=mz; y=mx; z=my;break; // sagital
 		case 'cor':	x=mx; y=mz; z=my;break; // coronal
 		case 'axi':	x=mx; y=my; z=mz;break; // axial
 	}	
@@ -877,16 +850,13 @@ function line(x,y,val,user,undoLayer)
 	for(k=0;k<user.penSize;k++)
 	    paintVoxel(x1+j,y1+k,z,user,vol,val,undoLayer);
     
-	while (!((x1 == x2) && (y1 == y2)))
-	{
+	while (!((x1 == x2) && (y1 == y2))) {
 		var e2 = err << 1;
-		if (e2 > -dy)
-		{
+		if (e2 > -dy) {
 			err -= dy;
 			x1 += sx;
 		}
-		if (e2 < dx)
-		{
+		if (e2 < dx) {
 			err += dx;
 			y1 += sy;
 		}
@@ -904,13 +874,11 @@ function fill(x,y,z,val,user,undoLayer)
 	var	i;
 		
 	Q.push({"x":x,"y":y});
-	while(Q.length>0)
-	{
+	while(Q.length>0) {
 		n=Q.pop();
 		x=n.x;
 		y=n.y;
-		if(vol[sliceXYZ2index(x,y,z,user)]!=val)
-		{
+		if(vol[sliceXYZ2index(x,y,z,user)]!=val) {
 			paintVoxel(x,y,z,user,vol,val,undoLayer);
 			
 			i=sliceXYZ2index(x-1,y,z,user);
@@ -981,8 +949,8 @@ function drawSlice(brain,view,slice) {
 	var brain_W, brain_H;
 	var ys,ya,yc;
 	
-	switch(view)
-	{	case 'sag':	brain_W=brain.dim[1]; brain_H=brain.dim[2]; brain_D=brain.dim[0]; break; // sagital
+	switch(view) {
+		case 'sag':	brain_W=brain.dim[1]; brain_H=brain.dim[2]; brain_D=brain.dim[0]; break; // sagital
 		case 'cor':	brain_W=brain.dim[0]; brain_H=brain.dim[2]; brain_D=brain.dim[1]; break; // coronal
 		case 'axi':	brain_W=brain.dim[0]; brain_H=brain.dim[1]; brain_D=brain.dim[2]; break; // axial
 	}
@@ -990,24 +958,16 @@ function drawSlice(brain,view,slice) {
 	var frameData = new Buffer(brain_W * brain_H * 4);
 
 	j=0;
-	switch(view)
-	{	case 'sag':ys=slice; break;
+	switch(view) {
+		case 'sag':ys=slice; break;
 		case 'cor':yc=slice; break;
 		case 'axi':ya=slice; break;
 	}
-	/*
-	switch(view)
-	{	case 'sag':ys=parseInt(brain.dim[0]*slice); break;
-		case 'cor':yc=parseInt(brain.dim[1]*slice); break;
-		case 'axi':ya=parseInt(brain.dim[2]*slice); break;
-	}
-	*/
-	//ys=yc=ya=slice;
+
 	for(y=0;y<brain_H;y++)
-	for(x=0;x<brain_W;x++)
-	{
-		switch(view)
-		{	case 'sag':i= y*brain.dim[1]*brain.dim[0]+ x*brain.dim[0]+ys; break;
+	for(x=0;x<brain_W;x++) {
+		switch(view) {
+			case 'sag':i= y*brain.dim[1]*brain.dim[0]+ x*brain.dim[0]+ys; break;
 			case 'cor':i= y*brain.dim[1]*brain.dim[0]+yc*brain.dim[0]+x; break;
 			case 'axi':i=ya*brain.dim[1]*brain.dim[0]+ y*brain.dim[0]+x; break;
 		}
