@@ -69,8 +69,7 @@ var AtlasMakerWidget = {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> changeView()");
 	
-		switch(theView)
-		{
+		switch(theView) {
 			case 'sagittal':
 				me.User.view='sag';
 				break;
@@ -96,8 +95,7 @@ var AtlasMakerWidget = {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> changeTool()");
 	
-		switch(theTool)
-		{
+		switch(theTool) {
 			case 'paint':
 				me.User.tool='paint';
 				me.User.penValue=1;
@@ -199,8 +197,7 @@ var AtlasMakerWidget = {
 			console.log(me.User.dirname+"/"+me.User.mri);
 			oReq.addEventListener("progress", function(e){me.progress.html(parseInt(100*e.loaded/e.total)+"% Loaded")}, false);
 			oReq.responseType = "arraybuffer";
-			oReq.onload = function(oEvent)
-			{
+			oReq.onload = function(oEvent) {
 				var	inflate=new pako.Inflate();
 				inflate.push(new Uint8Array(this.response),true);
 				var data=inflate.result.buffer;
@@ -216,8 +213,7 @@ var AtlasMakerWidget = {
 				me.brain_pixdim[2]=dv.getFloat32(88,true);
 				var	vox_offset=dv.getFloat32(108,true);
 
-				switch(me.brain_datatype)
-				{
+				switch(me.brain_datatype) {
 					case 8:
 						me.brain=new Uint8Array(data,vox_offset);
 						break;
@@ -301,8 +297,8 @@ var AtlasMakerWidget = {
 		if(me.debug) console.log("> configureBrainImage()");
 	
 		// init query image
-		switch(me.User.view)
-		{	case 'sag':	me.brain_W=me.brain_dim[1]/*PA*/; me.brain_H=me.brain_dim[2]/*IS*/; me.brain_D=me.brain_dim[0]; me.brain_Wdim=me.brain_pixdim[1]; me.brain_Hdim=me.brain_pixdim[2]; break; // sagital
+		switch(me.User.view) {
+			case 'sag':	me.brain_W=me.brain_dim[1]/*PA*/; me.brain_H=me.brain_dim[2]/*IS*/; me.brain_D=me.brain_dim[0]; me.brain_Wdim=me.brain_pixdim[1]; me.brain_Hdim=me.brain_pixdim[2]; break; // sagital
 			case 'cor':	me.brain_W=me.brain_dim[0]/*LR*/; me.brain_H=me.brain_dim[2]/*IS*/; me.brain_D=me.brain_dim[1]; me.brain_Wdim=me.brain_pixdim[0]; me.brain_Hdim=me.brain_pixdim[2]; break; // coronal
 			case 'axi':	me.brain_W=me.brain_dim[0]/*LR*/; me.brain_H=me.brain_dim[1]/*PA*/; me.brain_D=me.brain_dim[2]; me.brain_Wdim=me.brain_pixdim[0]; me.brain_Hdim=me.brain_pixdim[1]; break; // axial
 		}
@@ -414,10 +410,9 @@ var AtlasMakerWidget = {
 
 		ys=yc=ya=slice;
 		for(y=0;y<me.brain_H;y++)
-		for(x=0;x<me.brain_W;x++)
-		{
-			switch(view)
-			{	case 'sag':i= y*me.brain_dim[1]/*PA*/*me.brain_dim[0]/*LR*/+ x*me.brain_dim[0]/*LR*/+ys; break;
+		for(x=0;x<me.brain_W;x++) {
+			switch(view) {
+				case 'sag':i= y*me.brain_dim[1]/*PA*/*me.brain_dim[0]/*LR*/+ x*me.brain_dim[0]/*LR*/+ys; break;
 				case 'cor':i= y*me.brain_dim[1]/*PA*/*me.brain_dim[0]/*LR*/+yc*me.brain_dim[0]/*LR*/+x; break;
 				case 'axi':i=ya*me.brain_dim[1]/*PA*/*me.brain_dim[0]/*LR*/+ y*me.brain_dim[0]/*LR*/+x; break;
 			}
@@ -448,10 +443,9 @@ var AtlasMakerWidget = {
 
 		ys=yc=ya=slice;
 		for(y=0;y<me.brain_H;y++)
-		for(x=0;x<me.brain_W;x++)
-		{
-			switch(view)
-			{	case 'sag':i= y*dim[1]/*PA*/*dim[0]/*LR*/+ x*dim[0]/*LR*/+ys; break;
+		for(x=0;x<me.brain_W;x++) {
+			switch(view) {
+				case 'sag':i= y*dim[1]/*PA*/*dim[0]/*LR*/+ x*dim[0]/*LR*/+ys; break;
 				case 'cor':i= y*dim[1]/*PA*/*dim[0]/*LR*/+yc*dim[0]/*LR*/+x; break;
 				case 'axi':i=ya*dim[1]/*PA*/*dim[0]/*LR*/+ y*dim[0]/*LR*/+x; break;
 			}
@@ -634,15 +628,12 @@ var AtlasMakerWidget = {
 	
 		var z=me.User.slice;
 
-		if(me.User.doFill)
-		{
+		if(me.User.doFill) {
 			if(me.User.penValue==0)
 				me.paintxy(-1,'e',x,y,me.User);
 			else
 				me.paintxy(-1,'f',x,y,me.User);
-		}
-		else
-		{
+		} else {
 			me.User.mouseIsDown = true;
 			me.sendUserDataMessage("mouse down");
 			if(me.User.tool=='paint')
@@ -692,8 +683,7 @@ var AtlasMakerWidget = {
 
 		me.annotationLength=0;
 	},
-	keyDown: function(e)
-	{
+	keyDown: function(e) {
 		var me=AtlasMakerWidget;
 		if(me.debug>1) console.log("> keyDown()");
 	
@@ -710,8 +700,7 @@ var AtlasMakerWidget = {
 	//========================================================================================
 	// Paint functions common to all users
 	//========================================================================================
-	paintxy: function(u,c,x,y,usr)
-	{
+	paintxy: function(u,c,x,y,usr) {
 		var me=AtlasMakerWidget;
 		if(me.debug>1) console.log("> paintxy()");
 	
@@ -719,8 +708,7 @@ var AtlasMakerWidget = {
 		// c: command
 		// x, y: coordinates
 		msg={"c":c,"x":x,"y":y};
-		if(u==-1 && msg!=me.msg0)
-		{
+		if(u==-1 && msg!=me.msg0) {
 			me.sendPaintMessage(msg);
 			me.msg0=msg;
 		}
@@ -734,8 +722,7 @@ var AtlasMakerWidget = {
 			usr.y0=coord.y;
 		}
 	
-		switch(c)
-		{
+		switch(c) {
 			case 'le':
 				me.line(coord.x,coord.y,0,usr);
 				break;
@@ -753,8 +740,7 @@ var AtlasMakerWidget = {
 		usr.x0=coord.x;
 		usr.y0=coord.y;
 	},
-	paintvol: function(voxels)
-	{
+	paintvol: function(voxels) {
 		var me=AtlasMakerWidget;
 		/* this function is exclusively used for undoing */
 	
@@ -772,15 +758,13 @@ var AtlasMakerWidget = {
 
 		me.drawImages();
 	},
-	paintslice: function(u,img,user)
-	{
+	paintslice: function(u,img,user) {
 		var me=AtlasMakerWidget;
 		/* part of undo */
 		// u: user number
 		// img: img data
 		msg={"img":img};
-		if(u==-1 && msg!=me.msg0)
-		{
+		if(u==-1 && msg!=me.msg0) {
 			//me.sendPaintMessage(msg);
 			me.msg0=msg;
 		}
@@ -803,8 +787,7 @@ var AtlasMakerWidget = {
 
 		me.drawImages();
 	},
-	fill: function(x,y,z,val,myView)
-	{
+	fill: function(x,y,z,val,myView) {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> fill()");
 	
@@ -814,13 +797,11 @@ var AtlasMakerWidget = {
 		var	i;
 		
 		Q.push({"x":x,"y":y});
-		while(Q.length>0)
-		{
+		while(Q.length>0) {
 			n=Q.pop();
 			x=n.x;
 			y=n.y;
-			if(layer.data[me.slice2index(x,y,z,myView)]!=val)
-			{
+			if(layer.data[me.slice2index(x,y,z,myView)]!=val) {
 				layer.data[me.slice2index(x,y,z,myView)]=val;
 				if(x-1>=0 && layer.data[me.slice2index(x-1,y,z,myView)]!=val)
 					Q.push({"x":x-1,"y":y});
@@ -834,8 +815,7 @@ var AtlasMakerWidget = {
 		}
 		me.drawImages();
 	},
-	line: function(x,y,val,usr)
-	{
+	line: function(x,y,val,usr) {
 		var me=AtlasMakerWidget;
 		if(me.debug>1) console.log("> line()");
 	
@@ -867,36 +847,30 @@ var AtlasMakerWidget = {
 										Math.pow(me.brain_pixdim[2]*(xyzi1[2]-xyzi2[2]),2));
 	
 		for(j=0;j<usr.penSize;j++)
-		for(k=0;k<usr.penSize;k++)
-		{
+		for(k=0;k<usr.penSize;k++) {
 			i=me.slice2index(x1+j,y1+k,z,usr.view);
 			layer.data[i]=val;
 		}
 	
-		while (!((x1 == x2) && (y1 == y2)))
-		{
+		while (!((x1 == x2) && (y1 == y2))) {
 			var e2 = err << 1;
-			if (e2 > -dy)
-			{
+			if (e2 > -dy) {
 				err -= dy;
 				x1 += sx;
 			}
-			if (e2 < dx)
-			{
+			if (e2 < dx) {
 				err += dx;
 				y1 += sy;
 			}
 			for(j=0;j<usr.penSize;j++)
-			for(k=0;k<usr.penSize;k++)
-			{
+			for(k=0;k<usr.penSize;k++) {
 				i=me.slice2index(x1+j,y1+k,z,usr.view);
 				layer.data[i]=val;
 			}
 		}
 		me.drawImages();
 	},
-	slice2index: function(mx,my,mz,myView)
-	{
+	slice2index: function(mx,my,mz,myView) {
 		var me=AtlasMakerWidget;
 		if(me.debug>1)
 			console.log("> slice2index()");
@@ -904,15 +878,14 @@ var AtlasMakerWidget = {
 		var	layer=me.atlas;
 		var	dim=layer.dim;
 		var	x,y,z;
-		switch(myView)
-		{	case 'sag':	x=mz; y=mx; z=my;break; // sagital
+		switch(myView) {
+			case 'sag':	x=mz; y=mx; z=my;break; // sagital
 			case 'cor':	x=mx; y=mz; z=my;break; // coronal
 			case 'axi':	x=mx; y=my; z=mz;break; // axial
 		}	
 		return z*dim[1]*dim[0]+y*dim[0]+x;	
 	},
-	slice2xyzi: function(mx,my,mz,myView)
-	{
+	slice2xyzi: function(mx,my,mz,myView) {
 		var me=AtlasMakerWidget;
 		if(me.debug>1)
 			console.log("> slice2xyzi()");
@@ -920,22 +893,21 @@ var AtlasMakerWidget = {
 		var	layer=me.atlas;
 		var	dim=layer.dim;
 		var	x,y,z,i;
-		switch(myView)
-		{	case 'sag':	x=mz; y=mx; z=my;break; // sagital
+		switch(myView) {
+			case 'sag':	x=mz; y=mx; z=my;break; // sagital
 			case 'cor':	x=mx; y=mz; z=my;break; // coronal
 			case 'axi':	x=mx; y=my; z=mz;break; // axial
 		}
 		i=z*dim[1]*dim[0]+y*dim[0]+x;
 		return [x,y,z,i];	
 	},
-	xyz2slice: function(x,y,z,myView)
-	{
+	xyz2slice: function(x,y,z,myView) {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> xyz2slice()");
 	
 		var	mx,my,mz;
-		switch(myView)
-		{	case 'sag':	mz=x; mx=y; my=z;break; // sagital
+		switch(myView) {
+			case 'sag':	mz=x; mx=y; my=z;break; // sagital
 			case 'cor':	mx=x; mz=y; my=z;break; // coronal
 			case 'axi':	mx=x; my=y; mz=z;break; // axial
 		}	
@@ -992,6 +964,7 @@ var AtlasMakerWidget = {
 	
 		try {
 			me.socket = me.createSocket(host);
+			
 			me.socket.onopen = function(msg) {
 				if(me.debug) console.log("[initSocketConnection] onopen",msg);
 				me.progress.html("<img src='/img/download.svg' style='vertical-align:middle'/>MRI");
@@ -999,10 +972,9 @@ var AtlasMakerWidget = {
 				me.flagConnected=1;
 				def.resolve();
 			};
+			
 			me.socket.onmessage = function(msg) {
-
 				if(me.debug>1) console.log("[initSocketConnection] onmessage",msg);
-
 				// Message: atlas data initialisation
 				if(msg.data instanceof Blob) {
 					if(this.debug) console.log("received binary blob",msg.data.size,"bytes long");
@@ -1078,8 +1050,7 @@ var AtlasMakerWidget = {
 				}
 				*/
 			
-				switch(data.type)
-				{
+				switch(data.type) {
 					case "intro":
 						me.receiveUserDataMessage(data);
 						break;
@@ -1097,6 +1068,7 @@ var AtlasMakerWidget = {
 						break;
 				}
 			};
+			
 			me.socket.onclose = function(msg) {
 				me.socket.send(JSON.stringify({"type":"echo","msg":"user socket closing","username":me.User.username}));
 				$("#chat").text("Chat (disconnected)");
@@ -1290,8 +1262,7 @@ var AtlasMakerWidget = {
 	//==========
 	// Database
 	//==========
-	logToDatabase: function(key,value)
-	{
+	logToDatabase: function(key,value) {
 		var def=$.Deferred();
 		$.ajax({
 			url:"/php/braincatalogue.php",
@@ -1381,8 +1352,7 @@ var AtlasMakerWidget = {
 			me.container.append(html);
 			
 			// hide or show annotation tools depending on login changes
-			if(MyLoginWidget)
-			{
+			if(MyLoginWidget) {
 				console.log("subscribing to login changes");
 				me.loginChanged();
 				MyLoginWidget.subscribe(me.loginChanged);
@@ -1470,7 +1440,6 @@ var AtlasMakerWidget = {
 				def.resolve();
 			});
 		} else {
-			me.drawImages();
 			def.resolve();
 		}
 		
@@ -1479,15 +1448,13 @@ var AtlasMakerWidget = {
 	loginChanged: function() {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log(">loginChanged() to",MyLoginWidget.loggedin);
-		if(MyLoginWidget.loggedin)
-		{
+		if(MyLoginWidget.loggedin) {
 			$('body').addClass('loggedIn');
 			//$(".loginRequired").css('display','inline-block');	// Show all controls required to log in
 			me.User.username=MyLoginWidget.username;
 			me.sendUserDataMessage("logged in");	// inform the server
 		}
-		else
-		{
+		else {
 			$('body').removeClass('loggedIn');
 			//$(".loginRequired").css('display','none');	// Hide all controls required to log in
 			me.sendUserDataMessage("logged out");	// inform the server
