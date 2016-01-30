@@ -105,6 +105,7 @@ canvas {
 .edit-mode #sliceTools,
 .edit-mode #paintTools,
 .edit-mode #penSize,
+.edit-mode #preciseCursor,
 .edit-mode #chatTools {
     margin-top:5px;
 }

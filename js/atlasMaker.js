@@ -42,6 +42,7 @@ var AtlasMakerWidget = {
 	socket:			null,
 	flagConnected:	0,
 	flagLoadingImg: {loading:false},
+	flagUsePreciseCursor: false,
 	msg:			null,
 	msg0:			"",
 	prevData:		0,
@@ -155,6 +156,14 @@ var AtlasMakerWidget = {
 		me.User.doFill=!me.User.doFill;
 		me.sendUserDataMessage("toggle fill");
 	},
+	togglePreciseCursor: function() {
+		var me=AtlasMakerWidget;
+		if(me.debug)
+			console.log("> togglePreciseCursor()");
+	
+		me.flagUsePreciseCursor=!me.flagUsePreciseCursor;
+		me.initCursor();
+	},
 	resizeWindow: function() {
 		var me=AtlasMakerWidget;
 		if(me.debug>1)
@@ -242,6 +251,7 @@ var AtlasMakerWidget = {
 			};
 			oReq.send();
 			me.progress.html("Loading...");
+			me.initCursor();
 			return def.promise();
 		} else {
 			//me.progress.html("<img src='/img/download.svg' style='vertical-align:middle'/>MRI");
@@ -319,6 +329,8 @@ var AtlasMakerWidget = {
 		// configure toolbar slider
 		$("#slider").slider("option","max",me.brain_D);
 		$("#slider").slider("option","value",me.User.slice);
+		
+		me.initCursor();
 	},
 	configureAtlasImage: function() {
 		var me=AtlasMakerWidget;
@@ -514,85 +526,106 @@ var AtlasMakerWidget = {
 		var w=parseFloat($('#atlasMaker canvas').attr('width'));
 		var h=parseFloat($('#atlasMaker canvas').attr('height'));
 		var o=$('#atlasMaker canvas').offset();
-		var	touchEvent=e.originalEvent.changedTouches[0];
+		var	touchEvent;
+		if(e.originalEvent)
+			touchEvent=e.originalEvent.changedTouches[0];
+		else
+			touchEvent=e.changedTouches[0];
 		var x=parseInt((touchEvent.pageX-o.left)*(w/W));
 		var y=parseInt((touchEvent.pageY-o.top)*(h/H));
 	
-		/*-- Precision cursor --*/
-		//$("#finger").css("display","inline");
-		me.Crsr.x0=x;
-		me.Crsr.cachedX=x;
-		me.Crsr.y0=y;
-		me.Crsr.cachedY=y;
-		me.Crsr.fx=$("#finger").offset().left;
-		me.Crsr.fy=$("#finger").offset().top;
-		me.Crsr.touchStarted=true;
-		setTimeout(function() {
-			if( me.Crsr.cachedX == me.Crsr.x0 && me.Crsr.cachedY==me.Crsr.y0 && !me.Crsr.touchStarted) {
-				// short tap: change mode
-				me.Crsr.state=(me.Crsr.state=="move")?"draw":"move";
-				me.updateCursor();
-			}
-		},200);
-		setTimeout(function() {
-			if (me.Crsr.cachedX==me.Crsr.x0 && me.Crsr.cachedY==me.Crsr.y0 && me.Crsr.touchStarted) {
-				// long tap: change to configure mode
-				me.Crsr.prevState=me.Crsr.state;
-				me.Crsr.state="configure";
-				me.updateCursor();
-			}
-		},1000);
-		/*----------------------*/
-
-		me.down(me.Crsr.x,me.Crsr.y);
+		if(me.flagUsePreciseCursor) {
+			// Precision cursor
+			me.Crsr.x0=x;
+			me.Crsr.cachedX=x;
+			me.Crsr.y0=y;
+			me.Crsr.cachedY=y;
+			me.Crsr.fx=$("#finger").offset().left;
+			me.Crsr.fy=$("#finger").offset().top;
+			me.Crsr.touchStarted=true;
+			setTimeout(function() {
+				if( me.Crsr.cachedX == me.Crsr.x0 && me.Crsr.cachedY==me.Crsr.y0 && !me.Crsr.touchStarted) {
+					// short tap: change mode
+					me.Crsr.state=(me.Crsr.state=="move")?"draw":"move";
+					me.updateCursor();
+				}
+			},200);
+			setTimeout(function() {
+				if (me.Crsr.cachedX==me.Crsr.x0 && me.Crsr.cachedY==me.Crsr.y0 && me.Crsr.touchStarted) {
+					// long tap: change to configure mode
+					me.Crsr.prevState=me.Crsr.state;
+					me.Crsr.state="configure";
+					me.updateCursor();
+				}
+			},1000);
+			me.down(me.Crsr.x,me.Crsr.y);
+		} else
+			me.down(x,y);
 	},
 	touchmove: function(e) {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> touchmove()");
 		
-		if(me.Crsr.touchStarted==false) {
+		if(me.Crsr.touchStarted==false && me.debug) {
 			console.log("WARNING TO MYSELF: touch can move without having started");
 		}
 	
 		e.preventDefault();
+
 		var W=parseFloat($('#atlasMaker canvas').css('width'));
 		var H=parseFloat($('#atlasMaker canvas').css('height'));
 		var w=parseFloat($('#atlasMaker canvas').attr('width'));
 		var h=parseFloat($('#atlasMaker canvas').attr('height'));
 		var o=$('#atlasMaker canvas').offset();
-		var	touchEvent=e.originalEvent.changedTouches[0];
+		var	touchEvent;
+		if(e.originalEvent)
+			touchEvent=e.originalEvent.changedTouches[0];
+		else
+			touchEvent=e.changedTouches[0];
 		var x=parseInt((touchEvent.pageX-o.left)*(w/W));
 		var y=parseInt((touchEvent.pageY-o.top)*(h/H));
 	
-		/*-- Precision cursor --*/
-		var dx=x-me.Crsr.x0;
-		var dy=y-me.Crsr.y0;
-		if(me.Crsr.state=="move"||me.Crsr.state=="draw") {
-			me.Crsr.x+=dx;
-			me.Crsr.y+=dy;
-			$("#cursor").css({left:me.Crsr.x*(W/w),top:me.Crsr.y*(H/h),width:me.User.penSize*(W/w),height:me.User.penSize*(H/h)});
-			if(me.Crsr.state=="draw")
-				me.move(me.Crsr.x,me.Crsr.y);
-		}
-		me.Crsr.fx+=dx*(W/w);
-		me.Crsr.fy+=dy*(H/h);
-		$("#finger").offset({left:me.Crsr.fx,top:me.Crsr.fy});
+		if(me.flagUsePreciseCursor) {
+			// Precision cursor
+			var dx=x-me.Crsr.x0;
+			var dy=y-me.Crsr.y0;
+			if(me.Crsr.state=="move"||me.Crsr.state=="draw") {
+				me.Crsr.x+=dx;
+				me.Crsr.y+=dy;
+				$("#cursor").css({left:me.Crsr.x*(W/w),top:me.Crsr.y*(H/h),width:me.User.penSize*(W/w),height:me.User.penSize*(H/h)});
+				if(me.Crsr.state=="draw")
+					me.move(me.Crsr.x,me.Crsr.y);
+			}
+			me.Crsr.fx+=dx*(W/w);
+			me.Crsr.fy+=dy*(H/h);
+			$("#finger").offset({left:me.Crsr.fx,top:me.Crsr.fy});
 		
-		me.Crsr.x0=x;
-		me.Crsr.y0=y;
+			me.Crsr.x0=x;
+			me.Crsr.y0=y;
+		} else {
+			$("#cursor").css({
+				left:(x*(W/w))+'px',
+				top:(y*(H/h))+'px',
+				width:me.User.penSize*(W/w),
+				height:me.User.penSize*(H/h)
+			});
+			me.move(x,y);
+		}
 	},
 	touchend: function(e) {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> touchend()");
+		
+		e.preventDefault();
 	
-		/*-- Precision cursor --*/
-		me.Crsr.touchStarted=false;
-		if(me.Crsr.state=="configure") {
-			me.Crsr.state=me.Crsr.prevState;
-			me.updateCursor();
-		}
-		/*----------------------*/
-	
+		if(me.flagUsePreciseCursor) {
+			// Precision cursor
+			me.Crsr.touchStarted=false;
+			if(me.Crsr.state=="configure") {
+				me.Crsr.state=me.Crsr.prevState;
+				me.updateCursor();
+			}
+		}	
 		me.up(e);
 	},
 	initCursor: function() {
@@ -601,12 +634,41 @@ var AtlasMakerWidget = {
 		var H=parseFloat($('#atlasMaker canvas').css('height'));
 		var w=parseFloat($('#atlasMaker canvas').attr('width'));
 		var h=parseFloat($('#atlasMaker canvas').attr('height'));
+		
 		me.Crsr.x=parseInt(w/2);
 		me.Crsr.y=parseInt(h/2);
+		
 		me.Crsr.fx=parseInt(w/2)*(W/w);
 		me.Crsr.fy=parseInt(h/2)*(H/h);
 		$("#cursor").css({left:(me.Crsr.x*(W/w))+"px",top:(me.Crsr.y*(H/h))+"px",width:me.User.penSize*(W/w),height:me.User.penSize*(H/h)});
-		$("#finger").css({left:me.Crsr.fx+"px",top:me.Crsr.fy+"px"});
+		
+		if(me.flagUsePreciseCursor) {
+			if($("#finger").length==0) {
+				me.container.append("<div id='finger'></div>");
+				$("#finger").addClass("touchDevice");
+
+				// configure touch events for tablets
+				$("#finger").on("touchstart",function(e){me.touchstart(e)});
+				$("#finger").on("touchend",function(e){me.touchend(e)});
+				$("#finger").on("touchmove",function(e){me.touchmove(e)});
+			
+				// turn off eventual touch events handled by canvas
+				me.canvas.ontouchstart=null;
+				me.canvas.ontouchmove=null;
+				me.canvas.ontouchend=null;
+			}
+			me.updateCursor();
+
+			$("#finger").css({left:me.Crsr.fx+"px",top:me.Crsr.fy+"px"});
+		} else {
+			// remove precise cursor
+			$("#finger").remove();
+
+			// configure touch events for tablets
+			me.canvas.ontouchstart=me.touchstart;
+			me.canvas.ontouchmove=me.touchmove;
+			me.canvas.ontouchend=me.touchend;
+		}
 	},
 	updateCursor: function() {
 		var me=AtlasMakerWidget;
@@ -1322,23 +1384,19 @@ var AtlasMakerWidget = {
 		
 		// Add div to use as cursor
 		me.container.append("<div id='cursor'></div>");
-		var isTouchArr=["iPad","iPod"];
+		
+		// Add precise cursor
+		var isTouchArr=[];//["iPad","iPod"];
 		var curDevice=navigator.userAgent.split(/[(;]/)[1];
 		if($.inArray(curDevice,isTouchArr)>=0) {
-			me.container.append("<div id='finger'></div>");
-			$("#finger").addClass("touchDevice");
-			me.updateCursor();
-		}								
+			me.flagUsePreciseCursor=true;
+			me.initCursor();
+		}
 
 		// configure mouse events for desktop computers
 		me.canvas.onmousedown = me.mousedown;
 		me.canvas.onmousemove = me.mousemove;
 		me.canvas.onmouseup = me.mouseup;
-
-		// configure touch events for tablets
-		$("#finger").on("touchstart",function(e){me.touchstart(e)});
-		$("#finger").on("touchend",function(e){me.touchend(e)});
-		$("#finger").on("touchmove",function(e){me.touchmove(e)});
 
 		// connect event to respond to window resizing
 		$(window).resize(function() {
@@ -1369,6 +1427,7 @@ var AtlasMakerWidget = {
 			$("#tool input[type=radio]").change(function(){me.changeTool($(this).attr('id'))})
 			$("button#undo").button().click(function(){me.sendUndoMessage()});
 			$("input#fill").button().click(function(){me.toggleFill()});
+			$("input#precise").button().click(function(){me.togglePreciseCursor()});
 			$("div#penSize").buttonset().unbind('keydown');
 			$("#penSize input[type=radio]").change(function(){me.changePenSize($(this).attr('id'))});
 			$("#slider").slider({slide:me.changeSlice,min:0,step:1});
