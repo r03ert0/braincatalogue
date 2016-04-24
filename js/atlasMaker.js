@@ -108,6 +108,12 @@ var AtlasMakerWidget = {
 		}
 		me.sendUserDataMessage("change tool");
 	},
+	syncViews: function() {
+		var me=AtlasMakerWidget;
+		if(me.debug) console.log("> syncViews()");
+		
+		localStorage.AtlasMakerMultipleWindows=JSON.stringify({view:me.User.view,slice:slice});
+	},
 	changePenSize: function(theSize) {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> changePenSize()");
@@ -115,38 +121,50 @@ var AtlasMakerWidget = {
 		me.User.penSize=parseInt(theSize);
 		me.sendUserDataMessage("change pen size");
 	},
-	changeSlice: function(e) {
+	changeSlice: function(slice) {
 		var me=AtlasMakerWidget;
 		if(me.debug>1) console.log("> changeSlice()");
 	
-		me.User.slice=parseInt($("#slider").slider("value"));
+		me.User.slice=slice;
 		me.sendUserDataMessage("change slice");
-
 		me.drawImages();
+		
+		localStorage.AtlasMakerMultipleWindows=JSON.stringify({view:me.User.view,slice:slice});
+	},
+	changeSliceFromOtherWindow: function(e) {
+		if(e.key=="AtlasMakerMultipleWindows") {
+			var pos=JSON.parse(localStorage.AtlasMakerMultipleWindows);
+			console.log("change in other window",pos);
+		}
+	},
+	changeSliceFromSlider: function(e) {
+		var me=AtlasMakerWidget;
+		if(me.debug>1) console.log("> changeSliceFromSlider()");
+
+		var slice=parseInt($("#slider").slider("value"));
+		me.changeSlice(slice);
 	},
 	prevSlice: function() {
 		var me=AtlasMakerWidget;
 		if(me.debug>1) console.log("> prevSlice()");
 	
-		me.User.slice=parseInt($("#slider").slider("value"))-1;
-		if(me.User.slice<0)
-			me.User.slice=0;
-		me.sendUserDataMessage("previous slice");
+		var slice=me.User.slice-1;
+		if(slice<0)
+			slice=0;
+		me.changeSlice(slice);
 
 		$("#slider").slider("option","value",me.User.slice);
-		me.drawImages();
 	},
 	nextSlice: function() {
 		var me=AtlasMakerWidget;
 		if(me.debug>1) console.log("> nextSlice()");
 	
-		me.User.slice=parseInt($("#slider").slider("value"))+1;
-		if(me.User.slice>me.brain_D-1)
-			me.User.slice=me.brain_D-1;
-		me.sendUserDataMessage("next slice");
+		var slice=me.User.slice+1;
+		if(slice>me.brain_D-1)
+			slice=me.brain_D-1;
+		me.changeSlice(slice);
 
 		$("#slider").slider("option","value",me.User.slice);
-		me.drawImages();
 	},
 	toggleFill: function() {
 		var me=AtlasMakerWidget;
@@ -485,7 +503,7 @@ var AtlasMakerWidget = {
 		var h=parseFloat($('#atlasMaker canvas').attr('height'));
 		var o=$('#atlasMaker canvas').offset();
 		var x=parseInt((e.pageX-o.left)*(w/W));
-		var y=parseInt((e.pageY-o.top)*(h/H));
+		var y=parseInt((e.pageY-o.top)*(h/H))/me.brain_Hdim; console.log("gna");
 		me.down(x,y);
 	},
 	mousemove: function(e) {
@@ -499,7 +517,7 @@ var AtlasMakerWidget = {
 		var h=parseFloat($('#atlasMaker canvas').attr('height'));
 		var o=$('#atlasMaker canvas').offset();
 		var x=parseInt((e.pageX-o.left)*(w/W));
-		var y=parseInt((e.pageY-o.top)*(h/H));
+		var y=parseInt((e.pageY-o.top)*(h/H))/me.brain_Hdim;
 	
 		$("#cursor").css({
 			left:(x*(W/w))+'px',
@@ -1428,9 +1446,10 @@ var AtlasMakerWidget = {
 			$("button#undo").button().click(function(){me.sendUndoMessage()});
 			$("input#fill").button().click(function(){me.toggleFill()});
 			$("input#precise").button().click(function(){me.togglePreciseCursor()});
+			$("input#sync").button().click(function(){me.syncViews()});
 			$("div#penSize").buttonset().unbind('keydown');
 			$("#penSize input[type=radio]").change(function(){me.changePenSize($(this).attr('id'))});
-			$("#slider").slider({slide:me.changeSlice,min:0,step:1});
+			$("#slider").slider({slide:me.changeSliceFromSlider,min:0,step:1});
 			$("button#prevSlice").button().click(function(){me.prevSlice()});
 			$("button#nextSlice").button().click(function(){me.nextSlice()});			
 			$("div#toolbar").blur();
@@ -1444,6 +1463,9 @@ var AtlasMakerWidget = {
 		// Init web socket connection
 		me.initSocketConnection()
 		.then(me.sendUserDataMessage);
+		
+		// Listen to localStorage changes for slice change
+		window.addEventListener('storage', me.changeSliceFromOtherWindow, false);
 		
 		return def.promise();
 	},
