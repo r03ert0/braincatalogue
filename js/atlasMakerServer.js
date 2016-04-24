@@ -912,7 +912,7 @@ function loadBrainNifti(path,callback) {
 		try {
 			niigz=fs.readFileSync(path);
 			zlib.gunzip(niigz,function(err,nii) {
-				var datatype=2;
+				var datatype;
 				var	vox_offset=352;
 				var	sizeof_hdr=nii.readUInt32LE(0);
 				var	dimensions=nii.readUInt16LE(40);
@@ -922,19 +922,55 @@ function loadBrainNifti(path,callback) {
 				brain.dim[0]=nii.readUInt16LE(42);
 				brain.dim[1]=nii.readUInt16LE(44);
 				brain.dim[2]=nii.readUInt16LE(46);
-				datatype=nii.readUInt16LE(72);
+				datatype=nii.readUInt16LE(70);
 				brain.pixdim=[];
 				brain.pixdim[0]=nii.readFloatLE(80);
 				brain.pixdim[1]=nii.readFloatLE(84);
 				brain.pixdim[2]=nii.readFloatLE(88);
 				vox_offset=nii.readFloatLE(108);
-				brain.data=nii.slice(vox_offset);
-				var i,sum=0;
-				for(i=0;i<brain.dim[0]*brain.dim[1]*brain.dim[2];i++)
+				
+				switch(datatype) {
+					case 2: // UCHAR
+						brain.data=nii.slice(vox_offset);
+						break;
+					case 4: // SHORT
+						var tmp=nii.slice(vox_offset);
+						brain.data=new Uint16Array(brain.dim[0]*brain.dim[1]*brain.dim[2]);
+						for(j=0;j<brain.dim[0]*brain.dim[1]*brain.dim[2];j++)
+							brain.data[j]=tmp.readUInt16LE(j*2);
+						break;
+					case 8: // INT
+						var tmp=nii.slice(vox_offset);
+						brain.data=new Uint32Array(brain.dim[0]*brain.dim[1]*brain.dim[2]);
+						for(j=0;j<brain.dim[0]*brain.dim[1]*brain.dim[2];j++)
+							brain.data[j]=tmp.readUInt32LE(j*4);
+						break;
+					case 16: // FLOAT
+						var tmp=nii.slice(vox_offset);
+						brain.data=new Float32Array(brain.dim[0]*brain.dim[1]*brain.dim[2]);
+						for(j=0;j<brain.dim[0]*brain.dim[1]*brain.dim[2];j++)
+							brain.data[j]=tmp.readFloatLE(j*4);
+						break;
+					default:
+						console.log("ERROR: Unknown dataType: "+datatype);
+				}
+
+				var i,sum=0,min,max;
+				min=brain.data[0];
+				max=min;
+				for(i=0;i<brain.dim[0]*brain.dim[1]*brain.dim[2];i++) {
 					sum+=brain.data[i];
+		
+					if(brain.data[i]<min) min=brain.data[i];
+					if(brain.data[i]>max) max=brain.data[i];
+				}
 				brain.sum=sum;
-			
-				console.log("nii file loaded",sum);
+				brain.min=min;
+				brain.max=max;
+
+				console.log("nii file loaded, sum:",sum);
+				console.log("min:",min,"max:",max);
+				
 				callback(brain);
 			});
 		} catch(e) {
@@ -948,6 +984,7 @@ function drawSlice(brain,view,slice) {
 	var x,y,i,j;
 	var brain_W, brain_H;
 	var ys,ya,yc;
+	var val;
 	
 	switch(view) {
 		case 'sag':	brain_W=brain.dim[1]; brain_H=brain.dim[2]; brain_D=brain.dim[0]; break; // sagital
@@ -971,11 +1008,12 @@ function drawSlice(brain,view,slice) {
 			case 'cor':i= y*brain.dim[1]*brain.dim[0]+yc*brain.dim[0]+x; break;
 			case 'axi':i=ya*brain.dim[1]*brain.dim[0]+ y*brain.dim[0]+x; break;
 		}
-	  frameData[4*j+0] = brain.data[i]; // red
-	  frameData[4*j+1] = brain.data[i]; // green
-	  frameData[4*j+2] = brain.data[i]; // blue
-	  frameData[4*j+3] = 0xFF; // alpha - ignored in JPEGs
-	  j++;
+		val=255*(brain.data[i]-brain.min)/(brain.max-brain.min);
+		frameData[4*j+0] = val; // red
+		frameData[4*j+1] = val; // green
+		frameData[4*j+2] = val; // blue
+		frameData[4*j+3] = 0xFF; // alpha - ignored in JPEGs
+		j++;
 	}
 
 	var rawImageData = {
