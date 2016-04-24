@@ -218,21 +218,28 @@ function wikiUpdate($specimen)
 	$ch = curl_init();
 	curl_setopt($ch,CURLOPT_URL,"http://en.wikipedia.org/w/api.php");
 	curl_setopt($ch,CURLOPT_POST,1);
-	curl_setopt($ch,CURLOPT_POSTFIELDS,'action=parse&prop=text&page='.$specimen.'&format=json');
+	curl_setopt($ch,CURLOPT_POSTFIELDS,'action=parse&prop=text&page='.$specimen
+		.'&format=json'
+		.'&disablelimitreport='
+		.'&disabletoc='
+		.'&disableeditsection='
+	);
 	curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
 	$output=curl_exec($ch);
-	curl_close($ch);
-		
+	curl_close($ch);		
+
 	// Parse the json file and get the html code
-	$o=json_decode($output);	
-	$html=$o->parse->text->{'*'};
+	$o=json_decode($output);
+	//header('Content-type:text/plain;charset="utf-8"');
+	//print json_last_error_msg();
 	
+	$html=$o->parse->text->{'*'};	
 	$dom = new domDocument;
 	libxml_use_internal_errors(true);
 	$dom->loadHTML('<?xml encoding="utf-8" ?>' . $html); // This ensures that loadHTML interprets the string as utf-8 and not iso-8859-1
 	libxml_use_internal_errors(false);
 	$ps = $dom->getElementsByTagName('p');
-		
+	
 	// Extract the initial text (at least 700 characters)
 	$wiki=array();
 	$strlen=0;
@@ -266,7 +273,7 @@ function wikiUpdate($specimen)
 		}
 		$i++;
 	}
-	while($strlen<2000);
+	while($strlen<2000&&$i<$ps->length);
 
 	$str="";
 	foreach($wiki as $w)
@@ -277,8 +284,8 @@ function wikiUpdate($specimen)
 
 	$domx = new DOMXPath($dom);
 	$scientific_name;
-	$binomial=$domx->query("//span[@class='binomial']/i")->item(0)->nodeValue;
-	$trinomial=$domx->query("//span[@class='trinomial']/i")->item(0)->nodeValue;
+	$binomial=@$domx->query("//span[@class='binomial']/i")->item(0)->nodeValue;
+	$trinomial=@$domx->query("//span[@class='trinomial']/i")->item(0)->nodeValue;
 
 	$info = array(
 		'description' => array(

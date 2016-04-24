@@ -64,10 +64,19 @@ a {
 	</td>
 	</tr>
 	<tr>
-	<td>
-        <h1>Administration Interface</h1>
-        <button onclick="updateDescriptions()">Update descriptions</button>
-	</td>
+		<td>
+			<h1>Administration Interface</h1>
+		</td>
+    <tr>
+		<td>
+			<button onclick="updateDescriptions()">Update descriptions</button>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<input id="species" type="text" />
+			<button onclick="makeInfoFile()">Make info.txt JSON file</button>
+		</td>
 	</tr>
 	</table>
 </td>
@@ -80,12 +89,25 @@ a {
 function updateDescriptions()
 {
 	$.ajax({
-		url: '/braincatalogue.php',
+		url: '/php/braincatalogue.php',
 		data: {
 			action:'updateWiki',
 			specimen:'Human',
 		},
 		success: function(data){$("#test").html(data);}
+	});
+}
+function makeInfoFile() {
+	var species=$("#species").val();
+	$.ajax({
+		url: '/php/braincatalogue.php',
+		data: {
+			action: 'updateInfo',
+			species: species
+		},
+		success: function(data) {
+			$("#test").html("<code contentEditable>"+data+"</code>");
+		}
 	});
 }
 </script>
