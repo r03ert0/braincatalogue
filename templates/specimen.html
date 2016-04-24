@@ -109,7 +109,7 @@ var info=JSON.parse('<!--INFO-->');
 // load stored description from wikipedia
 console.log("Object read from info.txt",info);
 // Load image
-$("div#picture").html("<img class='picture' src='/data/"+info.name+"/picture.jpg'/>");
+$("div#picture").html("<img class='picture' src='/data/"+escape(info.name)+"/picture.jpg'/>");
 // Load text
 var description=info.description.commonName;
 if(info.description.scientificName!=undefined)
