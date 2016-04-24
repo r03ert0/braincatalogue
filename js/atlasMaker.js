@@ -503,7 +503,7 @@ var AtlasMakerWidget = {
 		var h=parseFloat($('#atlasMaker canvas').attr('height'));
 		var o=$('#atlasMaker canvas').offset();
 		var x=parseInt((e.pageX-o.left)*(w/W));
-		var y=parseInt((e.pageY-o.top)*(h/H))/me.brain_Hdim; console.log("gna");
+		var y=parseInt((e.pageY-o.top)*(h/H));
 		me.down(x,y);
 	},
 	mousemove: function(e) {
@@ -517,7 +517,7 @@ var AtlasMakerWidget = {
 		var h=parseFloat($('#atlasMaker canvas').attr('height'));
 		var o=$('#atlasMaker canvas').offset();
 		var x=parseInt((e.pageX-o.left)*(w/W));
-		var y=parseInt((e.pageY-o.top)*(h/H))/me.brain_Hdim;
+		var y=parseInt((e.pageY-o.top)*(h/H));
 	
 		$("#cursor").css({
 			left:(x*(W/w))+'px',

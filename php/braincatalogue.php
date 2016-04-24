@@ -287,6 +287,14 @@ function wikiUpdate($specimen)
 	$binomial=@$domx->query("//span[@class='binomial']/i")->item(0)->nodeValue;
 	$trinomial=@$domx->query("//span[@class='trinomial']/i")->item(0)->nodeValue;
 
+	// get the volume's name
+	$volname=@exec('ls ../data/'.$specimen.'/MRI*.nii.gz|xargs -n1 basename',$arr,$retval);
+
+	// get volume info: dimensions and voxel size
+	$volinfo=@exec("../bin/volume -i ../data/".$specimen."/".$volname." -info|".
+	'awk \'/dim:/{printf"{\"dim\":[%i,%i,%i],",$2,$3,$4}/voxelSize:/{printf"\"pixdim\":[%f,%f,%f]}",$2,$3,$4}\'',$arr,$retval);
+	$volinfo=json_decode($volinfo);
+
 	$info = array(
 		'description' => array(
 			'description'=>$str.'<a href="https://en.wikipedia.org/wiki/'.$specimen.'">More on Wikipedia</a>',
@@ -301,9 +309,9 @@ function wikiUpdate($specimen)
 			'atlas' => array(
 				array('name'=>'Telencephalon','description'=>'Telencephalon','filename'=>'Telencephalon.nii.gz')
 			),
-			'brain' => 'MRI-n4.nii.gz',
-			'dim' => array(200,280,160),
-			'pixdim' => array(1,1,1)
+			'brain' => $volname,
+			'dim' => $volinfo->dim,
+			'pixdim' => $volinfo->pixdim
 		),
 		'name'=>$specimen,
 		'picture'=>array(
@@ -316,8 +324,7 @@ function wikiUpdate($specimen)
 	header('Content-type: text/html; charset=UTF-8');
 	print "<html><body><xmp style='white-space:pre-wrap'>";
 	print json_encode($info,JSON_PRETTY_PRINT);
-	print "</xmp></body></html>";
-	
+	print "</xmp></body></html>";	
 	
 	//$str = iconv("UTF-8", "ISO-8859-1//IGNORE", $str);
 	//header('Content-type: text/html; charset=ISO-8859-1');
