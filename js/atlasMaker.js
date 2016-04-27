@@ -1242,7 +1242,7 @@ var AtlasMakerWidget = {
 		if(me.debug) console.log("> receivePaintMessage()");
 	
 		var	msg=data.data;
-		var u=parseInt(data.uid);	// user
+		var u=data.uid;	// user
 		var c=msg.c;	// command
 		var x=parseInt(msg.x);	// x coordinate
 		var y=parseInt(msg.y);	// y coordinate
@@ -1278,7 +1278,7 @@ var AtlasMakerWidget = {
 		if(me.debug) console.log("[receivePaintSliceMessage]");
 
 		var msg=data.data;
-		var u=parseInt(data.uid);       // user
+		var u=data.uid;       // user
 		var img=msg.img;    // img data
 
 		me.paintslice(u,img,me.Collab[u]);
@@ -1315,7 +1315,7 @@ var AtlasMakerWidget = {
 	receiveDisconnectMessage: function(data) {
 		var me=AtlasMakerWidget;
 		if(me.debug) console.log("> receiveDisconnectMessage()");
-		var u=parseInt(data.uid);	// user
+		var u=data.uid;	// user
 		var	msg="<b>"+me.Collab[u].username+"</b> left atlas "+me.Collab[u].specimenName+"/"+me.Collab[u].atlasFilename+"<br />"
 		me.Collab.splice(u,1);
 		var	nusers=1+me.Collab.filter(function(value) { return value !== undefined }).length;
