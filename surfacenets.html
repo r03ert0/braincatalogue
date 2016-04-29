@@ -13,6 +13,8 @@ html,body {
 <script src="/lib/jquery-1.11.0.min.js"></script>
 <script>
 
+var params=deparam();
+
 var cube_edges = new Int32Array(24);	// surfacenets
 var edge_table = new Int32Array(256);	// surfacenets
 var buffer = new Int32Array(4096);		// surfacenets
@@ -25,12 +27,13 @@ var renderer,scene,camera,trackball;
 var path="/data/Gorilla/Atlas.nii.gz";
 var level=1;
 
+path=params.path;
+
 init_surfacenets();
-$.when(
-	loadScript("/lib/three.min.js"),
-	loadScript("/lib/TrackballControls.js"),
-	loadScript("/lib/pako/pako.min.js")
-)
+
+loadScript("/lib/three.min.js")
+.then(function(){return loadScript("/lib/TrackballControls.js")})
+.then(function(){return loadScript("/lib/pako/pako.min.js")})
 .then(function(){return loadNifti(path)})
 .then(function(){
 	var g=SurfaceNets(brain.data,brain.dim,brain.pixdim,level);
@@ -38,12 +41,19 @@ $.when(
 	animate();
 });
 
+function deparam() {
+    var search = location.search.substring(1);
+    var result = search?JSON.parse('{"' + search.replace(/&/g, '","').replace(/=/g,'":"') + '"}',
+                     function(key, value) { return key===""?value:decodeURIComponent(value) }):{};
+    return result;
+}
+
 function loadScript(script) {
 	var def=new $.Deferred();
 	var s = document.createElement("script");
 	s.src = script;
-	s.onload=function(){console.log("loaded",script,new Date());def.resolve(s);}
-	s.onerror=function(e){console.log("unable to load",script);def.reject(e);}
+	s.onload=function(){console.log("loaded",script,new Date());def.resolve();}
+	s.onerror=function(e){console.log("unable to load",script);def.reject();}
 	document.body.appendChild(s);
 	return def.promise();
 }
