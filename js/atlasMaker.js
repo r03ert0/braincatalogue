@@ -805,9 +805,10 @@ var AtlasMakerWidget = {
 		// c: command
 		// x, y: coordinates
 		msg={"c":c,"x":x,"y":y};
-		if(u==-1 && JSON.stringify(msg)!==JSON.stringify(me.msg0))
+		if(u==-1 && JSON.stringify(msg)!==JSON.stringify(me.msg0)) {
 			me.sendPaintMessage(msg);
 			me.msg0=msg;
+		}
 	
 		var	layer=me.atlas;
 		var	dim=layer.dim;
@@ -860,10 +861,10 @@ var AtlasMakerWidget = {
 		// u: user number
 		// img: img data
 		msg={"img":img};
-		//if(u==-1 && JSON.stringify(msg)!=JSON.stringify(me.msg0)) {
+		if(u==-1 && JSON.stringify(msg)!=JSON.stringify(me.msg0)) {
 			//me.sendPaintMessage(msg);
 			me.msg0=msg;
-		//}
+		}
 
 		var layer=me.atlas;
 		// Should be normally called only from the server
@@ -1476,7 +1477,10 @@ var AtlasMakerWidget = {
 			$("div#toolbar").blur();
 		}).then(
 			me.initSocketConnection
-		).then(function(){console.log("tools loaded, socket initialised");def.resolve()});
+		).then(function() {
+			console.log("tools loaded, socket initialised");
+			def.resolve()
+		});
 		
 		// get pointer to progress div
 		me.progress=$("a.download_MRI");
@@ -1547,7 +1551,7 @@ var AtlasMakerWidget = {
 			$('body').addClass('loggedIn');
 			//$(".loginRequired").css('display','inline-block');	// Show all controls required to log in
 			me.User.username=MyLoginWidget.username;
-			// TEST: me.sendUserDataMessage("logged in");	// inform the server
+			me.sendUserDataMessage("logged in");	// inform the server
 		}
 		else {
 			$('body').removeClass('loggedIn');

@@ -327,12 +327,9 @@ function sendSliceToUser(brain,view,slice,user_socket)
 	}
 }
 
-function receiveUserDataMessage(data,user_socket)
-{
+function receiveUserDataMessage(data,user_socket) {
 	if(debug>1) console.log("[receiveUserDataMessage]");
 	
-	// TEST: console.log("RECEIVE USER DATA MESSAGE",data);
-
 	var uid=data.uid;
 	var user=data.user;
 	var	i,atlasLoadedFlag,firstConnectionFlag,switchingAtlasFlag;
@@ -367,9 +364,7 @@ function receiveUserDataMessage(data,user_socket)
 				atlasLoadedFlag=true;
 				break;
 			}
-		// TEST: console.log("THE ATLAS IS AT INDEX:",i);
 		user.iAtlas=i;	// i-th value if it was found, or last if it wasn't
-	
 	
 		// 2. Send the atlas to the user (load it if required)
 		if(atlasLoadedFlag) {
@@ -397,7 +392,6 @@ function receiveUserDataMessage(data,user_socket)
 	}
 	if(Users[uid]==null) Users[uid]={};
 	for(var prop in user) Users[uid][prop]=user[prop];
-	// TEST: Users[uid]=user;
 	
 	// 4. Update number of users connected to atlas
 	if(firstConnectionFlag) {
@@ -515,10 +509,7 @@ function addAtlas(user,callback) {
 	loadAtlasNifti(atlas,user.username,callback);	
 	
 	user.iAtlas=Atlases.length;
-	// TEST: console.log("USER:",user);
-
 	Atlases.push(atlas);
-	// TEST: console.log("ADDING NEW ATLAS:",Atlases);
 	
 	atlas.timer=setInterval(function(){saveNifti(atlas)},60*60*1000); // 60 minutes
 }
@@ -531,7 +522,7 @@ function loadAtlasNifti(atlas,username,callback)
 	var	vox_offset=352;
 	
 	if(!fs.existsSync(path)) {
-		console.log("No atlas "+path+" exists. Create a new one");
+		console.log("Atlas "+path+" does not exists. Create a new one");
 /*
 To create this buffer, I used an hex editor to dump the 1st 352 bytes of a
 nii file, and converted them to decimal using:
@@ -949,9 +940,9 @@ function loadBrainNifti(path,callback) {
 						break;
 					case 4: // SHORT
 						var tmp=nii.slice(vox_offset);
-						brain.data=new Uint16Array(brain.dim[0]*brain.dim[1]*brain.dim[2]);
+						brain.data=new Int16Array(brain.dim[0]*brain.dim[1]*brain.dim[2]);
 						for(j=0;j<brain.dim[0]*brain.dim[1]*brain.dim[2];j++)
-							brain.data[j]=tmp.readUInt16LE(j*2);
+							brain.data[j]=tmp.readInt16LE(j*2);
 						break;
 					case 8: // INT
 						var tmp=nii.slice(vox_offset);
