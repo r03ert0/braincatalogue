@@ -153,7 +153,9 @@ function initSocketConnection() {
 			console.log("remote_address",s.upgradeReq.connection.remoteAddress);
 			var	usr={"uid":"u"+uidcounter++,"socket":s};
 			usrsckts.push(usr);
-			console.log("User id "+usr.uid+" connected, total: "+usrsckts.length+" users");
+			var nusers=0;
+			for(var tmp in usrsckts) if(usrsckts[tmp]) nusers++;
+			console.log("User id "+usr.uid+" connected, total: "+nusers+" users");
 			
 			// send data from previous users
 			sendPreviousUserDataMessage(usr.uid);
@@ -213,7 +215,11 @@ function initSocketConnection() {
 			
 			s.on('close',function(msg) {
 				console.log(new Date(),"[connection: close]");
-				console.log("usrsckts length",usrsckts.length);
+				var nusers=0;
+				for(var tmp in usrsckts)
+					if(usrsckts[tmp])
+						nusers++;
+				console.log("users in usrsckts",nusers);
 				for(var i in usrsckts)
 					if(usrsckts[i].socket==s)
 						console.log("user",usrsckts[i].uid,"is closing connection");
@@ -760,6 +766,12 @@ function paintxy(u,c,x,y,user,undoLayer)
 {
 	// TEST: console.log("ATLASES:",Atlases);
 	// TEST: console.log("USER:",user);
+	if(Atlases[user.iAtlas]==undefined) {
+		console.log(new Date(),"ERROR: index user.iAtlas does not correspond to an atlas");
+		console.log("Atlases:",Atlases);
+		console.log("user:",user);
+		return;
+	}
 	if(Atlases[user.iAtlas].data==undefined) {
 		console.log(new Date(),"ERROR: No atlas to draw into");
 		return;

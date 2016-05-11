@@ -65,7 +65,9 @@ function braincatalogue($args)
 {
 	global $connection;
 	
-	if(count($args)==0 || $args[1]=="index.html" || $args[1]=="index.htm" || $args[1]=="please")
+	//var_dump($args);
+	
+	if(count($args)==0||$args[1]=="index.html" || $args[1]=="index.htm" || $args[1]=="please")
 	{
 		$html=file_get_contents($_SERVER['DOCUMENT_ROOT']."/templates/home.html");
 		if(isset($args[1]) && $args[1]=="please")

@@ -3,6 +3,5 @@
 	
 	$uri=$_SERVER['REQUEST_URI'];
 	$args=array_filter(explode("/",$uri));
-		
-	braincatalogue($args);
+	braincatalogue(array_filter(explode("/",parse_url($uri,PHP_URL_PATH))));
 ?>
