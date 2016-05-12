@@ -186,6 +186,12 @@ var AtlasMakerWidget = {
 		me.flagUsePreciseCursor=!me.flagUsePreciseCursor;
 		me.initCursor();
 	},
+	render3D: function() {
+		var me=AtlasMakerWidget;
+		if(me.debug)
+			console.log("> reder3D()");
+		window.open("/templates/surfacenets.html?path="+me.User.dirname+"/"+me.User.atlasFilename,"_blank");
+	},
 	resizeWindow: function() {
 		var me=AtlasMakerWidget;
 		if(me.debug>1)
@@ -1466,6 +1472,7 @@ var AtlasMakerWidget = {
 			$("span#tool").buttonset().unbind('keydown');
 			$("#tool input[type=radio]").change(function(){me.changeTool($(this).attr('id'))})
 			$("button#undo").button().click(function(){me.sendUndoMessage()});
+			$("button#3drender").button().click(function(){me.render3D()});
 			$("input#fill").button().click(function(){me.toggleFill()});
 			$("input#precise").button().click(function(){me.togglePreciseCursor()});
 			$("input#sync").button().click(function(){me.syncViews()});
