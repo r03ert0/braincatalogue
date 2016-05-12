@@ -1,61 +1,25 @@
-<html>
-<head>
-<style>
-html,body {
-	width:100%;
-	height:100%;
-	margin:0;
-}
-</style>
-</head>
-<body>
-
-<script src="/lib/jquery-1.11.0.min.js"></script>
-<script>
-
-var params=deparam();
+self.addEventListener('message', function(e) {
+	var data = e.data;
+	switch (data.cmd) {
+		case 'start':
+			init(data.path,data.level);
+			break;
+	};
+});
 
 var cube_edges = new Int32Array(24);	// surfacenets
 var edge_table = new Int32Array(256);	// surfacenets
 var buffer = new Int32Array(4096);		// surfacenets
 var brain={};
 
-var renderer,scene,camera,trackball;
+function init(path,level) {
+	init_surfacenets();
 
-//var path="/data/Sloth_bear/Atlas.nii.gz";
-//var path="/data/Gray_wolf/Telencephalon.nii.gz";
-var path="/data/Gorilla/Atlas.nii.gz";
-var level=1;
-
-path=params.path;
-
-init_surfacenets();
-
-loadScript("/lib/three.min.js")
-.then(function(){return loadScript("/lib/TrackballControls.js")})
-.then(function(){return loadScript("/lib/pako/pako.min.js")})
-.then(function(){return loadNifti(path)})
-.then(function(){
-	var g=SurfaceNets(brain.data,brain.dim,brain.pixdim,level);
-	createMesh(g);
-	animate();
-});
-
-function deparam() {
-    var search = location.search.substring(1);
-    var result = search?JSON.parse('{"' + search.replace(/&/g, '","').replace(/=/g,'":"') + '"}',
-                     function(key, value) { return key===""?value:decodeURIComponent(value) }):{};
-    return result;
-}
-
-function loadScript(script) {
-	var def=new $.Deferred();
-	var s = document.createElement("script");
-	s.src = script;
-	s.onload=function(){console.log("loaded",script,new Date());def.resolve();}
-	s.onerror=function(e){console.log("unable to load",script);def.reject();}
-	document.body.appendChild(s);
-	return def.promise();
+	importScripts("/lib/pako/pako.min.js");
+	loadNifti(path,function(){
+		var g=SurfaceNets(brain.data,brain.dim,brain.pixdim,level);
+		self.postMessage(g);
+	});
 }
 
 function init_surfacenets()
@@ -168,8 +132,7 @@ function SurfaceNets(data, dims, pixdims, level)
 	return { vertices: vertices, faces: faces };
 }
 
-function loadNifti(path) {
-	var def=$.Deferred();
+function loadNifti(path,callback) {
 	var oReq = new XMLHttpRequest();
 	oReq.open("GET", path, true);
 	oReq.addEventListener("progress", function(e){console.log(parseInt(100*e.loaded/e.total)+"% Loaded")}, false);
@@ -210,82 +173,7 @@ function loadNifti(path) {
 		console.log("datatype",brain.datatype);
 		console.log("pixdim",brain.pixdim[0],brain.pixdim[1],brain.pixdim[2]);
 		console.log("vox_offset",vox_offset);
-		def.resolve();		
+		callback();		
 	};
 	oReq.send();
-
-	return def.promise();
 }
-function createMesh(g) {
-
-	renderer = new THREE.WebGLRenderer( { antialias: true } );
-	renderer.setPixelRatio( window.devicePixelRatio );
-	renderer.setClearColor(0x000000);
-	var W=window.innerWidth;
-	var H=window.innerHeight;
-	renderer.setSize(W,H);
-	document.body.appendChild(renderer.domElement);
-
-	camera = new THREE.PerspectiveCamera(50,W/H,1,2000 );
-	camera.position.z = 200;
-	scene = new THREE.Scene();
-
-	trackball = new THREE.TrackballControls(camera,renderer.domElement);
-
-	window.addEventListener( 'resize', onWindowResize, false );
-		
-	var geometry=new THREE.Geometry();
-	geometry.vertices.length=0;
-	geometry.faces.length=0;
-	var o={x:0,y:0,z:0};
-	for(var i=0; i<g.vertices.length; ++i) {
-		var v = g.vertices[i];
-		o.x+=v[0];
-		o.y+=v[1];
-		o.z+=v[2];
-	}
-	o.x/=g.vertices.length;
-	o.y/=g.vertices.length;
-	o.z/=g.vertices.length;
-	for(var i=0; i<g.vertices.length; ++i)
-	{
-		var v = g.vertices[i];
-		var	z=0.5;
-		geometry.vertices.push(new THREE.Vector3((v[0]-o.x)*z,(v[1]-o.y)*z,(v[2]-o.z)*z));
-	}
-	for(var i=0; i<g.faces.length; ++i) {
-		var f = g.faces[i];
-		if(f.length === 3) {
-			geometry.faces.push(new THREE.Face3(f[0], f[1], f[2]));
-		} else if(f.length === 4) {
-			geometry.faces.push(new THREE.Face4(f[0], f[1], f[2], f[3]));
-		}
-	}
-	geometry.computeFaceNormals();
-	geometry.computeVertexNormals();
-
-	var material=new THREE.MeshNormalMaterial();
-	var	mesh=new THREE.Mesh(geometry,material);
-	scene.add(mesh);
-}
-function animate()
-{
-	requestAnimationFrame( animate );
-	render();
-}
-
-// render the scene
-function render() {
-	renderer.render( scene, camera );
-	trackball.update();
-}
-function onWindowResize(event) {
-	var W=window.innerWidth;
-	var H=window.innerHeight;
-	renderer.setSize( W, H );
-	camera.aspect = W/H;
-	camera.updateProjectionMatrix();
-}	
-
-</script>
-</body>
