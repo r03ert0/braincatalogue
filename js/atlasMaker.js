@@ -190,7 +190,7 @@ var AtlasMakerWidget = {
 		var me=AtlasMakerWidget;
 		if(me.debug)
 			console.log("> reder3D()");
-		window.open("/templates/surfacenets.html?path="+me.User.dirname+"/"+me.User.atlasFilename,"_blank");
+		window.open("/templates/surface.html?path="+me.User.dirname+me.User.atlasFilename,"_blank");
 	},
 	resizeWindow: function() {
 		var me=AtlasMakerWidget;
