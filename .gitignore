@@ -5,3 +5,5 @@ php/base.php
 js/db_url.txt
 
 js/log.txt
+
+js/ws_cfg.json
