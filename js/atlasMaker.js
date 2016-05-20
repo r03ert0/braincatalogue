@@ -66,6 +66,7 @@ var AtlasMakerWidget = {
 	info:{},	// information displayed over each brain slice
 	// undo stack
 	Undo:[],
+	secure: false,	// whether to use ws or wss for websockets
 
 	//========================================================================================
 	// Local user interaction
@@ -1045,8 +1046,12 @@ var AtlasMakerWidget = {
 		if(me.debug) console.log("> initSocketConnection()");
 		var def=$.Deferred();
 	
-		// WS connection
-		var host = "ws://" + window.location.host + ":8080/";
+		var host;
+		if(me.secure) {
+			host = "wss://" + window.location.host + ":8080/";
+		} else {
+			host = "ws://" + window.location.host + ":8080/";
+		}
 	
 		if(me.debug) console.log("[initSocketConnection] host:",host);
 		

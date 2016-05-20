@@ -8,7 +8,6 @@
 var	debug=0;
 
 var WebSocketServer=require("ws").Server; //https://github.com/websockets/ws
-
 var os=require("os");
 var fs=require("fs");
 var zlib=require("zlib");
@@ -27,6 +26,7 @@ var niiTag=bufferTag("nii",8);
 var jpgTag=bufferTag("jpg",8);
 
 var websocket;
+var secure=false; // whether to use https/wss or http/ws
 
 var UndoStack=[];
 
@@ -142,12 +142,27 @@ function unloadAtlas(dirname,atlasFilename) {
 }
 function initSocketConnection() {
 	// WS connection
-	var host = "ws://localhost:8080";
+	if(debug) console.log(new Date(),"[initSocketConnection]");
 	
-	if(debug) console.log(new Date(),"[initSocketConnection] host:",host);
+	if(secure) {
+		// wss:
+		var ws_cfg=JSON.parse(fs.readFileSync('ws_cfg.json'));
+
+		var httpServ = require('https');
+		var app = httpServ.createServer({
+		  key: fs.readFileSync(ws_cfg.ssl_key),
+		  cert: fs.readFileSync(ws_cfg.ssl_cert)
+		}, function(req,res){}).listen(ws_cfg.port);
+	}
 	
 	try {
-		websocket = new WebSocketServer({port:8080});
+		
+		if(secure) {
+		    websocket=new WebSocketServer({server:app});
+		} else {
+			websocket=new WebSocketServer({port:8080});
+		}
+		
 		websocket.on("connection",function(s) {
 			console.log("[connection open]");
 			console.log("remote_address",s.upgradeReq.connection.remoteAddress);

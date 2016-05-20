@@ -1,0 +1,5 @@
+{
+  "port": 8080,
+  "ssl_key": "/etc/httpd/ssl/braincatalogue.org.key",
+  "ssl_cert": "/etc/httpd/ssl/braincatalogue.org.crt"
+}
