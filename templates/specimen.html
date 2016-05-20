@@ -5,7 +5,7 @@
     <meta name=viewport content="width=device-width, initial-scale=1">
     <title><!--SPECIMEN--></title>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-	<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'/>
+	<link href='https://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'/>
 	<link href='https://fonts.googleapis.com/css?family=Quicksand' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="/lib/jquery-ui.css">
 	<link rel="stylesheet" href="/css/common.css" type="text/css" media="screen, projection" />
@@ -188,6 +188,7 @@ function exitEditMode() {
 function selectAtlas(index) {
 	console.log("> selectAtlas",index);
 	AtlasMakerWidget.configureAtlasMaker(info,index);
+	$("#atlas_download").attr("href","/data/"+info.name+"/"+info.mri.atlas[index].filename);
 }
 
 MyLoginWidget.init($("#MyLogin"));
@@ -196,18 +197,20 @@ if(info.mri.brain) {
 	$("#data").append('<div id="stereotaxic"></div>');
 
 	// Add MRI download link
-	$("#stereotaxic").append("<a class='download_MRI download' href='/data/"+info.name+"/MRI-n4.nii.gz'></a>");
+	$("#stereotaxic").append("<a class='download_MRI download' href='/data/"+info.name+"/"+info.mri.brain+"'></a>");
 	
 	// Add Atlas edit and selection links
 	$("#stereotaxic").append("<span class='edit_Atlas download'></span>");
 	var i,html=[
+		"<a id='atlas_download' href=''><img src='/img/download.svg' style='vertical-align:middle'/></a>",
 		"<img src='/img/edit.svg' onclick='enterEditMode()' style='vertical-align:middle'/>",
-		"<select style='margin-left:-8px;' onchange='selectAtlas(this.value)'>"
+		"<select onchange='selectAtlas(this.value)'>"
 	];
 	for(i=0;i<info.mri.atlas.length;i++)
 		html.push('	<option value='+i+'>'+info.mri.atlas[i].name+'</option>');
 	html.push('</select>');
-	$("#stereotaxic").find(".edit_Atlas").append(html.join("\n"));
+	$("#stereotaxic").find(".edit_Atlas").append(html.join(""));
+	$("#atlas_download").attr("href","/data/"+info.name+"/"+info.mri.atlas[parseInt($("select").val())].filename);
 	
 	// Add AtlasMaker
 	$("#stereotaxic").append('<div id="atlasMaker"></div>');
