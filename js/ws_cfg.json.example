@@ -1,5 +1,6 @@
 {
   "port": 8080,
-  "ssl_key": "/etc/httpd/ssl/braincatalogue.org.key",
-  "ssl_cert": "/etc/httpd/ssl/braincatalogue.org.crt"
+  "ssl_key": "/path/privkey.pem",
+  "ssl_cert": "/path/fullchain.pem",
+  "ssl_chain": "/path/chain.pem"
 }

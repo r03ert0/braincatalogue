@@ -151,7 +151,8 @@ function initSocketConnection() {
 		var httpServ = require('https');
 		var app = httpServ.createServer({
 		  key: fs.readFileSync(ws_cfg.ssl_key),
-		  cert: fs.readFileSync(ws_cfg.ssl_cert)
+		  cert: fs.readFileSync(ws_cfg.ssl_cert),
+		  ca: fs.readFileSync(ws_cfg.ssl_chain)
 		}, function(req,res){}).listen(ws_cfg.port);
 	}
 	
