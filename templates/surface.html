@@ -82,6 +82,7 @@ function deparam() {
 
 function createMesh(g) {
 
+	console.log(new Date(),"Create mesh");
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setClearColor(0x000000);
@@ -98,6 +99,7 @@ function createMesh(g) {
 
 	window.addEventListener( 'resize', onWindowResize, false );
 		
+	console.log(new Date(),"compute barycentre");
 	var geometry=new THREE.Geometry();
 	geometry.vertices.length=0;
 	geometry.faces.length=0;
@@ -111,6 +113,8 @@ function createMesh(g) {
 	o.x/=g.vertices.length;
 	o.y/=g.vertices.length;
 	o.z/=g.vertices.length;
+
+	console.log(new Date(),"push vertices and faces");
 	for(var i=0; i<g.vertices.length; ++i)
 	{
 		var v = g.vertices[i];
@@ -125,12 +129,14 @@ function createMesh(g) {
 			geometry.faces.push(new THREE.Face4(f[0], f[1], f[2], f[3]));
 		}
 	}
+	console.log(new Date(),"compute face and vertex normals");
 	geometry.computeFaceNormals();
 	geometry.computeVertexNormals();
 
 	var material=new THREE.MeshNormalMaterial();
 	var	mesh=new THREE.Mesh(geometry,material);
 	scene.add(mesh);
+	console.log(new Date(),"done");
 }
 function animate()
 {
