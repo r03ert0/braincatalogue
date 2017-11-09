@@ -1,0 +1,1 @@
+<?php    mail($email,'Password Reset for Brain Catalogue',$message,'From: braincatalogue.org <no-reply@braincatalogue.org>');?>
