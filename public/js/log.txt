@@ -1,0 +1,109 @@
+atlasMakerServer.js
+Wed Feb 24 2016 17:18:00 GMT+0100 (CET)
+free memory 952209408
+events.js:142
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE 0.0.0.0:8080
+    at Object.exports._errnoException (util.js:856:11)
+    at exports._exceptionWithHostPort (util.js:879:20)
+    at Server._listen2 (net.js:1238:14)
+    at listen (net.js:1274:10)
+    at net.js:1383:9
+    at nextTickCallbackWith3Args (node.js:466:9)
+    at process._tickCallback (node.js:372:17)
+    at Function.Module.runMain (module.js:433:11)
+    at startup (node.js:141:18)
+    at node.js:977:3
+SERVER CRASHED WITH CODE 1. RESTARTING
+atlasMakerServer.js
+Wed Feb 24 2016 17:18:01 GMT+0100 (CET)
+free memory 945078272
+events.js:142
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE 0.0.0.0:8080
+    at Object.exports._errnoException (util.js:856:11)
+    at exports._exceptionWithHostPort (util.js:879:20)
+    at Server._listen2 (net.js:1238:14)
+    at listen (net.js:1274:10)
+    at net.js:1383:9
+    at nextTickCallbackWith3Args (node.js:466:9)
+    at process._tickCallback (node.js:372:17)
+    at Function.Module.runMain (module.js:433:11)
+    at startup (node.js:141:18)
+    at node.js:977:3
+SERVER CRASHED WITH CODE 1. RESTARTING
+atlasMakerServer.js
+Wed Feb 24 2016 17:18:02 GMT+0100 (CET)
+free memory 947011584
+events.js:142
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE 0.0.0.0:8080
+    at Object.exports._errnoException (util.js:856:11)
+    at exports._exceptionWithHostPort (util.js:879:20)
+    at Server._listen2 (net.js:1238:14)
+    at listen (net.js:1274:10)
+    at net.js:1383:9
+    at nextTickCallbackWith3Args (node.js:466:9)
+    at process._tickCallback (node.js:372:17)
+    at Function.Module.runMain (module.js:433:11)
+    at startup (node.js:141:18)
+    at node.js:977:3
+SERVER CRASHED WITH CODE 1. RESTARTING
+atlasMakerServer.js
+Wed Feb 24 2016 17:18:03 GMT+0100 (CET)
+free memory 945627136
+events.js:142
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE 0.0.0.0:8080
+    at Object.exports._errnoException (util.js:856:11)
+    at exports._exceptionWithHostPort (util.js:879:20)
+    at Server._listen2 (net.js:1238:14)
+    at listen (net.js:1274:10)
+    at net.js:1383:9
+    at nextTickCallbackWith3Args (node.js:466:9)
+    at process._tickCallback (node.js:372:17)
+    at Function.Module.runMain (module.js:433:11)
+    at startup (node.js:141:18)
+    at node.js:977:3
+SERVER CRASHED WITH CODE 1. RESTARTING
+atlasMakerServer.js
+Wed Feb 24 2016 17:19:58 GMT+0100 (CET)
+free memory 740069376
+[connection open]
+remote_address 127.0.0.1
+User id u1 connected, total: 1 users
+User requests atlas Atlas.nii.gz from /data/Black_rhinoceros/
+Atlas found. Loading it
+1 user is connected to the atlas /data/Black_rhinoceros/Atlas.nii.gz
+Wed Feb 24 2016 17:20:02 GMT+0100 (CET)
+size 12429560
+dim [ 265, 328, 143 ]
+datatype 8
+vox_offset 352
+free memory 744767488
+nii file loaded 1168812865
+Wed Feb 24 2016 17:45:59 GMT+0100 (CET) '[connection: close]'
+usrsckts length 1
+user u1 is closing connection
+User ID u1 is disconnecting
+User was connected to MRI /data/Black_rhinoceros/MRI-n4.nii.gz
+User was connected to atlas /data/Black_rhinoceros/Atlas.nii.gz
+No user connected to MRI /data/Black_rhinoceros/MRI-n4.nii.gz: unloading it
+free memory 10615181312
+No user connected to atlas /data/Black_rhinoceros/Atlas.nii.gz: unloading it
+Atlas Black_rhinoceros Atlas.nii.gz no change, no save, freemem 10590171136
+free memory 10590171136
+Wed Feb 24 2016 18:20:50 GMT+0100 (CET)
+Wed Feb 24 2016 19:20:50 GMT+0100 (CET)
+Wed Feb 24 2016 20:20:50 GMT+0100 (CET)
+Wed Feb 24 2016 21:20:50 GMT+0100 (CET)
+Wed Feb 24 2016 22:20:50 GMT+0100 (CET)
+Wed Feb 24 2016 23:20:50 GMT+0100 (CET)
