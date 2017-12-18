@@ -9,8 +9,21 @@
     "body-parser": "~1.18.2",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
-    "express": "~4.15.5",
+    "express": "^4.15.5",
+    "express-session": "^1.15.6",
+    "fs": "0.0.1-security",
+    "monk": "^6.0.5",
     "morgan": "~1.9.0",
-    "serve-favicon": "~2.4.5"
+    "mustache-express": "^1.2.5",
+    "passport": "^0.4.0",
+    "passport-github": "^1.1.0",
+    "serve-favicon": "~2.4.5",
+    "tracer": "^0.8.11"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^3.0.0"
   }
 }
