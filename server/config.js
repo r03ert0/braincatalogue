@@ -16,6 +16,5 @@ module.exports = {
 	},
 	loginDb: env.LOGIN_DB || env.DB_NAME || "braincatalogue",
 	sessionSecret: env.SESSION_SECRET,
-	blogUrl: env.BLOG_URL || "http://siphonophore.org/blog/wp-json/posts?filter[category_name]=braincatalogue",
 	sendmail: env.SENDMAIL || "/usr/sbin/sendmail"
 };
