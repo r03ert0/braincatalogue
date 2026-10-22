@@ -28,7 +28,7 @@ and `ExecStart=/usr/bin/node server.js` keeps it running.
   Regenerate `info.txt` with `node scripts/wiki-update.js <specimen>` instead.
 - `add_log` now needs a logged-in session and logs under the session's username, not a client-supplied one.
   All SQL is parameterised.
-- Only `css/ img/ lib/ data/`, three files in `js/`, `about.html`, `contact.html` and `feed.xml` are served.
+- Only `css/ img/ lib/ data/`, three files in `js/`, two in `templates/` (the toolbar and surface viewer that `atlasMaker.js` fetches), `about.html`, `contact.html` and `feed.xml` are served.
   `.php`, `.git`, `js/db_url.txt`, `templates/` etc. are not reachable.
 - `login.php` keeps the same query-string interface and the existing md5 password hashes, so current
   accounts work. Passwords still travel in the URL (that is how `login.js` sends them) and md5 is weak:

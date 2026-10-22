@@ -39,6 +39,9 @@ for (const dir of ["css", "img", "lib"])
 app.use("/data", express.static(config.dataDir, opts));
 for (const file of ["atlasMaker.js", "myMesh.js", "surfacenets-worker.js"])
 	app.get("/js/" + file, (req, res) => res.sendFile(path.join(root, "js", file)));
+// Fetched by atlasMaker.js (toolbar HTML, and the surface viewer opened from it)
+for (const file of ["atlasMakerTools.html", "surface.html"])
+	app.get("/templates/" + file, (req, res) => res.sendFile(path.join(root, "templates", file)));
 for (const file of ["about.html", "contact.html", "feed.xml"])
 	app.get("/" + file, (req, res, next) => res.sendFile(path.join(root, file), e => e && next()));
 
