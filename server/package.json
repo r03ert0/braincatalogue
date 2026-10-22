@@ -1,0 +1,19 @@
+{
+  "name": "braincatalogue-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Express replacement for the BrainCatalogue PHP app",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cheerio": "1.0.0",
+    "express": "4.21.2",
+    "express-session": "1.18.1",
+    "mysql2": "3.11.5"
+  }
+}
