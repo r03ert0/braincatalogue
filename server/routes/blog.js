@@ -38,15 +38,19 @@ function formatDate(iso) {
 	}).format(new Date(iso));
 }
 
+async function loadPosts() {
+	const posts = JSON.parse(await fs.readFile(POSTS_FILE, "utf8"));
+	return posts.sort((a, b) => b.date_gmt.localeCompare(a.date_gmt));
+}
+
 async function blogHtml() {
 	let posts;
 	try {
-		posts = JSON.parse(await fs.readFile(POSTS_FILE, "utf8"));
+		posts = await loadPosts();
 	} catch (e) {
 		console.error("blog:", e.message);
 		return "<p>The blog is not available right now.</p>";
 	}
-	posts.sort((a, b) => b.date_gmt.localeCompare(a.date_gmt));
 	return STYLE + posts.map(post => `
 <div class="blog-post" id="${htmlEscape(post.slug)}" style="width:600px;max-width:100%;margin-left:auto;margin-right:auto;margin-top:2rem">
 	<large><strong>${htmlEscape(formatDate(post.date_gmt))}</strong></large>
@@ -58,4 +62,48 @@ async function blogHtml() {
 `).join("");
 }
 
-module.exports = {blogHtml};
+function xmlEscape(value) {
+	return String(value).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;"}[c]));
+}
+
+// Feed readers show content out of context, so links and images must be absolute
+function absolutize(html, siteUrl) {
+	return html
+		.replace(/(href|src|poster)="\/\//g, '$1="https://')
+		.replace(/(href|src|poster)="\//g, '$1="' + siteUrl + "/");
+}
+
+// RSS 2.0 feed of the blog
+async function feedXml(siteUrl) {
+	const posts = await loadPosts();
+	const items = posts.map(post => {
+		const link = siteUrl + "/blog#" + encodeURIComponent(post.slug);
+		const content = absolutize(post.content, siteUrl).replace(/\]\]>/g, "]]]]><![CDATA[>");
+		return `
+<item>
+	<title>${xmlEscape(post.title)}</title>
+	<link>${xmlEscape(link)}</link>
+	<guid isPermaLink="true">${xmlEscape(link)}</guid>
+	<pubDate>${new Date(post.date_gmt).toUTCString()}</pubDate>
+	<category>BrainCatalogue</category>
+	<description><![CDATA[${content}]]></description>
+</item>`;
+	}).join("\n");
+	const updated = posts.length ? new Date(posts[0].date_gmt).toUTCString() : new Date().toUTCString();
+
+	return `<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+<title>Brain Catalogue</title>
+<link>${xmlEscape(siteUrl)}/blog</link>
+<description>News from the Brain Catalogue, a citizen-science portal for comparative brain anatomy.</description>
+<language>en</language>
+<lastBuildDate>${updated}</lastBuildDate>
+<atom:link href="${xmlEscape(siteUrl)}/feed.xml" rel="self" type="application/rss+xml" />
+${items}
+</channel>
+</rss>
+`;
+}
+
+module.exports = {blogHtml, feedXml};

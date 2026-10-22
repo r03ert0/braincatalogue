@@ -42,8 +42,17 @@ for (const file of ["atlasMaker.js", "myMesh.js", "surfacenets-worker.js"])
 // Fetched by atlasMaker.js (toolbar HTML, and the surface viewer opened from it)
 for (const file of ["atlasMakerTools.html", "surface.html"])
 	app.get("/templates/" + file, (req, res) => res.sendFile(path.join(root, "templates", file)));
-for (const file of ["about.html", "contact.html", "feed.xml"])
+for (const file of ["about.html", "contact.html"])
 	app.get("/" + file, (req, res, next) => res.sendFile(path.join(root, file), e => e && next()));
+
+// RSS feed, generated from the blog posts
+app.get("/feed.xml", async (req, res, next) => {
+	try {
+		res.type("application/rss+xml").send(await require("./routes/blog").feedXml(config.siteUrl));
+	} catch (e) {
+		next(e);
+	}
+});
 
 // Pages
 app.use(require("./routes/pages"));

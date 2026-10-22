@@ -16,5 +16,6 @@ module.exports = {
 	},
 	loginDb: env.LOGIN_DB || env.DB_NAME || "braincatalogue",
 	sessionSecret: env.SESSION_SECRET,
+	siteUrl: (env.SITE_URL || "https://braincatalogue.org").replace(/\/+$/, ""),
 	sendmail: env.SENDMAIL || "/usr/sbin/sendmail"
 };
