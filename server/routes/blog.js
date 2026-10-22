@@ -92,6 +92,7 @@ async function feedXml(siteUrl) {
 	const updated = posts.length ? new Date(posts[0].date_gmt).toUTCString() : new Date().toUTCString();
 
 	return `<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="/feed.xsl"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
 <title>Brain Catalogue</title>

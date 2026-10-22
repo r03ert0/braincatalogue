@@ -46,9 +46,12 @@ for (const file of ["about.html", "contact.html"])
 	app.get("/" + file, (req, res, next) => res.sendFile(path.join(root, file), e => e && next()));
 
 // RSS feed, generated from the blog posts
+app.get("/feed.xsl", (req, res) => res.type("text/xsl").sendFile(path.join(__dirname, "blog", "feed.xsl")));
+// Served as text/xml, not application/rss+xml: Firefox downloads the latter
+// instead of displaying it, and feed.xsl needs the browser to treat it as XML.
 app.get("/feed.xml", async (req, res, next) => {
 	try {
-		res.type("application/rss+xml").send(await require("./routes/blog").feedXml(config.siteUrl));
+		res.type("text/xml").send(await require("./routes/blog").feedXml(config.siteUrl));
 	} catch (e) {
 		next(e);
 	}

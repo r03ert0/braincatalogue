@@ -36,6 +36,6 @@ and `ExecStart=/usr/bin/node server.js` keeps it running.
   The e-mail update, which never worked in PHP (`EmailAdress` typo), now does.
 - Password reminders use `sendmail` (see `SENDMAIL`). The VM has none installed, so reminders answer "Fail"
   until a mail transport is set up (the PHP `mail()` had the same problem there).
-- The blog is static: the six `braincatalogue` posts of the old WordPress blog (siphonophore.org, which no longer resolves) are in `server/blog/posts.json`, with their images in `img/blog/`. `/feed.xml` is an RSS feed generated from the same file (both RSS icons point to it; set `SITE_URL` if the public address changes). To add a post, add an entry (`slug`, `title`, `date_gmt`, HTML `content`) to that file and restart.
+- The blog is static: the six `braincatalogue` posts of the old WordPress blog (siphonophore.org, which no longer resolves) are in `server/blog/posts.json`, with their images in `img/blog/`. `/feed.xml` is an RSS feed generated from the same file (served as `text/xml` with the `server/blog/feed.xsl` stylesheet so browsers show a readable page instead of downloading it) (both RSS icons point to it; set `SITE_URL` if the public address changes). To add a post, add an entry (`slug`, `title`, `date_gmt`, HTML `content`) to that file and restart.
 - Sessions are in memory: users are logged out when the process restarts.
 - User and specimen names from URLs are escaped before going into templates.
