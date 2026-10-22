@@ -1,0 +1,21 @@
+# Express web server. Install as /etc/systemd/system/braincatalogue.service.
+# Settings (database, SESSION_SECRET...) live in /etc/braincatalogue.env, outside the web root.
+[Unit]
+Description=BrainCatalogue web server (Express)
+After=network.target mariadb.service
+
+[Service]
+User=apache
+Group=apache
+WorkingDirectory=/var/www/html/braincatalogue/server
+EnvironmentFile=/etc/braincatalogue.env
+ExecStart=/opt/node20/bin/node server.js
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -39,3 +39,12 @@ and `ExecStart=/usr/bin/node server.js` keeps it running.
 - The blog is static: the six `braincatalogue` posts of the old WordPress blog (siphonophore.org, which no longer resolves) are in `server/blog/posts.json`, with their images in `img/blog/`. `/feed.xml` is an RSS feed generated from the same file (served as `text/xml` with the `server/blog/feed.xsl` stylesheet so browsers show a readable page instead of downloading it) (both RSS icons point to it; set `SITE_URL` if the public address changes). To add a post, add an entry (`slug`, `title`, `date_gmt`, HTML `content`) to that file and restart.
 - Sessions are in memory: users are logged out when the process restarts.
 - User and specimen names from URLs are escaped before going into templates.
+
+## Services
+
+Both processes run under systemd; copies of the unit files are in `deploy/`.
+
+- `braincatalogue.service`: this Express server, on `127.0.0.1:3000`, configured by `/etc/braincatalogue.env`.
+- `braincatalogue-ws.service`: the AtlasMaker WebSocket server (`js/atlasMakerServer.js`). It listens on `WS_PORT` (default 8080; 9090 in production, where Apache serves `wss://braincatalogue.org:8080` over TLS and proxies to it). The client picks `wss` when the page is loaded over https, so no code edits are needed per environment.
+
+After a deploy: `sudo -u naat git pull`, then `sudo systemctl restart braincatalogue braincatalogue-ws`.

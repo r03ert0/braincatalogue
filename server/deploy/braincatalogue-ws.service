@@ -1,0 +1,21 @@
+# AtlasMaker WebSocket server. Install as /etc/systemd/system/braincatalogue-ws.service.
+# Apache terminates TLS on :8080 and proxies to ws://localhost:9090 (see braincatalogue-le-ssl.conf),
+# so the server listens on plain ws at WS_PORT=9090. It runs as the owner of data/, because atlas
+# edits are saved there. It needs js/db_url.txt in its working directory, and the system Node (16).
+[Unit]
+Description=BrainCatalogue AtlasMaker WebSocket server
+After=network.target
+
+[Service]
+User=naat
+Group=naat
+WorkingDirectory=/var/www/html/braincatalogue/js
+Environment=WS_PORT=9090
+ExecStart=/usr/bin/node atlasMakerServer.js
+Restart=always
+RestartSec=1
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

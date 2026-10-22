@@ -66,7 +66,7 @@ var AtlasMakerWidget = {
 	info:{},	// information displayed over each brain slice
 	// undo stack
 	Undo:[],
-	secure: false,	// whether to use ws or wss for websockets
+	secure: window.location.protocol=="https:",	// whether to use ws or wss for websockets: wss when the page is https
 
 	//========================================================================================
 	// Local user interaction

@@ -161,7 +161,8 @@ function initSocketConnection() {
 		if(secure) {
 		    websocket=new WebSocketServer({server:app});
 		} else {
-			websocket=new WebSocketServer({port:8080});
+			// WS_PORT: behind Apache's TLS proxy, braincatalogue.org listens on 9090 (see server/deploy/)
+			websocket=new WebSocketServer({port:parseInt(process.env.WS_PORT)||8080});
 		}
 		
 		websocket.on("connection",function(s) {
